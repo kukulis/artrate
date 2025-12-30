@@ -52,6 +52,16 @@ npm run lint:fix    # Auto-fix issues
 
 # Testing
 npm test
+
+# Database Migrations (inside container or local)
+npm run migrate:latest    # Run all pending migrations
+npm run migrate:rollback  # Rollback last batch of migrations
+npm run migrate:make <name>  # Create new migration file
+npm run migrate:status    # Check migration status
+
+# Database Seeds (inside container or local)
+npm run seed:run      # Run all seed files
+npm run seed:make <name>  # Create new seed file
 ```
 
 ### Frontend Development
@@ -177,10 +187,66 @@ onMounted(async () => {
 
 ### Database Migrations
 
-Add SQL files to `mysql/init/` directory:
-- Files execute in alphabetical order on first database creation
-- Use naming like `01-init.sql`, `02-users.sql`, etc.
-- Changes require rebuilding MySQL container: `docker-compose down -v && docker-compose up`
+This project uses **Knex.js** for database migrations. Migrations are versioned TypeScript files that define schema changes.
+
+**Creating a Migration:**
+```bash
+# Inside backend container or locally
+docker-compose exec backend npm run migrate:make create_products_table
+
+# This creates: backend/migrations/TIMESTAMP_create_products_table.ts
+```
+
+**Migration File Structure:**
+```typescript
+import { Knex } from 'knex';
+
+export async function up(knex: Knex): Promise<void> {
+  return knex.schema.createTable('products', (table) => {
+    table.increments('id').primary();
+    table.string('name', 255).notNullable();
+    table.decimal('price', 10, 2).notNullable();
+    table.timestamps(true, true);
+  });
+}
+
+export async function down(knex: Knex): Promise<void> {
+  return knex.schema.dropTableIfExists('products');
+}
+```
+
+**Running Migrations:**
+```bash
+# Apply all pending migrations
+docker-compose exec backend npm run migrate:latest
+
+# Rollback the last batch of migrations
+docker-compose exec backend npm run migrate:rollback
+
+# Check migration status
+docker-compose exec backend npm run migrate:status
+```
+
+**Database Seeds:**
+
+Seeds populate the database with initial or test data:
+
+```bash
+# Create a seed file
+docker-compose exec backend npm run seed:make users
+
+# Run all seeds
+docker-compose exec backend npm run seed:run
+```
+
+**Migration Best Practices:**
+- Always create both `up()` and `down()` functions for rollback support
+- Use TypeScript for type safety
+- Keep migrations small and focused on single changes
+- Test rollbacks to ensure they work correctly
+- Run migrations as part of deployment process
+
+**Note:** The `mysql/init/*.sql` files are only used for initial database setup when the MySQL container is first created. For all subsequent schema changes, use Knex migrations.
 
 ## Common Issues
 
