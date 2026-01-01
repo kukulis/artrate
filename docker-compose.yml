@@ -17,8 +17,10 @@ services:
       - artcorrect-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
 
   artc_tst_db:
     image: mysql:8.0
@@ -38,8 +40,10 @@ services:
       - artcorrect-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
 
   backend:
     build:
