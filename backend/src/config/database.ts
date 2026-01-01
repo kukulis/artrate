@@ -1,5 +1,7 @@
 import mysql from 'mysql2/promise';
 
+// dotenv called in src/index.ts
+
 export const connectDatabase = async () => {
   const connection = await mysql.createConnection({
     host: process.env.DB_HOST || 'localhost',

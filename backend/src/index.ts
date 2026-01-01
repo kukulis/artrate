@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDatabase } from './config/database';
+import apiRoutes from './routes';
 
 dotenv.config();
 
@@ -18,7 +19,7 @@ app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// API routes
+// Database test endpoint
 app.get('/api/test', async (_req: Request, res: Response) => {
   try {
     const connection = await connectDatabase();
@@ -39,8 +40,33 @@ app.get('/api/test', async (_req: Request, res: Response) => {
   }
 });
 
+// API routes
+app.use('/api', apiRoutes);
+
+// 404 handler
+app.use((req: Request, res: Response) => {
+  res.status(404).json({
+    error: 'Not Found',
+    message: `Route ${req.method} ${req.path} not found`
+  });
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV}`);
+  console.log(`Available routes:`);
+  console.log(`  - GET    /health`);
+  console.log(`  - GET    /api/test`);
+  console.log(`  - GET    /api/articles`);
+  console.log(`  - POST   /api/articles`);
+  console.log(`  - GET    /api/articles/:id`);
+  console.log(`  - PATCH  /api/articles/:id`);
+  console.log(`  - DELETE /api/articles/:id`);
+  console.log(`  - GET    /api/articles/author/:authorId`);
+  console.log(`  - GET    /api/authors`);
+  console.log(`  - POST   /api/authors`);
+  console.log(`  - GET    /api/authors/:id`);
+  console.log(`  - PATCH  /api/authors/:id`);
+  console.log(`  - DELETE /api/authors/:id`);
 });
