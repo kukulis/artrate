@@ -3,8 +3,11 @@ import { RankingType } from '../types/RankingType';
 export interface Ranking {
   id: string;
   ranking_type: string;  // Stores RankingType.code
+  helper_type: string;  // Stores RankingHelper.code
   user_id: string;
+  article_id: string;
   value: number;
+  description: string;
   created_at: Date;
   updated_at: Date;
 }

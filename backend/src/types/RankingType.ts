@@ -44,6 +44,31 @@ export class RankingType {
     'Relevance Rating'
   );
 
+  static readonly OBJECTIVITY = new RankingType(
+      'OBJECTIVITY',
+      'Is an article Objective? Use of evidence and citations.'
+  );
+
+  static readonly OFFENSIVE = new RankingType(
+      'OFFENSIVE',
+      'Is an article Offensive? Presence of hedging words (maybe, might, could) vs definitive claims.'
+  );
+
+  static readonly LOGICAL = new RankingType(
+      'LOGICAL',
+      "Is an article Logical? Doesn't it contain inner contradictions?"
+  );
+
+  static readonly BALANCED = new RankingType(
+      'BALANCED',
+      'Balance of viewpoints. If the particular opinion is not declared as an absolute truth?'
+  );
+
+  static readonly EMOTIONAL = new RankingType(
+      'EMOTIONAL',
+      'Use of factual vs emotional language.'
+  );
+
   // ============================================================
   // Helper methods
   // ============================================================
@@ -58,7 +83,12 @@ export class RankingType {
       RankingType.QUALITY,
       RankingType.GRAMMAR,
       RankingType.STYLE,
-      RankingType.RELEVANCE
+      RankingType.RELEVANCE,
+      RankingType.OBJECTIVITY,
+      RankingType.OFFENSIVE,
+      RankingType.LOGICAL,
+      RankingType.BALANCED,
+      RankingType.EMOTIONAL,
     ];
   }
 
