@@ -17,76 +17,72 @@ All services run in Docker containers orchestrated by Docker Compose.
 
 ```bash
 # Start all services in development mode (with hot reload)
-docker-compose up
+docker compose up
 
 # Rebuild and start (after dependency changes)
-docker-compose up --build
+docker compose up --build
 
 # Stop all services
-docker-compose down
+docker compose down
 
 # View logs
-docker-compose logs -f [backend|frontend|mysql]
+docker compose logs -f [backend|frontend|mysql]
 ```
 
 ### Backend Development
 
+**IMPORTANT:** All npm commands must be run inside the Docker container using `docker compose exec backend <command>`.
+
 ```bash
-cd backend
-
 # Install dependencies (run after package.json changes)
-npm install
-
-# Development mode with hot reload (inside container)
-npm run dev
-
-# Build TypeScript to JavaScript
-npm run build
-
-# Run production build
-npm start
-
-# Linting
-npm run lint        # Check for issues
-npm run lint:fix    # Auto-fix issues
+docker compose exec backend npm install
 
 # Testing
-npm test
+docker compose exec backend npm test                    # Run all tests
+docker compose exec backend npm test -- <filename>      # Run specific test file
 
-# Database Migrations (inside container or local)
-npm run migrate:latest    # Run all pending migrations
-npm run migrate:rollback  # Rollback last batch of migrations
-npm run migrate:make <name>  # Create new migration file
-npm run migrate:status    # Check migration status
+# Linting
+docker compose exec backend npm run lint                # Check for issues
+docker compose exec backend npm run lint:fix            # Auto-fix issues
 
-# Database Seeds (inside container or local)
-npm run seed:run      # Run all seed files
-npm run seed:make <name>  # Create new seed file
+# Build TypeScript to JavaScript
+docker compose exec backend npm run build
+
+# Database Migrations
+docker compose exec backend npm run migrate:latest      # Run all pending migrations
+docker compose exec backend npm run migrate:rollback    # Rollback last batch of migrations
+docker compose exec backend npm run migrate:make <name> # Create new migration file
+docker compose exec backend npm run migrate:status      # Check migration status
+
+# Database Seeds
+docker compose exec backend npm run seed:run            # Run all seed files
+docker compose exec backend npm run seed:make <name>    # Create new seed file
 ```
+
+**Note:** Development mode (`npm run dev`), build (`npm start`), and other runtime commands run automatically inside the container via docker-compose.yml - you don't need to execute them manually.
 
 ### Frontend Development
 
+**IMPORTANT:** All npm commands must be run inside the Docker container using `docker compose exec frontend <command>`.
+
 ```bash
-cd frontend
-
 # Install dependencies (run after package.json changes)
-npm install
-
-# Development server with hot reload (inside container)
-npm run dev
-
-# Production build
-npm run build
-
-# Preview production build locally
-npm run preview
+docker compose exec frontend npm install
 
 # Type checking without emitting files
-npm run type-check
+docker compose exec frontend npm run type-check
 
 # Linting
-npm run lint
+docker compose exec frontend npm run lint
+
+# Production build
+docker compose exec frontend npm run build
+
+# Preview production build
+docker compose exec frontend npm run preview
 ```
+
+**Note:** Development server (`npm run dev`) runs automatically inside the container via docker-compose.yml - you don't need to execute it manually.
 
 ## Architecture
 
@@ -191,8 +187,8 @@ This project uses **Knex.js** for database migrations. Migrations are versioned 
 
 **Creating a Migration:**
 ```bash
-# Inside backend container or locally
-docker-compose exec backend npm run migrate:make create_products_table
+# Create migration inside backend container
+docker compose exec backend npm run migrate:make create_products_table
 
 # This creates: backend/migrations/TIMESTAMP_create_products_table.ts
 ```
@@ -218,13 +214,13 @@ export async function down(knex: Knex): Promise<void> {
 **Running Migrations:**
 ```bash
 # Apply all pending migrations
-docker-compose exec backend npm run migrate:latest
+docker compose exec backend npm run migrate:latest
 
 # Rollback the last batch of migrations
-docker-compose exec backend npm run migrate:rollback
+docker compose exec backend npm run migrate:rollback
 
 # Check migration status
-docker-compose exec backend npm run migrate:status
+docker compose exec backend npm run migrate:status
 ```
 
 **Database Seeds:**
@@ -233,10 +229,10 @@ Seeds populate the database with initial or test data:
 
 ```bash
 # Create a seed file
-docker-compose exec backend npm run seed:make users
+docker compose exec backend npm run seed:make users
 
 # Run all seeds
-docker-compose exec backend npm run seed:run
+docker compose exec backend npm run seed:run
 ```
 
 **Migration Best Practices:**
@@ -251,12 +247,12 @@ docker-compose exec backend npm run seed:run
 ## Common Issues
 
 ### Backend can't connect to MySQL
-- Ensure MySQL container is healthy: `docker-compose ps`
+- Ensure MySQL container is healthy: `docker compose ps`
 - Check environment variables in `docker-compose.yml` match database credentials
 - MySQL takes ~10-20 seconds to initialize on first run
 
 ### Frontend API requests fail
-- Verify backend container is running: `docker-compose ps`
+- Verify backend container is running: `docker compose ps`
 - Check Vite proxy configuration in `frontend/vite.config.ts` (dev)
 - Check Nginx proxy configuration in `frontend/nginx.conf` (prod)
 - Ensure backend is accessible at `http://backend:3000` from within Docker network
@@ -269,3 +265,8 @@ docker-compose exec backend npm run seed:run
 ### Port conflicts
 - Default ports: 3306 (MySQL), 3000 (backend), 5173 (frontend dev), 80 (frontend prod)
 - Change port mappings in `docker-compose.yml` if conflicts occur
+
+### npm install or npm test not working
+- Always run npm commands through Docker: `docker compose exec backend npm install`
+- Never run npm commands directly on the host machine - dependencies must be installed inside the container
+- Running `npm install` on the host can cause version conflicts and permission issues
