@@ -12,7 +12,7 @@ export class ArticleController {
    * GET /api/articles
    * Get all articles
    */
-  getAllArticles = async (req: Request, res: Response): Promise<void> => {
+  getAllArticles = async (_req: Request, res: Response): Promise<void> => {
     try {
       const articles = await this.articleService.getAllArticles();
       res.json(articles);

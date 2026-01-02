@@ -1,4 +1,3 @@
-import { Connection } from 'mysql2/promise';
 import { Author, CreateAuthorDTO, UpdateAuthorDTO } from '../entities/Author';
 import { connectDatabase } from '../config/database';
 
