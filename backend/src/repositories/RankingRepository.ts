@@ -43,11 +43,12 @@ export class RankingRepository {
 
         let conditionsStr = '';
         if (conditions.length > 0) {
-            conditionsStr = conditions.join(" AND \n")
+            conditionsStr = 'WHERE '+ conditions.join(" AND \n")
         }
 
         const sql = "select * from rankings " + conditionsStr;
 
+        // console.log('RankingRepository.findWithFilter, sql:', sql)
         const connection = await connectDatabase();
 
         try {
