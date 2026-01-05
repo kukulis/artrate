@@ -1,7 +1,8 @@
 import {Request, Response} from 'express';
 import {ArticleService} from '../services/ArticleService';
 import {ArticleRepository} from "../repositories/ArticleRepository";
-import {Article, ArticleHelper} from "../entities";
+import {Article, CreateArticleSchema, UpdateArticleSchema} from "../entities";
+import {z} from 'zod';
 
 export class ArticleController {
     private articleService: ArticleService;
@@ -79,21 +80,31 @@ export class ArticleController {
      */
     createArticle = async (req: Request, res: Response): Promise<void> => {
         try {
-            const article = { ... req.body } as Article
-            const err = ArticleHelper.validateForCreate(article)
-            // Validate request body
-            if (err != null) {
+            // Validate and parse request body with Zod
+            // const validatedData = CreateArticleSchema.parse(req.body);
+            const validatedData = CreateArticleSchema.parse(req.body);
+
+            const created = await this.articleService.createArticle(validatedData);
+
+            res.status(201).json(created);
+        } catch (error) {
+            // Handle Zod validation errors
+            if (error instanceof z.ZodError) {
+                // If there's only one error (like from .refine()), use it as the main error
+                const errorMessage = error.issues.length === 1 && error.issues[0].path.length === 0
+                    ? error.issues[0].message
+                    : 'Validation failed';
+
                 res.status(400).json({
-                    error: err.message,
-                    required: ['title', 'author_id', 'content']
+                    error: errorMessage,
+                    details: error.issues.map(err => ({
+                        field: err.path.join('.'),
+                        message: err.message
+                    }))
                 });
                 return;
             }
 
-            const created = await this.articleService.createArticle(article);
-
-            res.status(201).json(created);
-        } catch (error) {
             console.error('Error creating article:', error);
 
             if (error instanceof Error && error.message.includes('does not exist')) {
@@ -115,25 +126,34 @@ export class ArticleController {
     updateArticle = async (req: Request, res: Response): Promise<void> => {
         try {
             const {id} = req.params;
-            // const {title, author_id, content} = req.body;
 
-            const article = { ... req.body, id: id } as Article;
+            // Validate and parse request body with Zod
+            const validatedData = UpdateArticleSchema.parse(req.body);
 
-            const err = ArticleHelper.validateForUpdate(article)
+            const updated = await this.articleService.updateArticle({
+                ...validatedData,
+                id
+            } as Article);
 
-            // Check if at least one field is provided
-            if (err != null) {
+            res.json(updated);
+        } catch (error) {
+            // Handle Zod validation errors
+            if (error instanceof z.ZodError) {
+                // If there's only one error (like from .refine()), use it as the main error
+                const errorMessage = error.issues.length === 1 && error.issues[0].path.length === 0
+                    ? error.issues[0].message
+                    : 'Validation failed';
+
                 res.status(400).json({
-                    error: err.message,
-                    allowed: ['title', 'author_id', 'content']
+                    error: errorMessage,
+                    details: error.issues.map(err => ({
+                        field: err.path.join('.'),
+                        message: err.message
+                    }))
                 });
                 return;
             }
 
-            const updated = await this.articleService.updateArticle(article);
-
-            res.json(updated);
-        } catch (error) {
             console.error('Error updating article:', error);
 
             if (error instanceof Error && error.message.includes('not found')) {

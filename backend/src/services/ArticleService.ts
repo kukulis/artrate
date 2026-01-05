@@ -1,6 +1,6 @@
 import {ArticleRepository} from '../repositories/ArticleRepository';
 import {AuthorRepository} from '../repositories/AuthorRepository';
-import {Article} from '../entities/Article';
+import {Article, CreateArticleDTO} from '../entities/Article';
 import {randomBytes} from 'crypto';
 import {AuthorFilterHelpers} from "../types/AuthorFilter";
 
@@ -23,7 +23,7 @@ export class ArticleService {
     /**
      * Create a new article
      */
-    async createArticle(data: Article): Promise<Article> {
+    async createArticle(data: CreateArticleDTO): Promise<Article> {
         // Validate author exists
         const existingAuthors = await this.authorRepository.find(AuthorFilterHelpers.byId(data.author_id));
         if (existingAuthors.length == 0) {
@@ -38,9 +38,12 @@ export class ArticleService {
             throw new Error('Content is required');
         }
 
-        data.id = this.generateId();
+        const articleWithId = {
+            ...data,
+            id: this.generateId()
+        };
 
-        return this.articleRepository.create(data);
+        return this.articleRepository.create(articleWithId as Article);
     }
 
     /**
