@@ -3,7 +3,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { pool, connectDatabase } from './config/database';
 import {createRouter} from "./routes";
-// import apiRoutes from './routes';
 
 const apiRoutes = createRouter(pool)
 
@@ -54,26 +53,43 @@ app.use((req: Request, res: Response) => {
   });
 });
 
+/**
+ * Extract all routes from an Express router recursively
+ */
+function getRoutes(router: any, basePath = ''): string[] {
+  const routes: string[] = [];
+
+  if (!router.stack) return routes;
+
+  router.stack.forEach((layer: any) => {
+    if (layer.route) {
+      // This is a route layer with HTTP methods
+      const methods = Object.keys(layer.route.methods).map(m => m.toUpperCase());
+      const path = basePath + layer.route.path;
+      methods.forEach(method => {
+        routes.push(`  - ${method.padEnd(6)} ${path}`);
+      });
+    } else if (layer.name === 'router' && layer.handle.stack) {
+      // This is a nested router - extract its base path and recurse
+      const regexp = layer.regexp.toString();
+      const match = regexp.match(/^\/\^\\\/([^\\?]+)/);
+      const nestedPath = match ? `/${match[1]}` : '';
+      routes.push(...getRoutes(layer.handle, basePath + nestedPath));
+    }
+  });
+
+  return routes;
+}
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV}`);
 
-  // TODO print routes dynamically
+  // Print all routes dynamically
   console.log(`Available routes:`);
-  console.log(`  - GET    /health`);
-  console.log(`  - GET    /api/test`);
-  console.log(`  - GET    /api/articles`);
-  console.log(`  - POST   /api/articles`);
-  console.log(`  - GET    /api/articles/:id`);
-  console.log(`  - PATCH  /api/articles/:id`);
-  console.log(`  - DELETE /api/articles/:id`);
-  console.log(`  - GET    /api/articles/author/:authorId`);
-  console.log(`  - GET    /api/authors`);
-  console.log(`  - POST   /api/authors`);
-  console.log(`  - GET    /api/authors/:id`);
-  console.log(`  - PATCH  /api/authors/:id`);
-  console.log(`  - DELETE /api/authors/:id`);
+  const allRoutes = getRoutes((app as any)._router);
+  allRoutes.forEach(route => console.log(route));
 });
 
 const shutdown = async (signal: string) => {
