@@ -7,18 +7,17 @@ import knexConfig from '../../knexfile';
  * Safety check to prevent running tests against production database
  */
 function ensureTestDatabase() {
-  const dbHost = process.env.DB_HOST || '';
+  const dbName = process.env.DB_NAME || '';
 
-  // TODO may be we should create all testing *database names* prefixed with 'test_*'
-  if (!dbHost.includes('_tst_')) {
+  if (!dbName.includes('test_')) {
     throw new Error(
-      `❌ SAFETY CHECK FAILED: Database host '${dbHost}' does not contain '_tst_'. ` +
+      `❌ SAFETY CHECK FAILED: Database name '${dbName}' does not contain 'test_'. ` +
       `Tests can only run against test databases (e.g., artc_tst_db). ` +
       `Set DB_HOST environment variable to a test database.`
     );
   }
 
-  console.log(`✅ Safety check passed: Using test database '${dbHost}'`);
+  console.log(`✅ Safety check passed: Using test database '${dbName}'`);
 }
 
 /**

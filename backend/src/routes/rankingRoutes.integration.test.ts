@@ -33,13 +33,33 @@ describe('Ranking API Integration Tests', () => {
     });
 
     describe('GET /api/rankings', () => {
-        it( 'Return article Rankings', async()=> {
-            console.log('Error response without any search parameters')
+        it( 'Return article Rankings without search parameters', async()=> {
             const response = await request(app).get('/api/rankings');
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty('error');
             expect(response.body.error).toContain('No search parameters given')
-        })
+        });
+
+        it ('Return user 101 rankings', async ()=> {
+            const response = await request(app).get('/api/rankings?user_id=101');
+            expect(response.status).toBe(200);
+            expect(response.body).toBeInstanceOf(Array);
+            expect(response.body.length).toBe(2); // 2 rankings for user 101
+        });
+
+        it ('Return user 101 rankings', async ()=> {
+            const response = await request(app).get('/api/rankings?user_id=102');
+            expect(response.status).toBe(200);
+            expect(response.body).toBeInstanceOf(Array);
+            expect(response.body.length).toBe(4); // 4 rankings for user 102
+        });
+
+        it ('Return article rankings', async ()=> {
+            const response = await request(app).get('/api/rankings?article_id=article-1');
+            expect(response.status).toBe(200);
+            expect(response.body).toBeInstanceOf(Array);
+            expect(response.body.length).toBe(4); // 2 rankings for article-1
+        });
     })
 })
 
