@@ -1,6 +1,5 @@
 import {Request, Response} from 'express';
 import {AuthorRepository} from '../repositories/AuthorRepository';
-import {AuthorService} from '../services/AuthorService';
 import {AuthorFilter, AuthorFilterHelpers} from "../types/AuthorFilter";
 import {Author, AuthorHelper} from "../entities";
 import {randomBytes} from "crypto";
@@ -115,9 +114,34 @@ export class AuthorController {
 
             data = AuthorHelper.validateAndFix(data)
 
-            const author = await AuthorService.updateAuthor(this.authorRepository, data);
+            // Check if author exists
+            const existing = await this.authorRepository.find(AuthorFilterHelpers.byId(data.id))
+            if (existing.length == 0) {
+                throw new Error(`Author with id ${data.id} not found`);
+            }
 
-            res.json(author);
+            data = AuthorHelper.validateAndFix(data)
+
+            // Check if new name conflicts with existing author
+            if (data.name) {
+                const authors = await this.authorRepository.find(AuthorFilterHelpers.byName(data.name.trim()));
+                const existingAuthor = authors.length > 0 ? authors[0] : null;
+                if (existingAuthor && existingAuthor.id !== data.id) {
+                    throw new Error(`Author with name "${data.name}" already exists`);
+                }
+            }
+
+            // Trim strings
+            await this.authorRepository.update(data);
+
+            // Fetch and return the updated author
+            const updatedAuthors = await this.authorRepository.find(AuthorFilterHelpers.byId(data.id));
+            const updated = updatedAuthors.length > 0 ? updatedAuthors[0] : null;
+            if (!updated) {
+                throw new Error(`Failed to retrieve updated author with id ${data.id}`);
+            }
+
+            res.json(updated);
         } catch (error) {
             console.error('Error updating author:', error);
 

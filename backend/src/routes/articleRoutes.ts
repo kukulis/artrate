@@ -1,8 +1,16 @@
 import { Router } from 'express';
 import { ArticleController } from '../controllers/ArticleController';
+import {ArticleRepository} from "../repositories/ArticleRepository";
+import {pool} from "../config/database";
+import {AuthorRepository} from "../repositories/AuthorRepository";
+import {ArticleService} from "../services/ArticleService";
 
 const router = Router();
-const articleController = new ArticleController();
+
+const articleRepository = new ArticleRepository(pool)
+const authorRepository = new AuthorRepository(pool)
+const articleService = new ArticleService(articleRepository, authorRepository)
+const articleController = new ArticleController(articleService, articleRepository);
 
 /**
  * @route   GET /api/articles
