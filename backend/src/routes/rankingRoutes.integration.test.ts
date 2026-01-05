@@ -2,7 +2,8 @@ import express from "express";
 
 import rankingRoutes from "./rankingRoutes";
 import request from "supertest";
-import {setupTestDatabase, waitForDatabase} from "../test-utils/dbSetup";
+import {cleanTestDatabase, setupTestDatabase, waitForDatabase} from "../test-utils/dbSetup";
+import {seedTestData} from "../test-utils/testData";
 
 const app = express();
 app.use(express.json());
@@ -18,9 +19,18 @@ describe('Ranking API Integration Tests', () => {
         await setupTestDatabase();
     }, 60000);
 
-    // TODO fixtures
+    beforeEach(async () => {
+        await cleanTestDatabase();
+        await seedTestData();
+    }, 30000);
 
-
+    // Teardown: Clean up after all tests
+    afterAll(async () => {
+        // not needed to clean because database is cleaned before each test
+        // and after the test we want to check the data.
+       //  await cleanTestDatabase();
+        console.log('✅ Integration tests completed\n');
+    });
 
     describe('GET /api/rankings', () => {
         it( 'Return article Rankings', async()=> {

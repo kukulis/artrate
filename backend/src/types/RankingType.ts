@@ -44,6 +44,8 @@ export class RankingType {
     'Relevance Rating'
   );
 
+  // ---
+
   static readonly OBJECTIVITY = new RankingType(
       'OBJECTIVITY',
       'Is an article Objective? Use of evidence and citations.'

@@ -7,6 +7,13 @@ export async function seedTestData() {
   const connection = await connectDatabase();
 
   try {
+    // users
+    await connection.query(
+      `INSERT INTO users (id, email, name) VALUES
+       (101, 'user1@darbelis.eu', 'user1'),
+       (102, 'user2@darbelis.eu', 'user2')`
+    )
+
     // Insert test authors
     await connection.query(
       `INSERT INTO authors (id, name, description) VALUES
@@ -24,12 +31,15 @@ export async function seedTestData() {
         ('article-4', 'Climate Change Facts', 'author-2', 'Climate change is one of the most pressing issues...')`
     );
 
-    // await connection.query(
-    //     `INSERT INTO
-    //     `
-    // );
-
-        // TODO seed data for rankings
+    await connection.query(
+        `INSERT INTO rankings (id, ranking_type, helper_type, user_id, article_id, value, description) VALUES
+          ('ranking-1', 'OBJECTIVITY', 'USER', '101', 'article-1', 5, 'somewhat objective'),
+          ('ranking-2', 'OFFENSIVE', 'USER', '101', 'article-1', 3, 'very offensive'),
+          ('ranking-3', 'OBJECTIVITY', 'USER', '102', 'article-1', 6, 'quite objective'),
+          ('ranking-4', 'OFFENSIVE', 'USER', '102', 'article-1', 4, 'quite offensive'),
+          ('ranking-5', 'OBJECTIVITY', 'USER', '102', 'article-2', 6, 'quite objective ...'),
+          ('ranking-6', 'OFFENSIVE', 'USER', '102', 'article-2', 4, 'quite offensive ...')`
+    );
 
     console.log('✅ Test data seeded');
   } catch (error) {
