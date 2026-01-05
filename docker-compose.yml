@@ -28,9 +28,9 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: artcorrect_db
-      MYSQL_USER: artcorrect
-      MYSQL_PASSWORD: artcorrect_password
+      MYSQL_DATABASE: test_db
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test_password
     ports:
       - "33307:3306"
     volumes:

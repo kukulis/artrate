@@ -24,6 +24,13 @@ export async function seedTestData() {
         ('article-4', 'Climate Change Facts', 'author-2', 'Climate change is one of the most pressing issues...')`
     );
 
+    // await connection.query(
+    //     `INSERT INTO
+    //     `
+    // );
+
+        // TODO seed data for rankings
+
     console.log('✅ Test data seeded');
   } catch (error) {
     console.error('❌ Error seeding test data:', error);

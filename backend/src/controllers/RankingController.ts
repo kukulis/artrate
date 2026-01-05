@@ -19,8 +19,10 @@ export class RankingController {
             if (!RankingFilterHelpers.RankingFilterHasAnyParam(rankingFilter)) {
                 res.status(400).json({
                     error: 'No search parameters given',
-                    message: 'At least user_id must be given'
+                    message: 'At least one of the parameters must be given: user_id, article_id, ranking_helper, ranking_type.'
                 })
+
+                return;
             }
             const rankings = await this.rankingRepository.findWithFilter(rankingFilter)
 
@@ -33,4 +35,8 @@ export class RankingController {
             });
         }
     }
+
+    // TODO add, update and delete
+
+    // then cover with test
 }
