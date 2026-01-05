@@ -65,7 +65,15 @@ export class AuthorService {
       description: data.description.trim()
     };
 
-    return this.authorRepository.create(authorData);
+    await this.authorRepository.create(authorData);
+
+    // Fetch and return the created author
+    const created = await this.authorRepository.findById(authorData.id);
+    if (!created) {
+      throw new Error('Failed to retrieve created author');
+    }
+
+    return created;
   }
 
   /**
@@ -99,9 +107,12 @@ export class AuthorService {
     if (data.name !== undefined) updateData.name = data.name.trim();
     if (data.description !== undefined) updateData.description = data.description.trim();
 
-    const updated = await this.authorRepository.update(id, updateData);
+    await this.authorRepository.update(id, updateData);
+
+    // Fetch and return the updated author
+    const updated = await this.authorRepository.findById(id);
     if (!updated) {
-      throw new Error(`Failed to update author with id ${id}`);
+      throw new Error(`Failed to retrieve updated author with id ${id}`);
     }
 
     return updated;

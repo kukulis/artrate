@@ -66,24 +66,13 @@ export class AuthorRepository {
   /**
    * Create a new author
    */
-  async create(data: CreateAuthorDTO): Promise<Author> {
+  async create(data: CreateAuthorDTO): Promise<void> {
     const connection = await this.pool.getConnection();
     try {
       await connection.query(
         'INSERT INTO authors (id, name, description) VALUES (?, ?, ?)',
         [data.id, data.name, data.description]
       );
-
-      // Reuse same connection to fetch created author
-      const [rows] = await connection.query<any[]>(
-        'SELECT * FROM authors WHERE id = ?',
-        [data.id]
-      );
-
-      if (!rows[0]) {
-        throw new Error('Failed to retrieve created author');
-      }
-      return rows[0] as Author;
     } finally {
       connection.release();
     }
@@ -92,7 +81,7 @@ export class AuthorRepository {
   /**
    * Update an existing author
    */
-  async update(id: string, data: UpdateAuthorDTO): Promise<Author | null> {
+  async update(id: string, data: UpdateAuthorDTO): Promise<void> {
     const connection = await this.pool.getConnection();
     try {
       const updates: string[] = [];
@@ -108,12 +97,8 @@ export class AuthorRepository {
       }
 
       if (updates.length === 0) {
-        // No updates, just fetch and return current author
-        const [rows] = await connection.query<any[]>(
-          'SELECT * FROM authors WHERE id = ?',
-          [id]
-        );
-        return rows.length > 0 ? (rows[0] as Author) : null;
+        // No updates needed
+        return;
       }
 
       updates.push('updated_at = NOW()');
@@ -123,13 +108,6 @@ export class AuthorRepository {
         `UPDATE authors SET ${updates.join(', ')} WHERE id = ?`,
         values
       );
-
-      // Reuse same connection to fetch updated author
-      const [rows] = await connection.query<any[]>(
-        'SELECT * FROM authors WHERE id = ?',
-        [id]
-      );
-      return rows.length > 0 ? (rows[0] as Author) : null;
     } finally {
       connection.release();
     }
