@@ -4,11 +4,10 @@ import { AuthorService } from '../services/AuthorService';
 export class AuthorController {
   private authorService: AuthorService;
 
-  constructor() {
-    this.authorService = new AuthorService();
+  constructor(authorService: AuthorService) {
+    this.authorService = authorService;
   }
 
-  // TODO ask why this is an arrow function
   /**
    * GET /api/authors
    * Get all authors or search by name

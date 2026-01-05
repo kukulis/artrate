@@ -62,11 +62,9 @@ export async function cleanTestDatabase() {
     // Get all tables
     const [tables] = await connection.query<any[]>(
       "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ?",
-      // TODO why 'artcorrect_db' ?
-      [process.env.DB_NAME || 'artcorrect_db']
+      [process.env.DB_NAME || '']
     );
 
-    // TODO why dynamic clean is better than explicitly enumerating all table names we want to clean?
     // Truncate each table (except migrations table)
     for (const table of tables) {
       const tableName = table.TABLE_NAME;
@@ -97,7 +95,6 @@ export async function teardownTestDatabase() {
 
 /**
  * Wait for database to be ready
- * TODO question why this function required for tests?
  */
 export async function waitForDatabase(maxAttempts = 30, delayMs = 1000): Promise<void> {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {

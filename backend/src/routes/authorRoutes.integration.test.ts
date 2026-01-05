@@ -1,6 +1,7 @@
 import request from 'supertest';
 import express from 'express';
 import authorRoutes from './authorRoutes';
+import { pool } from '../config/database';
 import { setupTestDatabase, cleanTestDatabase, waitForDatabase } from '../test-utils/dbSetup';
 import { seedTestData, TEST_AUTHORS } from '../test-utils/testData';
 
@@ -25,6 +26,7 @@ describe('Author API Integration Tests', () => {
   // Teardown: Clean up after all tests
   afterAll(async () => {
     await cleanTestDatabase();
+    await pool.end(); // Close connection pool
     console.log('✅ Integration tests completed\n');
   });
 

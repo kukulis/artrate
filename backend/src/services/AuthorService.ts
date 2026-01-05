@@ -5,8 +5,8 @@ import { randomBytes } from 'crypto';
 export class AuthorService {
   private authorRepository: AuthorRepository;
 
-  constructor() {
-    this.authorRepository = new AuthorRepository();
+  constructor(authorRepository: AuthorRepository) {
+    this.authorRepository = authorRepository;
   }
 
   /**

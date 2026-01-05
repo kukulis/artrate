@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { connectDatabase } from './config/database';
+import { connectDatabase, pool } from './config/database';
 import apiRoutes from './routes';
 
 dotenv.config();
@@ -55,6 +55,8 @@ app.use((req: Request, res: Response) => {
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV}`);
+
+  // TODO print routes dynamically
   console.log(`Available routes:`);
   console.log(`  - GET    /health`);
   console.log(`  - GET    /api/test`);
@@ -70,3 +72,18 @@ app.listen(PORT, () => {
   console.log(`  - PATCH  /api/authors/:id`);
   console.log(`  - DELETE /api/authors/:id`);
 });
+
+const shutdown = async (signal: string) => {
+  console.log(`${signal} received. Closing database pool...`);
+  try {
+    await pool.end();
+    console.log('Database pool closed successfully');
+    process.exit(0);
+  } catch (error) {
+    console.error('Error closing pool:', error);
+    process.exit(1);
+  }
+};
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
