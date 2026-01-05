@@ -31,22 +31,3 @@ export const UpdateArticleSchema = ArticleSchema.omit({
 export type Article = z.infer<typeof ArticleSchema>;
 export type CreateArticleDTO = z.infer<typeof CreateArticleSchema>;
 export type UpdateArticleDTO = z.infer<typeof UpdateArticleSchema>;
-
-// Keep ArticleHelper for backward compatibility if needed
-export class ArticleHelper {
-    static validateForCreate(article: Article): Error | null {
-        if (!article.title || !article.author_id || !article.content) {
-            return new Error("Missing required fields")
-        }
-
-        return null
-    }
-
-    static validateForUpdate(article: Article): Error | null {
-        if (!article.title && !article.author_id && !article.content) {
-            return new Error('At least one field is required for update');
-        }
-
-        return null;
-    }
-}
