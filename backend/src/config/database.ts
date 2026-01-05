@@ -23,7 +23,6 @@ export const pool = mysql.createPool({
  * Use this for one-off queries or when you need a dedicated connection
  * Remember to call connection.end() when done
  *
- * @deprecated Prefer using the global pool for better performance
  */
 export const connectDatabase = async () => {
   const connection = await mysql.createConnection({
