@@ -1,16 +1,15 @@
-import { Router } from 'express';
-import { ArticleController } from '../controllers/ArticleController';
+import {Router} from 'express';
+import {ArticleController} from '../controllers/ArticleController';
 import {ArticleRepository} from "../repositories/ArticleRepository";
-import {pool} from "../config/database";
 import {AuthorRepository} from "../repositories/AuthorRepository";
 import {ArticleService} from "../services/ArticleService";
-import { Pool } from 'mysql2/promise';
+import {Pool} from 'mysql2/promise';
 
 /**
  * Create article routes with a given connection pool
  * This allows tests to inject their own pool for better isolation
  */
-export function createArticleRoutes(dbPool: Pool = pool) {
+export function createArticleRoutes(dbPool: Pool) {
   const router = Router();
 
   const articleRepository = new ArticleRepository(dbPool)
@@ -63,5 +62,5 @@ export function createArticleRoutes(dbPool: Pool = pool) {
   return router;
 }
 
-// Default export uses global pool for backward compatibility
-export default createArticleRoutes();
+// // Default export uses global pool for backward compatibility
+// export default createArticleRoutes();

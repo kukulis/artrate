@@ -1,13 +1,15 @@
-import { Router } from 'express';
-import articleRoutes from './articleRoutes';
-import authorRoutes from './authorRoutes';
-import rankingRoutes from './rankingRoutes';
+import {Router} from 'express';
+import {createArticleRoutes} from './articleRoutes';
+import {createAuthorRoutes} from './authorRoutes';
+import {createRankingRoutes} from './rankingRoutes';
+import {Pool} from "mysql2/promise";
 
 const router = Router();
 
-// Mount routes
-router.use('/articles', articleRoutes);
-router.use('/authors', authorRoutes);
-router.use('/rankings', rankingRoutes);
+export function createRouter(pool: Pool): Router {
+    router.use('/articles', createArticleRoutes(pool));
+    router.use('/authors', createAuthorRoutes(pool));
+    router.use('/rankings', createRankingRoutes(pool));
 
-export default router;
+    return router;
+}

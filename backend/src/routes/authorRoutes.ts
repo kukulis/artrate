@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { pool } from '../config/database';
 import { AuthorRepository } from '../repositories/AuthorRepository';
 import { AuthorController } from '../controllers/AuthorController';
 import { Pool } from 'mysql2/promise';
@@ -8,7 +7,7 @@ import { Pool } from 'mysql2/promise';
  * Create author routes with a given connection pool
  * This allows tests to inject their own pool for better isolation
  */
-export function createAuthorRoutes(dbPool: Pool = pool) {
+export function createAuthorRoutes(dbPool: Pool) {
   const router = Router();
 
   // Dependency injection: wire dependencies together
@@ -52,6 +51,6 @@ export function createAuthorRoutes(dbPool: Pool = pool) {
 
   return router;
 }
-
-// Default export uses global pool for backward compatibility
-export default createAuthorRoutes();
+//
+// // Default export uses global pool for backward compatibility
+// export default createAuthorRoutes();

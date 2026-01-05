@@ -1,14 +1,13 @@
 import { Router } from 'express';
 import {RankingController} from "../controllers/RankingController";
 import {RankingRepository} from "../repositories/RankingRepository";
-import {pool} from "../config/database";
 import { Pool } from 'mysql2/promise';
 
 /**
  * Create ranking routes with a given connection pool
  * This allows tests to inject their own pool for better isolation
  */
-export function createRankingRoutes(dbPool: Pool = pool) {
+export function createRankingRoutes(dbPool: Pool) {
   const router = Router();
   const rankingRepository = new RankingRepository(dbPool)
   const rankingController = new RankingController(rankingRepository)
@@ -22,5 +21,5 @@ export function createRankingRoutes(dbPool: Pool = pool) {
   return router;
 }
 
-// Default export uses global pool for backward compatibility
-export default createRankingRoutes();
+// // Default export uses global pool for backward compatibility
+// export default createRankingRoutes();

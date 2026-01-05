@@ -1,8 +1,11 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { connectDatabase, pool } from './config/database';
-import apiRoutes from './routes';
+import { pool, connectDatabase } from './config/database';
+import {createRouter} from "./routes";
+// import apiRoutes from './routes';
+
+const apiRoutes = createRouter(pool)
 
 dotenv.config();
 
