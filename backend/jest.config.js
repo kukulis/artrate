@@ -14,5 +14,8 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1'
   },
-  setupFilesAfterEnv: ['<rootDir>/src/test-utils/jestSetup.ts']
+  setupFilesAfterEnv: ['<rootDir>/src/test-utils/jestSetup.ts'],
+  // Run tests sequentially to avoid database race conditions
+  // Each test suite has its own connection pool for better cleanup
+  maxWorkers: 1
 };

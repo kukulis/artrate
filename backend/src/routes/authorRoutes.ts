@@ -2,46 +2,56 @@ import { Router } from 'express';
 import { pool } from '../config/database';
 import { AuthorRepository } from '../repositories/AuthorRepository';
 import { AuthorController } from '../controllers/AuthorController';
-
-const router = Router();
-
-// Dependency injection: wire dependencies together
-const authorRepository = new AuthorRepository(pool);
-const authorController = new AuthorController(authorRepository);
+import { Pool } from 'mysql2/promise';
 
 /**
- * @route   GET /api/authors
- * @desc    Get all authors (supports ?search=name query parameter)
- * @access  Public
+ * Create author routes with a given connection pool
+ * This allows tests to inject their own pool for better isolation
  */
-router.get('/', authorController.getAuthors);
+export function createAuthorRoutes(dbPool: Pool = pool) {
+  const router = Router();
 
-/**
- * @route   GET /api/authors/:id
- * @desc    Get author by ID
- * @access  Public
- */
-router.get('/:id', authorController.getAuthorById);
+  // Dependency injection: wire dependencies together
+  const authorRepository = new AuthorRepository(dbPool);
+  const authorController = new AuthorController(authorRepository);
 
-/**
- * @route   POST /api/authors
- * @desc    Create a new author
- * @access  Public
- */
-router.post('/', authorController.createAuthor);
+  /**
+   * @route   GET /api/authors
+   * @desc    Get all authors (supports ?search=name query parameter)
+   * @access  Public
+   */
+  router.get('/', authorController.getAuthors);
 
-/**
- * @route   PATCH /api/authors/:id
- * @desc    Update an author
- * @access  Public
- */
-router.patch('/:id', authorController.updateAuthor);
+  /**
+   * @route   GET /api/authors/:id
+   * @desc    Get author by ID
+   * @access  Public
+   */
+  router.get('/:id', authorController.getAuthorById);
 
-/**
- * @route   DELETE /api/authors/:id
- * @desc    Delete an author
- * @access  Public
- */
-router.delete('/:id', authorController.deleteAuthor);
+  /**
+   * @route   POST /api/authors
+   * @desc    Create a new author
+   * @access  Public
+   */
+  router.post('/', authorController.createAuthor);
 
-export default router;
+  /**
+   * @route   PATCH /api/authors/:id
+   * @desc    Update an author
+   * @access  Public
+   */
+  router.patch('/:id', authorController.updateAuthor);
+
+  /**
+   * @route   DELETE /api/authors/:id
+   * @desc    Delete an author
+   * @access  Public
+   */
+  router.delete('/:id', authorController.deleteAuthor);
+
+  return router;
+}
+
+// Default export uses global pool for backward compatibility
+export default createAuthorRoutes();

@@ -1,18 +1,26 @@
 import request from 'supertest';
 import express from 'express';
-import articleRoutes from './articleRoutes';
+import { createArticleRoutes } from './articleRoutes';
 import {setupTestDatabase, cleanTestDatabase, waitForDatabase} from '../test-utils/dbSetup';
 import {seedTestData, TEST_AUTHORS, TEST_ARTICLES} from '../test-utils/testData';
-import {pool} from "../config/database";
+import { createConnectionPool } from '../config/database';
+import { Pool } from 'mysql2/promise';
 
-const app = express();
-app.use(express.json());
-app.use('/api/articles', articleRoutes);
+// Create a dedicated pool for this test suite
+let testPool: Pool;
+let app: express.Application;
 
 describe('Article API Integration Tests', () => {
     // Setup: Run once before all tests
     beforeAll(async () => {
-        console.log('\n🧪 Setting up integration tests...');
+        console.log('\n🧪 Setting up Article API integration tests...');
+        testPool = createConnectionPool();
+
+        // Create Express app with test-specific pool
+        app = express();
+        app.use(express.json());
+        app.use('/api/articles', createArticleRoutes(testPool));
+
         await waitForDatabase();
         await setupTestDatabase();
     }, 60000); // 60 second timeout for setup
@@ -26,8 +34,9 @@ describe('Article API Integration Tests', () => {
     // Teardown: Clean up after all tests
     afterAll(async () => {
         await cleanTestDatabase();
-        await pool.end();
-        console.log('✅ Integration tests completed\n');
+        // Close this test suite's connection pool
+        await testPool.end();
+        console.log('✅ Article API integration tests completed\n');
     });
 
     describe('GET /api/articles', () => {

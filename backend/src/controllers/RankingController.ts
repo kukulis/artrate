@@ -4,16 +4,11 @@ import {RankingRepository} from "../repositories/RankingRepository";
 import {Ranking} from "../entities";
 
 export class RankingController {
-    // TODO ask about DI in the backend typescript
-
-    private rankingRepository: RankingRepository
-
-    public constructor() {
-        this.rankingRepository = new RankingRepository()
+    public constructor(private rankingRepository: RankingRepository) {
     }
 
     async getRankings2(req: Request, res: Response) : Promise<void> {
-        // console.log('req', req)
+        console.log('this:', this)
         // console.log('res', res)
         if ( req == undefined) {
             console.log('req is undefined')

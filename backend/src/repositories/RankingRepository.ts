@@ -1,10 +1,14 @@
 import {Ranking} from "../entities";
-import {connectDatabase} from '../config/database';
 import {RankingFilter} from "../types/RankingFilter";
+import {Pool} from "mysql2/promise";
 
 export class RankingRepository {
+
+    public constructor(private pool: Pool) {
+    }
+
     async findById(id: string): Promise<Ranking | null> {
-        const connection = await connectDatabase();
+        const connection = await this.pool.getConnection();
         try {
             const [rows] = await connection.query<any[]>("select * from rankings where id=?", [id])
 
@@ -13,7 +17,7 @@ export class RankingRepository {
 
             return rows[0] as Ranking;
         } finally {
-            await connection.end()
+            connection.release()
         }
     }
 
@@ -43,24 +47,24 @@ export class RankingRepository {
 
         let conditionsStr = '';
         if (conditions.length > 0) {
-            conditionsStr = 'WHERE '+ conditions.join(" AND \n")
+            conditionsStr = 'WHERE ' + conditions.join(" AND \n")
         }
 
         const sql = "select * from rankings " + conditionsStr;
 
         // console.log('RankingRepository.findWithFilter, sql:', sql)
-        const connection = await connectDatabase();
+        const connection = await this.pool.getConnection();
 
         try {
             const [rows] = await connection.query<any[]>(sql, values)
             return rows as Ranking[];
         } finally {
-            await connection.end()
+            connection.release()
         }
     }
 
     async createRanking(ranking: Ranking): Promise<Ranking> {
-        const connection = await connectDatabase();
+        const connection = await this.pool.getConnection();
         try {
             await connection.query(
                 'INSERT INTO rankings (id, ranking_type, helper_type, user_id, article_id, value, description) ' +
@@ -74,12 +78,12 @@ export class RankingRepository {
             }
             return created;
         } finally {
-            await connection.end();
+            connection.release();
         }
     }
 
     async updateRanking(ranking: Ranking): Promise<Ranking> {
-        const connection = await connectDatabase();
+        const connection = await this.pool.getConnection();
         try {
 
             // user id should not be modified ever
@@ -100,18 +104,18 @@ export class RankingRepository {
             }
             return created;
         } finally {
-            await connection.end();
+            connection.release();
         }
     }
 
     async deleteRanking(id: string): Promise<boolean> {
-        const connection = await connectDatabase();
+        const connection = await this.pool.getConnection();
         try {
             await connection.execute("DELETE FROM rankings where id=?", [id])
+            return true;
         } finally {
-            await connection.end()
+            connection.release()
         }
 
-        return true;
     }
 }

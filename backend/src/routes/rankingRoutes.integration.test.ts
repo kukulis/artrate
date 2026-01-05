@@ -1,20 +1,27 @@
 import express from "express";
 
-import rankingRoutes from "./rankingRoutes";
+import { createRankingRoutes } from "./rankingRoutes";
 import request from "supertest";
 import {cleanTestDatabase, setupTestDatabase, waitForDatabase} from "../test-utils/dbSetup";
 import {seedTestData} from "../test-utils/testData";
+import { createConnectionPool } from '../config/database';
+import { Pool } from 'mysql2/promise';
 
-const app = express();
-app.use(express.json());
-
-
-app.use('/api/rankings', rankingRoutes);
+// Create a dedicated pool for this test suite
+let testPool: Pool;
+let app: express.Application;
 
 describe('Ranking API Integration Tests', () => {
     // connection and migrations
     beforeAll(async () => {
-        console.log('\n🧪 Setting up integration tests...');
+        console.log('\n🧪 Setting up Ranking API integration tests...');
+        testPool = createConnectionPool();
+
+        // Create Express app with test-specific pool
+        app = express();
+        app.use(express.json());
+        app.use('/api/rankings', createRankingRoutes(testPool));
+
         await waitForDatabase();
         await setupTestDatabase();
     }, 60000);
@@ -28,8 +35,10 @@ describe('Ranking API Integration Tests', () => {
     afterAll(async () => {
         // not needed to clean because database is cleaned before each test
         // and after the test we want to check the data.
-       //  await cleanTestDatabase();
-        console.log('✅ Integration tests completed\n');
+        await cleanTestDatabase();
+        // Close this test suite's connection pool
+        await testPool.end();
+        console.log('✅ Ranking API integration tests completed\n');
     });
 
     describe('GET /api/rankings', () => {
