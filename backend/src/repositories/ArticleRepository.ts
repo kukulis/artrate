@@ -1,4 +1,4 @@
-import {Article, CreateArticleDTO, UpdateArticleDTO} from '../entities/Article';
+import {Article} from '../entities/Article';
 import {Pool} from "mysql2/promise";
 
 export class ArticleRepository {
@@ -54,7 +54,7 @@ export class ArticleRepository {
     /**
      * Create a new article
      */
-    async create(data: CreateArticleDTO): Promise<Article> {
+    async create(data: Article): Promise<Article> {
         const connection = await this.pool.getConnection();
         try {
             await connection.query(
@@ -75,7 +75,7 @@ export class ArticleRepository {
     /**
      * Update an existing article
      */
-    async update(id: string, data: UpdateArticleDTO): Promise<Article | null> {
+    async update(data:Article): Promise<Article | null> {
         const connection = await this.pool.getConnection();
         try {
             const updates: string[] = [];
@@ -95,11 +95,11 @@ export class ArticleRepository {
             }
 
             if (updates.length === 0) {
-                return this.findById(id);
+                return this.findById(data.id);
             }
 
             updates.push('updated_at = NOW()');
-            values.push(id);
+            values.push(data.id);
 
             await connection.query(
                 `UPDATE articles
@@ -108,7 +108,7 @@ export class ArticleRepository {
                 values
             );
 
-            return this.findById(id);
+            return this.findById(data.id);
         } finally {
             connection.release();
         }

@@ -1,6 +1,7 @@
 import {Request, Response} from 'express';
 import {ArticleService} from '../services/ArticleService';
 import {ArticleRepository} from "../repositories/ArticleRepository";
+import {Article, ArticleHelper} from "../entities";
 
 export class ArticleController {
     private articleService: ArticleService;
@@ -78,25 +79,20 @@ export class ArticleController {
      */
     createArticle = async (req: Request, res: Response): Promise<void> => {
         try {
-            // TODO refactor
-            const {title, author_id, content} = req.body;
-
+            const article = { ... req.body } as Article
+            const err = ArticleHelper.validateForCreate(article)
             // Validate request body
-            if (!title || !author_id || !content) {
+            if (err != null) {
                 res.status(400).json({
-                    error: 'Missing required fields',
+                    error: err.message,
                     required: ['title', 'author_id', 'content']
                 });
                 return;
             }
 
-            const article = await this.articleService.createArticle({
-                title,
-                author_id,
-                content
-            });
+            const created = await this.articleService.createArticle(article);
 
-            res.status(201).json(article);
+            res.status(201).json(created);
         } catch (error) {
             console.error('Error creating article:', error);
 
@@ -119,25 +115,24 @@ export class ArticleController {
     updateArticle = async (req: Request, res: Response): Promise<void> => {
         try {
             const {id} = req.params;
-            // TODO refactor
-            const {title, author_id, content} = req.body;
+            // const {title, author_id, content} = req.body;
+
+            const article = { ... req.body, id: id } as Article;
+
+            const err = ArticleHelper.validateForUpdate(article)
 
             // Check if at least one field is provided
-            if (!title && !author_id && !content) {
+            if (err != null) {
                 res.status(400).json({
-                    error: 'At least one field is required for update',
+                    error: err.message,
                     allowed: ['title', 'author_id', 'content']
                 });
                 return;
             }
 
-            const article = await this.articleService.updateArticle(id, {
-                title,
-                author_id,
-                content
-            });
+            const updated = await this.articleService.updateArticle(article);
 
-            res.json(article);
+            res.json(updated);
         } catch (error) {
             console.error('Error updating article:', error);
 
