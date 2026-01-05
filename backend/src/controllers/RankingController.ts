@@ -1,6 +1,7 @@
 import {Request, Response} from "express";
 import {RankingFilter, RankingFilterHelpers} from "../types/RankingFilter";
 import {RankingRepository} from "../repositories/RankingRepository";
+import {Ranking} from "../entities";
 
 export class RankingController {
     // TODO ask about DI in the backend typescript
@@ -11,7 +12,27 @@ export class RankingController {
         this.rankingRepository = new RankingRepository()
     }
 
-     getRankings = async (req: Request, res: Response): Promise<void> => {
+    async getRankings2(req: Request, res: Response) : Promise<void> {
+        // console.log('req', req)
+        // console.log('res', res)
+        if ( req == undefined) {
+            console.log('req is undefined')
+        }
+        else {
+            console.log('req is IS DEFINED')
+        }
+        if ( res == undefined) {
+            console.log('res is undefined')
+            return;
+        }
+        else {
+            console.log('res is DEFINED')
+        }
+
+        res.json({laba:'diena'})
+    }
+
+    getRankings = async (req: Request, res: Response): Promise<void> => {
         // console.log('RankingController, this: ', this)
 
         try {
@@ -34,6 +55,21 @@ export class RankingController {
                 message: error instanceof Error ? error.message : 'Unknown error'
             });
         }
+    }
+
+    addRanking = async (req: Request, res: Response): Promise<void> => {
+        const rankingData =  req.body as Ranking
+        try {
+            // TODO
+            console.log('rankingData', rankingData)
+        } catch (error) {
+            console.error('Error creating ranking:', error);
+            res.status(500).json({
+                error: 'Failed to create ranking',
+                message: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+
     }
 
     // TODO add, update and delete

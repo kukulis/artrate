@@ -8,6 +8,7 @@ export class AuthorController {
     this.authorService = new AuthorService();
   }
 
+  // TODO ask why this is an arrow function
   /**
    * GET /api/authors
    * Get all authors or search by name
