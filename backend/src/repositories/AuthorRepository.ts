@@ -1,5 +1,6 @@
-import { Author, CreateAuthorDTO, UpdateAuthorDTO } from '../entities/Author';
+import { Author } from '../entities/Author';
 import { Pool } from 'mysql2/promise';
+import { AuthorFilter } from '../types/AuthorFilter';
 
 export class AuthorRepository {
   private pool: Pool;
@@ -9,54 +10,42 @@ export class AuthorRepository {
   }
 
   /**
-   * Find all authors
+   * Find authors based on filter criteria
+   * Returns array of authors matching the filter
+   * Empty filter returns all authors
    */
-  async findAll(): Promise<Author[]> {
+  async find(filter: AuthorFilter): Promise<Author[]> {
     const connection = await this.pool.getConnection();
     try {
-      const [rows] = await connection.query<any[]>('SELECT * FROM authors ORDER BY created_at DESC');
-      return rows as Author[];
-    } finally {
-      connection.release();
-    }
-  }
+      const conditions: string[] = [];
+      const values: any[] = [];
 
-  /**
-   * Find author by ID
-   */
-  async findById(id: string): Promise<Author | null> {
-    const connection = await this.pool.getConnection();
-    try {
-      const [rows] = await connection.query<any[]>('SELECT * FROM authors WHERE id = ?', [id]);
-      return rows.length > 0 ? (rows[0] as Author) : null;
-    } finally {
-      connection.release();
-    }
-  }
+      // Filter by ID (exact match)
+      if (filter.author_id !== undefined && filter.author_id !== null) {
+        conditions.push('id = ?');
+        values.push(filter.author_id);
+      }
 
-  /**
-   * Find author by name
-   */
-  async findByName(name: string): Promise<Author | null> {
-    const connection = await this.pool.getConnection();
-    try {
-      const [rows] = await connection.query<any[]>('SELECT * FROM authors WHERE name = ?', [name]);
-      return rows.length > 0 ? (rows[0] as Author) : null;
-    } finally {
-      connection.release();
-    }
-  }
+      // Filter by exact name
+      if (filter.name !== undefined && filter.name !== null) {
+        conditions.push('name = ?');
+        values.push(filter.name);
+      }
 
-  /**
-   * Search authors by name (partial match)
-   */
-  async searchByName(searchTerm: string): Promise<Author[]> {
-    const connection = await this.pool.getConnection();
-    try {
-      const [rows] = await connection.query<any[]>(
-        'SELECT * FROM authors WHERE name LIKE ? ORDER BY name',
-        [`%${searchTerm}%`]
-      );
+      // Filter by partial name (LIKE search)
+      if (filter.name_part !== undefined && filter.name_part !== null) {
+        conditions.push('name LIKE ?');
+        values.push(`%${filter.name_part}%`);
+      }
+
+      // Build query
+      let query = 'SELECT * FROM authors';
+      if (conditions.length > 0) {
+        query += ' WHERE ' + conditions.join(' AND ');
+      }
+      query += ' ORDER BY created_at DESC';
+
+      const [rows] = await connection.query<any[]>(query, values);
       return rows as Author[];
     } finally {
       connection.release();
@@ -66,7 +55,7 @@ export class AuthorRepository {
   /**
    * Create a new author
    */
-  async create(data: CreateAuthorDTO): Promise<void> {
+  async create(data: Author): Promise<void> {
     const connection = await this.pool.getConnection();
     try {
       await connection.query(
@@ -81,17 +70,17 @@ export class AuthorRepository {
   /**
    * Update an existing author
    */
-  async update(id: string, data: UpdateAuthorDTO): Promise<void> {
+  async update(data: Author): Promise<void> {
     const connection = await this.pool.getConnection();
     try {
       const updates: string[] = [];
       const values: any[] = [];
 
-      if (data.name !== undefined) {
+      if (data.name !== undefined && data.name !== null ) {
         updates.push('name = ?');
         values.push(data.name);
       }
-      if (data.description !== undefined) {
+      if (data.description !== undefined && data.description !== null) {
         updates.push('description = ?');
         values.push(data.description);
       }
@@ -102,7 +91,7 @@ export class AuthorRepository {
       }
 
       updates.push('updated_at = NOW()');
-      values.push(id);
+      values.push(data.id);
 
       await connection.query(
         `UPDATE authors SET ${updates.join(', ')} WHERE id = ?`,
@@ -126,16 +115,16 @@ export class AuthorRepository {
     }
   }
 
-  /**
-   * Check if author exists
-   */
-  async exists(id: string): Promise<boolean> {
-    const connection = await this.pool.getConnection();
-    try {
-      const [rows] = await connection.query<any[]>('SELECT 1 FROM authors WHERE id = ? LIMIT 1', [id]);
-      return rows.length > 0;
-    } finally {
-      connection.release();
-    }
-  }
+  // /**
+  //  * Check if author exists
+  //  */
+  // async exists(id: string): Promise<boolean> {
+  //   const connection = await this.pool.getConnection();
+  //   try {
+  //     const [rows] = await connection.query<any[]>('SELECT 1 FROM authors WHERE id = ? LIMIT 1', [id]);
+  //     return rows.length > 0;
+  //   } finally {
+  //     connection.release();
+  //   }
+  // }
 }
