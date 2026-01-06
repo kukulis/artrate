@@ -42,7 +42,7 @@ export class RankingRepository {
 
         if (filter.user_id != null) {
             conditions.push('user_id=?')
-            values.push(filter.user_id)
+            values.push(String(filter.user_id))
         }
 
         if (filter.not_id != null) {
@@ -57,7 +57,6 @@ export class RankingRepository {
 
         const sql = "select * from rankings " + conditionsStr;
 
-        // console.log('RankingRepository.findWithFilter, sql:', sql)
         const connection = await this.pool.getConnection();
 
         try {

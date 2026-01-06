@@ -10,7 +10,7 @@ let repository: RankingRepository;
 
 describe('RankingRepository', () => {
     beforeAll(async () => {
-        console.log('\n🧪 Setting up RankingRepository tests...');
+        // console.log('\n🧪 Setting up RankingRepository tests...');
         testPool = createConnectionPool();
         repository = new RankingRepository(testPool);
 
@@ -26,7 +26,7 @@ describe('RankingRepository', () => {
     afterAll(async () => {
         await cleanTestDatabase();
         await testPool.end();
-        console.log('✅ RankingRepository tests completed\n');
+        // console.log('✅ RankingRepository tests completed\n');
     });
 
     describe('upsertRankings', () => {
@@ -36,7 +36,7 @@ describe('RankingRepository', () => {
                     id: 'ranking-new-1',
                     ranking_type: 'OBJECTIVITY',
                     helper_type: 'USER',
-                    user_id: '101',
+                    user_id: 101,
                     article_id: 'article-3',
                     value: 7,
                     description: 'New ranking 1'
@@ -45,7 +45,7 @@ describe('RankingRepository', () => {
                     id: 'ranking-new-2',
                     ranking_type: 'OFFENSIVE',
                     helper_type: 'USER',
-                    user_id: '101',
+                    user_id: 101,
                     article_id: 'article-3',
                     value: 2,
                     description: 'New ranking 2'
@@ -73,7 +73,7 @@ describe('RankingRepository', () => {
                     id: 'ranking-updated-new-id', // New ID, but will match on unique constraint
                     ranking_type: 'OBJECTIVITY',
                     helper_type: 'USER',
-                    user_id: '101',
+                    user_id: 101,
                     article_id: 'article-1',
                     value: 10,
                     description: 'Updated via upsert'
@@ -91,7 +91,7 @@ describe('RankingRepository', () => {
             // Other fields should remain unchanged
             expect(ranking!.ranking_type).toBe('OBJECTIVITY');
             expect(ranking!.helper_type).toBe('USER');
-            expect(ranking!.user_id).toBe('101');
+            expect(ranking!.user_id).toBe(101);
             expect(ranking!.article_id).toBe('article-1');
 
             // The new ID should not exist as a separate record
@@ -106,7 +106,7 @@ describe('RankingRepository', () => {
                     id: 'ranking-mixed-1',
                     ranking_type: 'OFFENSIVE',
                     helper_type: 'USER',
-                    user_id: '101',
+                    user_id: 101,
                     article_id: 'article-1',
                     value: 1,
                     description: 'Updated via mixed upsert'
@@ -116,7 +116,7 @@ describe('RankingRepository', () => {
                     id: 'ranking-mixed-2',
                     ranking_type: 'OBJECTIVITY',
                     helper_type: 'AI',
-                    user_id: '101',
+                    user_id: 101,
                     article_id: 'article-4',
                     value: 9,
                     description: 'Inserted via mixed upsert'
@@ -148,7 +148,7 @@ describe('RankingRepository', () => {
                     id: 'bulk-1',
                     ranking_type: 'OBJECTIVITY',
                     helper_type: 'USER',
-                    user_id: '101',
+                    user_id: 101,
                     article_id: 'article-1',
                     value: 8,
                     description: 'Bulk update 1'
@@ -157,7 +157,7 @@ describe('RankingRepository', () => {
                     id: 'bulk-2',
                     ranking_type: 'OFFENSIVE',
                     helper_type: 'USER',
-                    user_id: '101',
+                    user_id: 101,
                     article_id: 'article-1',
                     value: 2,
                     description: 'Bulk update 2'
@@ -166,7 +166,7 @@ describe('RankingRepository', () => {
                     id: 'bulk-3',
                     ranking_type: 'OBJECTIVITY',
                     helper_type: 'USER',
-                    user_id: '102',
+                    user_id: 102,
                     article_id: 'article-1',
                     value: 7,
                     description: 'Bulk update 3'

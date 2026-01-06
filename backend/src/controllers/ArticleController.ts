@@ -93,11 +93,13 @@ export class ArticleController {
             // Validate and parse request body with Zod
             const validatedData = CreateArticleSchema.parse(req.body);
 
-            // TODO: Add user_id field to Article schema to track who created the article
-            // For now, we have the user available for future validation/audit
-            console.log(`Article being created by user: ${currentUser.id} (${currentUser.email})`);
+            // Add user_id from authenticated user
+            const articleData = {
+                ...validatedData,
+                user_id: String(currentUser.id)  // Convert number to string for consistency
+            };
 
-            const created = await this.articleService.createArticle(validatedData);
+            const created = await this.articleService.createArticle(articleData);
 
             res.status(201).json(created);
         } catch (error) {

@@ -6,7 +6,7 @@ export class Ranking {
     public id: string = "";
     public ranking_type: string = RankingType.ACCURACY.code;
     public helper_type: string = RankingHelper.USER.code;
-    public user_id: string = "";
+    public user_id: number = 0;
     public article_id: string = "";
     public value: number = 0;
     public description: string = "";
@@ -33,7 +33,7 @@ export class Ranking {
         return this;
     }
 
-    setUserId(value: string): Ranking {
+    setUserId(value: number): Ranking {
         this.user_id = value;
 
         return this;
@@ -76,7 +76,7 @@ export const RankingSchemaBase = z.object({
     id: z.string(),
     ranking_type: z.string(),
     helper_type: z.string(),
-    user_id: z.string(),
+    user_id: z.number(),
     article_id: z.string(),
     value: z.number(),
     description: z.string(),

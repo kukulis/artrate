@@ -58,8 +58,8 @@ export class ArticleRepository {
         const connection = await this.pool.getConnection();
         try {
             await connection.query(
-                'INSERT INTO articles (id, title, author_id, content) VALUES (?, ?, ?, ?)',
-                [data.id, data.title, data.author_id, data.content]
+                'INSERT INTO articles (id, title, author_id, user_id, content) VALUES (?, ?, ?, ?, ?)',
+                [data.id, data.title, data.author_id, data.user_id, data.content]
             );
 
             const created = await this.findById(data.id);
@@ -92,6 +92,11 @@ export class ArticleRepository {
             if (data.content !== undefined) {
                 updates.push('content = ?');
                 values.push(data.content);
+            }
+
+            if (data.user_id !== undefined) {
+                updates.push('user_id = ?');
+                values.push(data.user_id);
             }
 
             if (updates.length === 0) {

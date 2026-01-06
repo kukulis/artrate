@@ -17,7 +17,7 @@ function ensureTestDatabase() {
         );
     }
 
-    console.log(`✅ Safety check passed: Using test database '${dbName}'`);
+    // console.log(`✅ Safety check passed: Using test database '${dbName}'`);
 }
 
 /**
@@ -36,7 +36,7 @@ export async function setupTestDatabase() {
     try {
         // Run migrations to create tables
         await db.migrate.latest();
-        console.log('✅ Test database migrations completed');
+        // console.log('✅ Test database migrations completed');
     } catch (error) {
         console.error('❌ Error running migrations:', error);
         throw error;
@@ -76,7 +76,7 @@ export async function cleanTestDatabase() {
         // Re-enable foreign key checks
         await connection.query('SET FOREIGN_KEY_CHECKS = 1');
 
-        console.log('✅ Test database cleaned');
+        // console.log('✅ Test database cleaned');
     } catch (error) {
         console.error('❌ Error cleaning database:', error);
         throw error;

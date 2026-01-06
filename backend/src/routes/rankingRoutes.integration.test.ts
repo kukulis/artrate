@@ -14,7 +14,7 @@ let app: express.Application;
 describe('Ranking API Integration Tests', () => {
     // connection and migrations
     beforeAll(async () => {
-        console.log('\n🧪 Setting up Ranking API integration tests...');
+        // console.log('\n🧪 Setting up Ranking API integration tests...');
         testPool = createConnectionPool();
 
         // Create Express app with test-specific pool
@@ -38,7 +38,7 @@ describe('Ranking API Integration Tests', () => {
         await cleanTestDatabase();
         // Close this test suite's connection pool
         await testPool.end();
-        console.log('✅ Ranking API integration tests completed\n');
+        // console.log('✅ Ranking API integration tests completed\n');
     });
 
     describe('GET /api/rankings', () => {
@@ -78,7 +78,7 @@ describe('Ranking API Integration Tests', () => {
             expect(response.body).toHaveProperty('id', 'ranking-1');
             expect(response.body).toHaveProperty('ranking_type', 'OBJECTIVITY');
             expect(response.body).toHaveProperty('helper_type', 'USER');
-            expect(response.body).toHaveProperty('user_id', '101');
+            expect(response.body).toHaveProperty('user_id', 101);
             expect(response.body).toHaveProperty('article_id', 'article-1');
             expect(response.body).toHaveProperty('value', 5);
             expect(response.body).toHaveProperty('description', 'somewhat objective');
@@ -94,7 +94,7 @@ describe('Ranking API Integration Tests', () => {
             const response = await request(app).get('/api/rankings/ranking-3');
             expect(response.status).toBe(200);
             expect(response.body).toHaveProperty('id', 'ranking-3');
-            expect(response.body).toHaveProperty('user_id', '102');
+            expect(response.body).toHaveProperty('user_id', 102);
             expect(response.body).toHaveProperty('value', 6);
         });
     });
@@ -104,7 +104,7 @@ describe('Ranking API Integration Tests', () => {
             const newRanking = {
                 ranking_type: 'OBJECTIVITY',
                 helper_type: 'USER',
-                user_id: '101',
+                user_id: 101,
                 article_id: 'article-3',
                 value: 8,
                 description: 'very objective article'
@@ -145,7 +145,7 @@ describe('Ranking API Integration Tests', () => {
             const offensiveRanking = {
                 ranking_type: 'OFFENSIVE',
                 helper_type: 'USER',
-                user_id: '101',
+                user_id: 101,
                 article_id: 'article-4',
                 value: 2,
                 description: 'not offensive at all'
@@ -166,7 +166,7 @@ describe('Ranking API Integration Tests', () => {
             const updates = {
                 ranking_type: 'OBJECTIVITY',
                 helper_type: 'USER',
-                user_id: '101',
+                user_id: 101,
                 article_id: 'article-1',
                 value: 9,
                 description: 'updated description - very objective now'
@@ -191,7 +191,7 @@ describe('Ranking API Integration Tests', () => {
             const updates = {
                 ranking_type: 'OBJECTIVITY',
                 helper_type: 'USER',
-                user_id: '101',
+                user_id: 101,
                 article_id: 'article-1',
                 value: 10,
                 description: 'this should fail'
@@ -209,7 +209,7 @@ describe('Ranking API Integration Tests', () => {
             const updates = {
                 ranking_type: 'OFFENSIVE',
                 helper_type: 'USER',
-                user_id: '101',
+                user_id: 101,
                 article_id: 'article-1',
                 value: 1,
                 description: 'very offensive'
@@ -221,7 +221,7 @@ describe('Ranking API Integration Tests', () => {
 
             expect(response.status).toBe(200);
             expect(response.body.value).toBe(1);
-            expect(response.body.user_id).toBe('101');
+            expect(response.body.user_id).toBe(101);
             expect(response.body.article_id).toBe('article-1');
         });
 
@@ -229,7 +229,7 @@ describe('Ranking API Integration Tests', () => {
             const updates = {
                 ranking_type: 'OBJECTIVITY',
                 helper_type: 'AI',
-                user_id: '102',
+                user_id: 102,
                 article_id: 'article-3',
                 value: 8,
                 description: 'AI-assisted ranking'
@@ -301,7 +301,7 @@ describe('Ranking API Integration Tests', () => {
                 {
                     ranking_type: 'OBJECTIVITY',
                     helper_type: 'USER',
-                    user_id: '101',
+                    user_id: 101,
                     article_id: 'article-3',
                     value: 8,
                     description: 'Bulk insert 1'
@@ -309,7 +309,7 @@ describe('Ranking API Integration Tests', () => {
                 {
                     ranking_type: 'OFFENSIVE',
                     helper_type: 'USER',
-                    user_id: '101',
+                    user_id: 101,
                     article_id: 'article-3',
                     value: 3,
                     description: 'Bulk insert 2'
@@ -335,7 +335,7 @@ describe('Ranking API Integration Tests', () => {
                 {
                     ranking_type: 'OBJECTIVITY',
                     helper_type: 'USER',
-                    user_id: '101',
+                    user_id: 101,
                     article_id: 'article-1',
                     value: 10,
                     description: 'Updated via upsert endpoint'
@@ -361,7 +361,7 @@ describe('Ranking API Integration Tests', () => {
                 {
                     ranking_type: 'OFFENSIVE',
                     helper_type: 'USER',
-                    user_id: '101',
+                    user_id: 101,
                     article_id: 'article-1',
                     value: 1,
                     description: 'Updated ranking'
@@ -370,7 +370,7 @@ describe('Ranking API Integration Tests', () => {
                 {
                     ranking_type: 'OBJECTIVITY',
                     helper_type: 'AI',
-                    user_id: '102',
+                    user_id: 102,
                     article_id: 'article-4',
                     value: 9,
                     description: 'New AI ranking'
@@ -425,7 +425,7 @@ describe('Ranking API Integration Tests', () => {
                 {
                     ranking_type: 'OBJECTIVITY',
                     helper_type: 'AI',
-                    user_id: '101',
+                    user_id: 101,
                     article_id: 'article-2',
                     value: 7,
                     description: 'Batch 1'
@@ -433,7 +433,7 @@ describe('Ranking API Integration Tests', () => {
                 {
                     ranking_type: 'OBJECTIVITY',
                     helper_type: 'AI',
-                    user_id: '101',
+                    user_id: 101,
                     article_id: 'article-3',
                     value: 8,
                     description: 'Batch 2'
@@ -441,7 +441,7 @@ describe('Ranking API Integration Tests', () => {
                 {
                     ranking_type: 'OBJECTIVITY',
                     helper_type: 'AI',
-                    user_id: '101',
+                    user_id: 101,
                     article_id: 'article-4',
                     value: 9,
                     description: 'Batch 3'

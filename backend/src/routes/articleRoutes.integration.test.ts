@@ -13,7 +13,7 @@ let app: express.Application;
 describe('Article API Integration Tests', () => {
     // Setup: Run once before all tests
     beforeAll(async () => {
-        console.log('\n🧪 Setting up Article API integration tests...');
+        // console.log('\n🧪 Setting up Article API integration tests...');
         testPool = createConnectionPool();
 
         // Create Express app with test-specific pool
@@ -36,7 +36,7 @@ describe('Article API Integration Tests', () => {
         await cleanTestDatabase();
         // Close this test suite's connection pool
         await testPool.end();
-        console.log('✅ Article API integration tests completed\n');
+        // console.log('✅ Article API integration tests completed\n');
     });
 
     describe('GET /api/articles', () => {

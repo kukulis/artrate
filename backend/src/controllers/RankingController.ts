@@ -15,8 +15,6 @@ export class RankingController {
     }
 
     async getRankings2(req: Request, res: Response): Promise<void> {
-        console.log('this:', this)
-        // console.log('res', res)
         if (req == undefined) {
             console.log('req is undefined')
         } else {
@@ -33,8 +31,6 @@ export class RankingController {
     }
 
     getRankings = async (req: Request, res: Response): Promise<void> => {
-        // console.log('RankingController, this: ', this)
-
         try {
             const rankingFilter = req.query as unknown as RankingFilter
             if (!RankingFilterHelpers.RankingFilterHasAnyParam(rankingFilter)) {

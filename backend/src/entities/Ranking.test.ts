@@ -7,7 +7,7 @@ describe('Ranking', () => {
                 id: 'ranking-1',
                 ranking_type: 'OBJECTIVE',
                 helper_type: 'USER',
-                user_id: 'user-1',
+                user_id: 1,
                 article_id: 'article-1',
                 value: 10,
                 description: "belenkas",
@@ -31,7 +31,7 @@ describe('Ranking', () => {
                 .parse({
                     ranking_type: 'OBJECTIVE',
                     helper_type: 'USER',
-                    user_id: 'user-1',
+                    user_id: 1,
                     article_id: 'article-1',
                     value: 10,
                     description: "belenkas",

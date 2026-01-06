@@ -25,7 +25,7 @@ describe('Ranking API Integration Tests', () => {
         // and after the test we want to check the data.
         //  await cleanTestDatabase();
         await testPool.end(); // Close connection pool
-        console.log('✅ Integration tests completed\n');
+        // console.log('✅ Integration tests completed\n');
     });
 
     it('undefined res and req', async ()=>{
