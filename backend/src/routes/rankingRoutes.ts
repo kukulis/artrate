@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {RankingController} from "../controllers/RankingController";
+import {RankingMetadataController} from "../controllers/RankingMetadataController";
 import {RankingRepository} from "../repositories/RankingRepository";
 import { Pool } from 'mysql2/promise';
 import {RandomIdGenerator} from "../services/RandomIdGenerator";
@@ -26,6 +27,29 @@ export function createRankingRoutes(dbPool: Pool) {
   router.put('/upsert', rankingController.upsertRankings);
   router.patch('/:id', rankingController.updateRanking);
   router.delete('/:id', rankingController.deleteRanking);
+
+  return router;
+}
+
+/**
+ * Create routes for ranking metadata (types and helpers)
+ * These are typically mounted at /api level, not under /api/rankings
+ */
+export function createRankingMetadataRoutes(dbPool: Pool) {
+  const router = Router();
+  const metadataController = new RankingMetadataController();
+
+  /**
+   *  @route   GET /api/ranking-types
+   *  @desc    Get all available ranking types
+   */
+  router.get('/ranking-types', metadataController.getRankingTypes);
+
+  /**
+   *  @route   GET /api/ranking-helpers
+   *  @desc    Get all available ranking helpers
+   */
+  router.get('/ranking-helpers', metadataController.getRankingHelpers);
 
   return router;
 }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import AuthorService, { Author } from '../services/AuthorService'
+import AuthorService from '../services/AuthorService'
+import type { Author } from '../types/author'
 
 const authors = ref<Author[]>([])
 const loading = ref(false)

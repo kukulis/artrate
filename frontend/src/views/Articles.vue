@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import ArticleService, { Article } from '../services/ArticleService'
-import AuthorService, { Author } from '../services/AuthorService'
+import ArticleService from '../services/ArticleService'
+import AuthorService from '../services/AuthorService'
+import type { Article } from '../types/article'
+import type { Author } from '../types/author'
 
 const articles = ref<Article[]>([])
 const authors = ref<Author[]>([])

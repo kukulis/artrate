@@ -1,12 +1,5 @@
 import apiClient from './api'
-
-export interface Author {
-  id: string
-  name: string
-  description: string
-  created_at?: Date
-  updated_at?: Date
-}
+import type { Author } from '../types/author'
 
 /**
  * Service for Author-related API calls

@@ -7,7 +7,8 @@
 ```vue
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import ArticleService, { Article } from '../services/ArticleService'
+import ArticleService from '../services/ArticleService'
+import type { Article } from '../types/article'
 
 const articles = ref<Article[]>([])
 const loading = ref(false)
@@ -86,7 +87,8 @@ const createArticle = async () => {
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import RankingService, { Ranking } from '../services/RankingService'
+import RankingService from '../services/RankingService'
+import type { Ranking } from '../types/ranking'
 
 const rankings = ref<Ranking[]>([])
 
@@ -155,11 +157,15 @@ const upsertRankings = async () => {
 
 ```
 src/
+├── types/
+│   ├── article.ts          # Article type definitions
+│   ├── author.ts           # Author type definitions
+│   └── ranking.ts          # Ranking type definitions
 ├── services/
 │   ├── api.ts              # Base axios instance
 │   ├── ArticleService.ts   # Article-related calls
 │   ├── AuthorService.ts    # Author-related calls
 │   └── RankingService.ts   # Ranking-related calls
 └── views/
-    └── Articles.vue        # Import ArticleService here
+    └── Articles.vue        # Import services and types here
 ```

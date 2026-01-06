@@ -1,23 +1,5 @@
 import apiClient from './api'
-
-export interface Ranking {
-  id: string
-  ranking_type: string
-  helper_type: string
-  user_id: string
-  article_id: string
-  value: number
-  description: string
-  created_at?: Date
-  updated_at?: Date
-}
-
-export interface RankingFilter {
-  user_id?: string
-  article_id?: string
-  ranking_type?: string
-  ranking_helper?: string
-}
+import type { Ranking, RankingFilter, RankingType, RankingHelper } from '../types/ranking'
 
 /**
  * Service for Ranking-related API calls
@@ -69,6 +51,22 @@ class RankingService {
    */
   async upsert(rankings: Omit<Ranking, 'id' | 'created_at' | 'updated_at'>[]): Promise<{ message: string; count: number }> {
     const response = await apiClient.put<{ message: string; count: number }>('/rankings/upsert', rankings)
+    return response.data
+  }
+
+  /**
+   * Get all available ranking types
+   */
+  async getRankingTypes(): Promise<RankingType[]> {
+    const response = await apiClient.get<RankingType[]>('/ranking-types')
+    return response.data
+  }
+
+  /**
+   * Get all available ranking helpers
+   */
+  async getRankingHelpers(): Promise<RankingHelper[]> {
+    const response = await apiClient.get<RankingHelper[]>('/ranking-helpers')
     return response.data
   }
 }

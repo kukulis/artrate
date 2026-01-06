@@ -1,14 +1,5 @@
 import apiClient from './api'
-
-export interface Article {
-  id: string
-  title: string
-  author_id: string
-  user_id: number
-  content: string
-  created_at?: Date
-  updated_at?: Date
-}
+import type { Article } from '../types/article'
 
 /**
  * Service for Article-related API calls
