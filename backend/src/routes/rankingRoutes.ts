@@ -23,6 +23,7 @@ export function createRankingRoutes(dbPool: Pool) {
   router.get('/', rankingController.getRankings);
   router.get('/:id', rankingController.getRanking);
   router.post('/', rankingController.addRanking);
+  router.put('/upsert', rankingController.upsertRankings);
   router.patch('/:id', rankingController.updateRanking);
   router.delete('/:id', rankingController.deleteRanking);
 

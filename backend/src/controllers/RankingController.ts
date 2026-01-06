@@ -5,6 +5,7 @@ import {RankingSchemaForInsert} from "../entities";
 import {ControllerHelper} from "./ControllerHelper";
 import {IdGenerator} from "../services/IdGenerator";
 import {RankingValidator} from "../services/RankingValidator";
+import {z} from "zod";
 
 export class RankingController {
     public constructor(private rankingRepository: RankingRepository,
@@ -170,6 +171,38 @@ export class RankingController {
 
             res.status(500).json({
                 error: 'Failed to delete ranking',
+                message: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    }
+
+    upsertRankings = async (req: Request, res: Response): Promise<void> => {
+        try {
+            // Validate array of rankings
+            const RankingsArraySchema = z.array(RankingSchemaForInsert);
+            const rankings = RankingsArraySchema.parse(req.body);
+
+            // Generate IDs for each ranking
+            rankings.forEach(ranking => {
+                ranking.setId(this.idGenerator.nextId());
+            });
+
+            // Upsert all rankings
+            await this.rankingRepository.upsertRankings(rankings);
+
+            res.status(200).json({
+                message: 'Rankings upserted successfully',
+                count: rankings.length
+            });
+        } catch (error) {
+            console.error('Error upserting rankings:', error);
+
+            if (ControllerHelper.handleZodError(error, res)) {
+                return;
+            }
+
+            res.status(500).json({
+                error: 'Failed to upsert rankings',
                 message: error instanceof Error ? error.message : 'Unknown error'
             });
         }

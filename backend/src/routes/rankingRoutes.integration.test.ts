@@ -294,5 +294,171 @@ describe('Ranking API Integration Tests', () => {
             expect(response.body.id).toBe('ranking-5');
         });
     });
+
+    describe('PUT /api/rankings/upsert', () => {
+        it('Should insert new rankings in bulk', async () => {
+            const newRankings = [
+                {
+                    ranking_type: 'OBJECTIVITY',
+                    helper_type: 'USER',
+                    user_id: '101',
+                    article_id: 'article-3',
+                    value: 8,
+                    description: 'Bulk insert 1'
+                },
+                {
+                    ranking_type: 'OFFENSIVE',
+                    helper_type: 'USER',
+                    user_id: '101',
+                    article_id: 'article-3',
+                    value: 3,
+                    description: 'Bulk insert 2'
+                }
+            ];
+
+            const response = await request(app)
+                .put('/api/rankings/upsert')
+                .send(newRankings);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toHaveProperty('message');
+            expect(response.body).toHaveProperty('count', 2);
+
+            // Verify the rankings were created
+            const allRankings = await request(app).get('/api/rankings?user_id=101');
+            expect(allRankings.body.length).toBe(4); // 2 existing + 2 new
+        });
+
+        it('Should update existing rankings on duplicate', async () => {
+            // ranking-1 exists: user 101, article-1, OBJECTIVITY, value=5
+            const upsertData = [
+                {
+                    ranking_type: 'OBJECTIVITY',
+                    helper_type: 'USER',
+                    user_id: '101',
+                    article_id: 'article-1',
+                    value: 10,
+                    description: 'Updated via upsert endpoint'
+                }
+            ];
+
+            const response = await request(app)
+                .put('/api/rankings/upsert')
+                .send(upsertData);
+
+            expect(response.status).toBe(200);
+            expect(response.body.count).toBe(1);
+
+            // Verify the ranking was updated
+            const ranking = await request(app).get('/api/rankings/ranking-1');
+            expect(ranking.body.value).toBe(10);
+            expect(ranking.body.description).toBe('Updated via upsert endpoint');
+        });
+
+        it('Should handle mixed insert and update operations', async () => {
+            const mixedData = [
+                // Update existing ranking-2
+                {
+                    ranking_type: 'OFFENSIVE',
+                    helper_type: 'USER',
+                    user_id: '101',
+                    article_id: 'article-1',
+                    value: 1,
+                    description: 'Updated ranking'
+                },
+                // Insert new ranking
+                {
+                    ranking_type: 'OBJECTIVITY',
+                    helper_type: 'AI',
+                    user_id: '102',
+                    article_id: 'article-4',
+                    value: 9,
+                    description: 'New AI ranking'
+                }
+            ];
+
+            const response = await request(app)
+                .put('/api/rankings/upsert')
+                .send(mixedData);
+
+            expect(response.status).toBe(200);
+            expect(response.body.count).toBe(2);
+
+            // Verify update
+            const updated = await request(app).get('/api/rankings/ranking-2');
+            expect(updated.body.value).toBe(1);
+            expect(updated.body.description).toBe('Updated ranking');
+
+            // Verify insert
+            const allRankings = await request(app).get('/api/rankings?user_id=102&article_id=article-4');
+            expect(allRankings.body.length).toBe(1);
+            expect(allRankings.body[0].helper_type).toBe('AI');
+        });
+
+        it('Should return 400 for invalid data', async () => {
+            const invalidData = [
+                {
+                    ranking_type: 'OBJECTIVITY',
+                    // missing required fields
+                }
+            ];
+
+            const response = await request(app)
+                .put('/api/rankings/upsert')
+                .send(invalidData);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toHaveProperty('error');
+        });
+
+        it('Should handle empty array gracefully', async () => {
+            const response = await request(app)
+                .put('/api/rankings/upsert')
+                .send([]);
+
+            expect(response.status).toBe(200);
+            expect(response.body.count).toBe(0);
+        });
+
+        it('Should upsert large batch efficiently', async () => {
+            const largeBatch = [
+                {
+                    ranking_type: 'OBJECTIVITY',
+                    helper_type: 'AI',
+                    user_id: '101',
+                    article_id: 'article-2',
+                    value: 7,
+                    description: 'Batch 1'
+                },
+                {
+                    ranking_type: 'OBJECTIVITY',
+                    helper_type: 'AI',
+                    user_id: '101',
+                    article_id: 'article-3',
+                    value: 8,
+                    description: 'Batch 2'
+                },
+                {
+                    ranking_type: 'OBJECTIVITY',
+                    helper_type: 'AI',
+                    user_id: '101',
+                    article_id: 'article-4',
+                    value: 9,
+                    description: 'Batch 3'
+                }
+            ];
+
+            const response = await request(app)
+                .put('/api/rankings/upsert')
+                .send(largeBatch);
+
+            expect(response.status).toBe(200);
+            expect(response.body.count).toBe(3);
+
+            // Verify all were created
+            const allRankings = await request(app).get('/api/rankings?user_id=101');
+            expect(allRankings.body.length).toBeGreaterThanOrEqual(5); // 2 original + 3 new
+        });
+    });
 })
 
