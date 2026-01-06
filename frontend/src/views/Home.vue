@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import apiClient from '../services/api'
 
 interface ApiResponse {
   message: string
@@ -14,7 +14,7 @@ const backendResponse = ref<ApiResponse | null>(null)
 
 const checkBackend = async () => {
   try {
-    const response = await axios.get<ApiResponse>('/api/test')
+    const response = await apiClient.get<ApiResponse>('/test')
     backendResponse.value = response.data
     backendStatus.value = 'Connected ✓'
   } catch (error) {
