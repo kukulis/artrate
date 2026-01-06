@@ -4,6 +4,7 @@ export interface Article {
   id: string
   title: string
   author_id: string
+  user_id: number
   content: string
   created_at?: Date
   updated_at?: Date
@@ -32,7 +33,7 @@ class ArticleService {
   /**
    * Create a new article
    */
-  async create(article: Omit<Article, 'id' | 'created_at' | 'updated_at'>): Promise<Article> {
+  async create(article: Omit<Article, 'id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<Article> {
     const response = await apiClient.post<Article>('/articles', article)
     return response.data
   }

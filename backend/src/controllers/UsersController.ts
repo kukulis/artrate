@@ -13,6 +13,7 @@ export class UsersController {
             const currentUser = this.authenticationHandler.getUser(req);
             res.json(currentUser);
         } catch (error) {
+            // TODO debugging for ts
             // TODO find a better way to log errors
             console.error('Error getting current user:', error);
             res.status(500).json({
