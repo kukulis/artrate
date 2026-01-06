@@ -45,7 +45,7 @@ export class RankingRepository {
             values.push(filter.user_id)
         }
 
-        if (filter.not_id != null ) {
+        if (filter.not_id != null) {
             conditions.push('id != ?')
             values.push(filter.not_id)
         }
@@ -122,5 +122,40 @@ export class RankingRepository {
             connection.release()
         }
 
+    }
+
+    async upsertRankings(rankings: Ranking[]): Promise<void> {
+        if (rankings.length === 0) {
+            return;
+        }
+
+        const connection = await this.pool.getConnection();
+        try {
+            const values = rankings.map(ranking => {
+                const values = [
+                    ranking.id,
+                    ranking.ranking_type,
+                    ranking.helper_type,
+                    ranking.user_id,
+                    ranking.article_id,
+                    ranking.value,
+                    ranking.description
+                ];
+                const escapedValues = values.map((value) => connection.escape(value))
+                const escapedValuesStr = escapedValues.join(', ')
+
+                return '('+escapedValuesStr+')';
+            }).join(",\n");
+
+            const sql = `
+                INSERT INTO rankings (id, ranking_type, helper_type, user_id, article_id, value, description)
+                VALUES ${values} ON DUPLICATE KEY
+                UPDATE value = VALUES (value), 
+                       description = VALUES (description)`;
+
+            await connection.query(sql);
+        } finally {
+            connection.release();
+        }
     }
 }

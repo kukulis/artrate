@@ -91,13 +91,6 @@ export const RankingSchemaForInsert = RankingSchemaBase.omit({
 })
     .transform((data) => Object.assign(new Ranking(), data))
 
-// Schema for partial updates (all fields optional except id)
-export const RankingSchemaForUpdate = RankingSchemaBase.omit({
-    id: true,
-    created_at: true,
-    updated_at: true,
-}).partial()
-
 // Schema with transform to Ranking class instance
 export const RankingSchema = RankingSchemaBase.transform((data) => Object.assign(new Ranking(), data))
 
