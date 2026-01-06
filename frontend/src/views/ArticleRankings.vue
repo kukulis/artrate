@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import {computed, onMounted, ref} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
 import RankingService from '../services/RankingService'
 import UsersService from '../services/UsersService'
-import type { Ranking, RankingType, RankingHelper } from '../types/ranking'
-import type { User } from '../types/user'
-import { formatDate } from '../utils/dateFormat'
+import type {Ranking, RankingHelper, RankingType} from '../types/ranking'
+import type {User} from '../types/user'
+import {formatDate} from '../utils/dateFormat'
+import ArticleService from "../services/ArticleService.ts";
+import {Article} from "../types/article.ts";
 
 const route = useRoute()
 const router = useRouter()
@@ -15,6 +17,7 @@ const rankings = ref<Ranking[]>([])
 const rankingTypes = ref<RankingType[]>([])
 const rankingHelpers = ref<RankingHelper[]>([])
 const currentUser = ref<User | null>(null)
+const currentArticle = ref<Article | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
 const showForm = ref(false)
@@ -30,13 +33,15 @@ const formDescription = ref('')
 const formError = ref<string | null>(null)
 const formLoading = ref(false)
 
-const articleTitle = computed(() => `Article ${articleId.value}`)
+const articleTitle = computed(() => {
+  return 'Article [' + (currentArticle.value ? currentArticle.value.title : '-') + ']'
+})
 
 const fetchRankings = async () => {
   loading.value = true
   error.value = null
   try {
-    rankings.value = await RankingService.getAll({ article_id: articleId.value })
+    rankings.value = await RankingService.getAll({article_id: articleId.value})
   } catch (err) {
     error.value = 'Failed to load rankings'
     console.error('Error fetching rankings:', err)
@@ -47,14 +52,16 @@ const fetchRankings = async () => {
 
 const fetchMetadata = async () => {
   try {
-    const [types, helpers, user] = await Promise.all([
+    const [types, helpers, user, article] = await Promise.all([
       RankingService.getRankingTypes(),
       RankingService.getRankingHelpers(),
-      UsersService.getCurrentUser()
+      UsersService.getCurrentUser(),
+      ArticleService.getById(articleId.value)
     ])
     rankingTypes.value = types
     rankingHelpers.value = helpers
     currentUser.value = user
+    currentArticle.value = article
   } catch (err) {
     console.error('Error fetching metadata:', err)
   }
@@ -268,12 +275,12 @@ onMounted(() => {
           <div class="form-group">
             <label for="user-id">User ID *</label>
             <input
-              id="user-id"
-              v-model="formUserId"
-              type="text"
-              readonly
-              disabled
-              class="readonly-field"
+                id="user-id"
+                v-model="formUserId"
+                type="text"
+                readonly
+                disabled
+                class="readonly-field"
             />
             <small class="field-note">User ID is set automatically</small>
           </div>
@@ -281,12 +288,12 @@ onMounted(() => {
           <div class="form-group">
             <label for="article-id">Article ID *</label>
             <input
-              id="article-id"
-              v-model="formArticleId"
-              type="text"
-              readonly
-              disabled
-              class="readonly-field"
+                id="article-id"
+                v-model="formArticleId"
+                type="text"
+                readonly
+                disabled
+                class="readonly-field"
             />
             <small class="field-note">Article ID is based on current article</small>
           </div>
@@ -294,10 +301,10 @@ onMounted(() => {
           <div class="form-group">
             <label for="ranking-type">Ranking Type *</label>
             <select
-              id="ranking-type"
-              v-model="formRankingType"
-              required
-              :disabled="formLoading"
+                id="ranking-type"
+                v-model="formRankingType"
+                required
+                :disabled="formLoading"
             >
               <option value="">Select a ranking type</option>
               <option v-for="type in rankingTypes" :key="type.code" :value="type.code">
@@ -309,10 +316,10 @@ onMounted(() => {
           <div class="form-group">
             <label for="helper-type">Helper Type *</label>
             <select
-              id="helper-type"
-              v-model="formHelperType"
-              required
-              :disabled="formLoading"
+                id="helper-type"
+                v-model="formHelperType"
+                required
+                :disabled="formLoading"
             >
               <option value="">Select a helper type</option>
               <option v-for="helper in rankingHelpers" :key="helper.code" :value="helper.code">
@@ -324,26 +331,26 @@ onMounted(() => {
           <div class="form-group">
             <label for="value">Value (0-10) *</label>
             <input
-              id="value"
-              v-model.number="formValue"
-              type="number"
-              min="0"
-              max="10"
-              step="0.1"
-              required
-              :disabled="formLoading"
+                id="value"
+                v-model.number="formValue"
+                type="number"
+                min="0"
+                max="10"
+                step="0.1"
+                required
+                :disabled="formLoading"
             />
           </div>
 
           <div class="form-group">
             <label for="description">Description *</label>
             <textarea
-              id="description"
-              v-model="formDescription"
-              placeholder="Enter ranking description"
-              rows="4"
-              required
-              :disabled="formLoading"
+                id="description"
+                v-model="formDescription"
+                placeholder="Enter ranking description"
+                rows="4"
+                required
+                :disabled="formLoading"
             ></textarea>
           </div>
 
