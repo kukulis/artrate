@@ -2,7 +2,7 @@ export interface Ranking {
   id: string
   ranking_type: string
   helper_type: string
-  user_id: string
+  user_id: number
   article_id: string
   value: number
   description: string

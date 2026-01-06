@@ -35,7 +35,7 @@ export function createRankingRoutes(dbPool: Pool) {
  * Create routes for ranking metadata (types and helpers)
  * These are typically mounted at /api level, not under /api/rankings
  */
-export function createRankingMetadataRoutes(dbPool: Pool) {
+export function createRankingMetadataRoutes() {
   const router = Router();
   const metadataController = new RankingMetadataController();
 

@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import AuthorService from '../services/AuthorService'
 import type { Author } from '../types/author'
+import { formatDate } from '../utils/dateFormat'
 
 const authors = ref<Author[]>([])
 const loading = ref(false)
@@ -150,7 +151,7 @@ onMounted(() => {
           <div class="author-meta">
             <span class="author-id">ID: {{ author.id }}</span>
             <span v-if="author.created_at" class="date">
-              Created: {{ new Date(author.created_at).toLocaleDateString() }}
+              Created: {{ formatDate(author.created_at) }}
             </span>
           </div>
         </div>

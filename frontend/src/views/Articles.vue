@@ -4,6 +4,7 @@ import ArticleService from '../services/ArticleService'
 import AuthorService from '../services/AuthorService'
 import type { Article } from '../types/article'
 import type { Author } from '../types/author'
+import { formatDate } from '../utils/dateFormat'
 
 const articles = ref<Article[]>([])
 const authors = ref<Author[]>([])
@@ -176,7 +177,7 @@ onMounted(() => {
           <p class="article-meta">
             <span class="author-name">By: {{ getAuthorName(article.author_id) }}</span>
             <span v-if="article.created_at" class="date">
-              {{ new Date(article.created_at).toLocaleDateString() }}
+              {{ formatDate(article.created_at) }}
             </span>
           </p>
           <p class="article-text">{{ article.content }}</p>

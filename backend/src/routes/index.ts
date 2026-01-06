@@ -11,7 +11,7 @@ export function createRouter(pool: Pool): Router {
     router.use('/articles', createArticleRoutes(pool));
     router.use('/authors', createAuthorRoutes(pool));
     router.use('/rankings', createRankingRoutes(pool));
-    router.use('/', createRankingMetadataRoutes(pool));
+    router.use('/', createRankingMetadataRoutes());
     router.use('/', createUserRoutes());
 
     return router;

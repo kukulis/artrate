@@ -19,7 +19,7 @@ export class AuthenticationHandler {
 
         // For now, return hardcoded admin user
         return {
-            id: 101,
+            id: 1,
             name: 'admin',
             email: 'admin@darbelis.eu'
         };
