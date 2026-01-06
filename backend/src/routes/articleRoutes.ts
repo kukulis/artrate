@@ -62,5 +62,3 @@ export function createArticleRoutes(dbPool: Pool) {
   return router;
 }
 
-// // Default export uses global pool for backward compatibility
-// export default createArticleRoutes();

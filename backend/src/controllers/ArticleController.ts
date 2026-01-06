@@ -2,7 +2,7 @@ import {Request, Response} from 'express';
 import {ArticleService} from '../services/ArticleService';
 import {ArticleRepository} from "../repositories/ArticleRepository";
 import {Article, CreateArticleSchema, UpdateArticleSchema} from "../entities";
-import {z} from 'zod';
+import {ControllerHelper} from "./ControllerHelper";
 
 export class ArticleController {
     private articleService: ArticleService;
@@ -88,21 +88,8 @@ export class ArticleController {
 
             res.status(201).json(created);
         } catch (error) {
-            // Handle Zod validation errors
-            if (error instanceof z.ZodError) {
-                // If there's only one error (like from .refine()), use it as the main error
-                const errorMessage = error.issues.length === 1 && error.issues[0].path.length === 0
-                    ? error.issues[0].message
-                    : 'Validation failed';
-
-                res.status(400).json({
-                    error: errorMessage,
-                    details: error.issues.map(err => ({
-                        field: err.path.join('.'),
-                        message: err.message
-                    }))
-                });
-                return;
+            if ( ControllerHelper.handleZodError(error, res )) {
+                return
             }
 
             console.error('Error creating article:', error);
@@ -138,20 +125,8 @@ export class ArticleController {
             res.json(updated);
         } catch (error) {
             // Handle Zod validation errors
-            if (error instanceof z.ZodError) {
-                // If there's only one error (like from .refine()), use it as the main error
-                const errorMessage = error.issues.length === 1 && error.issues[0].path.length === 0
-                    ? error.issues[0].message
-                    : 'Validation failed';
-
-                res.status(400).json({
-                    error: errorMessage,
-                    details: error.issues.map(err => ({
-                        field: err.path.join('.'),
-                        message: err.message
-                    }))
-                });
-                return;
+            if ( ControllerHelper.handleZodError(error, res )) {
+                return
             }
 
             console.error('Error updating article:', error);

@@ -70,5 +70,11 @@ describe('Ranking API Integration Tests', () => {
             expect(response.body.length).toBe(4); // 2 rankings for article-1
         });
     })
+
+    describe('POST /api/rankings', () => {
+        it('Just add a new ranking', ()=>{
+            console.log('TODO')
+        })
+    })
 })
 

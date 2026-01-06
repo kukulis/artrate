@@ -1,30 +1,34 @@
 import {Request, Response} from "express";
 import {RankingFilter, RankingFilterHelpers} from "../types/RankingFilter";
 import {RankingRepository} from "../repositories/RankingRepository";
-import {Ranking} from "../entities";
+import {RankingSchemaForInsert} from "../entities";
+import {ControllerHelper} from "./ControllerHelper";
+import {IdGenerator} from "../services/IdGenerator";
+import {RankingValidator} from "../services/RankingValidator";
 
 export class RankingController {
-    public constructor(private rankingRepository: RankingRepository) {
+    public constructor(private rankingRepository: RankingRepository,
+                       private idGenerator: IdGenerator,
+                       private rankingValidator: RankingValidator,
+    ) {
     }
 
-    async getRankings2(req: Request, res: Response) : Promise<void> {
+    async getRankings2(req: Request, res: Response): Promise<void> {
         console.log('this:', this)
         // console.log('res', res)
-        if ( req == undefined) {
+        if (req == undefined) {
             console.log('req is undefined')
-        }
-        else {
+        } else {
             console.log('req is IS DEFINED')
         }
-        if ( res == undefined) {
+        if (res == undefined) {
             console.log('res is undefined')
             return;
-        }
-        else {
+        } else {
             console.log('res is DEFINED')
         }
 
-        res.json({laba:'diena'})
+        res.json({laba: 'diena'})
     }
 
     getRankings = async (req: Request, res: Response): Promise<void> => {
@@ -53,12 +57,29 @@ export class RankingController {
     }
 
     addRanking = async (req: Request, res: Response): Promise<void> => {
-        const rankingData =  req.body as Ranking
         try {
-            // TODO
-            console.log('rankingData', rankingData)
+            const ranking = RankingSchemaForInsert.parse(req.body);
+
+            ranking.setId(this.idGenerator.nextId())
+            // other validations ... ?
+            const existing = await this.rankingValidator.findDuplicate(ranking)
+            if ( existing != null ) {
+                res.status(400).json({
+                    error: "There is an existing ranking with same user, article, type and helper and has id "+existing.id,
+                })
+                return;
+            }
+
+            const created = this.rankingRepository.createRanking(ranking)
+
+            res.json(created)
         } catch (error) {
             console.error('Error creating ranking:', error);
+
+            if (ControllerHelper.handleZodError(error, res)) {
+                return
+            }
+
             res.status(500).json({
                 error: 'Failed to create ranking',
                 message: error instanceof Error ? error.message : 'Unknown error'
@@ -67,7 +88,7 @@ export class RankingController {
 
     }
 
-    // TODO add, update and delete
+    // TODO update and delete
 
     // then cover with test
 }

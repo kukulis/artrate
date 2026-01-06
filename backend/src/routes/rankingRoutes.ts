@@ -2,6 +2,8 @@ import { Router } from 'express';
 import {RankingController} from "../controllers/RankingController";
 import {RankingRepository} from "../repositories/RankingRepository";
 import { Pool } from 'mysql2/promise';
+import {RandomIdGenerator} from "../services/RandomIdGenerator";
+import {RankingValidator} from "../services/RankingValidator";
 
 /**
  * Create ranking routes with a given connection pool
@@ -10,16 +12,16 @@ import { Pool } from 'mysql2/promise';
 export function createRankingRoutes(dbPool: Pool) {
   const router = Router();
   const rankingRepository = new RankingRepository(dbPool)
-  const rankingController = new RankingController(rankingRepository)
+  const idGenerator = new RandomIdGenerator()
+  const rankingValidator = new RankingValidator(rankingRepository)
+  const rankingController = new RankingController(rankingRepository, idGenerator, rankingValidator)
 
   /**
    *  @route   GET /api/rankings
    */
   router.get('/failing', rankingController.getRankings2);
   router.get('/', rankingController.getRankings);
+  router.post('/', rankingController.addRanking);
 
   return router;
 }
-
-// // Default export uses global pool for backward compatibility
-// export default createRankingRoutes();

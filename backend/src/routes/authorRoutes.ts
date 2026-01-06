@@ -51,6 +51,4 @@ export function createAuthorRoutes(dbPool: Pool) {
 
   return router;
 }
-//
-// // Default export uses global pool for backward compatibility
-// export default createAuthorRoutes();
+

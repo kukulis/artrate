@@ -84,6 +84,13 @@ export const RankingSchemaBase = z.object({
     updated_at: z.date(),
 });
 
+export const RankingSchemaForInsert = RankingSchemaBase.omit({
+    id: true,
+    created_at: true,
+    updated_at: true,
+})
+    .transform((data) => Object.assign(new Ranking(), data))
+
 // Schema with transform to Ranking class instance
 export const RankingSchema = RankingSchemaBase.transform((data) => Object.assign(new Ranking(), data))
 

@@ -13,5 +13,6 @@ export const RankingFilterHelpers = {
             filter.article_id != undefined ||
             filter.ranking_helper != undefined ||
             filter.ranking_type != undefined;
-    }
+    },
+
 }
