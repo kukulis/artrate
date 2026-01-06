@@ -78,6 +78,7 @@ export class RankingType {
   /**
    * Get all valid ranking types.
    * @returns Array of all RankingType instances
+   * // TODO leave only actual types here
    */
   static getAll(): RankingType[] {
     return [

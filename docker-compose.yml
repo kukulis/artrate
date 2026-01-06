@@ -93,6 +93,37 @@ services:
     networks:
       - artcorrect-network
 
+  loki:
+    image: grafana/loki:latest
+    container_name: artcorrect-loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./.docker/loki/loki-config.yaml:/etc/loki/local-config.yaml
+      - loki_data:/tmp/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - artcorrect-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: artcorrect-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./.docker/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - loki
+    networks:
+      - artcorrect-network
+
 networks:
   artcorrect-network:
     driver: bridge
@@ -100,3 +131,5 @@ networks:
 volumes:
   artcorrect_db_data:
   artc_tst_db_data:
+  loki_data:
+  grafana_data:
