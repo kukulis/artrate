@@ -1,56 +1,89 @@
-import { RankingType } from '../types/RankingType';
+import {z} from "zod";
+import {RankingType} from "../types";
+import {RankingHelper} from "../types/RankingHelper";
 
-export interface Ranking {
-  id: string;
-  ranking_type: string;  // Stores RankingType.code
-  helper_type: string;  // Stores RankingHelper.code
-  user_id: string;
-  article_id: string;
-  value: number;
-  description: string;
-  created_at: Date;
-  updated_at: Date;
+export class Ranking {
+    public id: string = "";
+    public ranking_type: string = RankingType.ACCURACY.code;
+    public helper_type: string = RankingHelper.USER.code;
+    public user_id: string = "";
+    public article_id: string = "";
+    public value: number = 0;
+    public description: string = "";
+    public created_at: Date | null = null;
+    public updated_at: Date | null = null;
+
+
+    setId(value: string): Ranking {
+        this.id = value;
+
+        return this;
+    }
+
+    setRankingType(value: string): Ranking {
+        this.ranking_type = value;
+
+        return this;
+    }
+
+    setHelperType(value: string): Ranking {
+
+        this.helper_type = value;
+
+        return this;
+    }
+
+    setUserId(value: string): Ranking {
+        this.user_id = value;
+
+        return this;
+
+    }
+
+    setArticleId(value: string): Ranking {
+        this.article_id = value;
+
+        return this;
+    }
+
+    setValue(value: number): Ranking {
+        this.value = value;
+
+        return this;
+    }
+
+    setDescription(value: string): Ranking {
+        this.description = value;
+
+        return this;
+    }
+
+    setCreatedAt(value: Date | null): Ranking {
+        this.created_at = value;
+
+        return this;
+    }
+
+    setUpdatedAt(value: Date | null): Ranking {
+        this.updated_at = value;
+
+        return this;
+    }
 }
 
-export interface CreateRankingDTO {
-  id: string;
-  ranking_type: string;  // Should be a valid RankingType.code
-  user_id: string;
-  value: number;
-}
+// Base schema for validation (can be used with .omit(), .pick(), etc.)
+export const RankingSchemaBase = z.object({
+    id: z.string(),
+    ranking_type: z.string(),
+    helper_type: z.string(),
+    user_id: z.string(),
+    article_id: z.string(),
+    value: z.number(),
+    description: z.string(),
+    created_at: z.date(),
+    updated_at: z.date(),
+});
 
-export interface UpdateRankingDTO {
-  ranking_type?: string;  // Should be a valid RankingType.code
-  user_id?: string;
-  value?: number;
-}
+// Schema with transform to Ranking class instance
+export const RankingSchema = RankingSchemaBase.transform((data) => Object.assign(new Ranking(), data))
 
-// Helper functions for working with RankingType
-export const RankingHelpers = {
-  /**
-   * Get the RankingType object for a ranking.
-   * @param ranking - The ranking entity
-   * @returns RankingType instance or undefined if invalid
-   */
-  getRankingType(ranking: Ranking): RankingType | undefined {
-    return RankingType.fromCode(ranking.ranking_type);
-  },
-
-  /**
-   * Check if a ranking has a valid ranking type.
-   * @param ranking - The ranking entity
-   * @returns true if ranking_type is valid
-   */
-  hasValidType(ranking: Ranking): boolean {
-    return RankingType.isValid(ranking.ranking_type);
-  },
-
-  /**
-   * Get the description for a ranking's type.
-   * @param ranking - The ranking entity
-   * @returns Description string or undefined if invalid
-   */
-  getTypeDescription(ranking: Ranking): string | undefined {
-    return this.getRankingType(ranking)?.description;
-  }
-};
