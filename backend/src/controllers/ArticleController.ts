@@ -3,15 +3,22 @@ import {ArticleService} from '../services/ArticleService';
 import {ArticleRepository} from "../repositories/ArticleRepository";
 import {Article, CreateArticleSchema, UpdateArticleSchema} from "../entities";
 import {ControllerHelper} from "./ControllerHelper";
+import {AuthenticationHandler} from "./AuthenticationHandler";
 
 export class ArticleController {
     private articleService: ArticleService;
     private articleRepository: ArticleRepository;
+    private authenticationHandler: AuthenticationHandler;
 
 
-    constructor(articleService: ArticleService, articleRepository: ArticleRepository) {
+    constructor(
+        articleService: ArticleService,
+        articleRepository: ArticleRepository,
+        authenticationHandler: AuthenticationHandler
+    ) {
         this.articleService = articleService;
         this.articleRepository = articleRepository;
+        this.authenticationHandler = authenticationHandler;
     }
 
     /**
@@ -80,9 +87,15 @@ export class ArticleController {
      */
     createArticle = async (req: Request, res: Response): Promise<void> => {
         try {
+            // Get current authenticated user
+            const currentUser = this.authenticationHandler.getUser(req);
+
             // Validate and parse request body with Zod
-            // const validatedData = CreateArticleSchema.parse(req.body);
             const validatedData = CreateArticleSchema.parse(req.body);
+
+            // TODO: Add user_id field to Article schema to track who created the article
+            // For now, we have the user available for future validation/audit
+            console.log(`Article being created by user: ${currentUser.id} (${currentUser.email})`);
 
             const created = await this.articleService.createArticle(validatedData);
 

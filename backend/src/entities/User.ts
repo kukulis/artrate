@@ -1,3 +1,4 @@
+// TODO refactor with zod
 export interface User {
   id: number;
   email: string;
@@ -6,12 +7,3 @@ export interface User {
   updated_at: Date;
 }
 
-export interface CreateUserDTO {
-  email: string;
-  name: string;
-}
-
-export interface UpdateUserDTO {
-  email?: string;
-  name?: string;
-}

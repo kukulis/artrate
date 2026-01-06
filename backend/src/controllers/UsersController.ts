@@ -1,18 +1,16 @@
 import { Request, Response } from 'express';
+import { AuthenticationHandler } from './AuthenticationHandler';
 
 export class UsersController {
-    /**
-     * Get current user
-     * In this version, always returns the hardcoded admin user
-     */
-    getCurrentUser = async (_req: Request, res: Response): Promise<void> => {
-        try {
-            const currentUser = {
-                id: 1,
-                name: 'admin',
-                email: 'admin@darbelis.eu'
-            };
+    constructor(private authenticationHandler: AuthenticationHandler) {}
 
+    /**
+     * Get current authenticated user
+     * Uses AuthenticationHandler to extract user from request
+     */
+    getCurrentUser = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const currentUser = this.authenticationHandler.getUser(req);
             res.json(currentUser);
         } catch (error) {
             console.error('Error getting current user:', error);
