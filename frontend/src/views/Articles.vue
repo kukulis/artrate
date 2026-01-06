@@ -183,6 +183,9 @@ onMounted(() => {
           </div>
         </div>
         <div class="article-actions">
+          <router-link :to="`/articles/${article.id}/rankings`" class="btn-rankings">
+            Rankings
+          </router-link>
           <button @click="openEditForm(article)" class="btn-edit">Edit</button>
           <button @click="deleteArticle(article)" class="btn-delete">Delete</button>
         </div>
@@ -407,6 +410,22 @@ onMounted(() => {
   display: flex;
   gap: 0.5rem;
   flex-shrink: 0;
+}
+
+.btn-rankings {
+  background-color: #9b59b6;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-rankings:hover {
+  background-color: #8e44ad;
 }
 
 .btn-edit {
