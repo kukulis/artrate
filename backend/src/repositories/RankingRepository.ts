@@ -36,13 +36,18 @@ export class RankingRepository {
         }
 
         if (filter.ranking_helper != null) {
-            conditions.push('ranking_helper=?')
+            conditions.push('helper_type=?')
             values.push(filter.ranking_helper)
         }
 
         if (filter.user_id != null) {
             conditions.push('user_id=?')
             values.push(filter.user_id)
+        }
+
+        if (filter.not_id != null ) {
+            conditions.push('id != ?')
+            values.push(filter.not_id)
         }
 
         let conditionsStr = '';

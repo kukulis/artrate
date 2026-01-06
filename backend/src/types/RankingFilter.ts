@@ -3,6 +3,7 @@ export interface RankingFilter {
     user_id: string | null
     ranking_type: string | null
     ranking_helper: string | null
+    not_id: string | null
 
 }
 

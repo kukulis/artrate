@@ -7,12 +7,17 @@ export class RankingValidator {
     }
     public async findDuplicate(ranking: Ranking): Promise<Ranking|null> {
 
-        const rankingFilter = {
+        const rankingFilterData = {
             article_id: ranking.article_id,
             user_id: ranking.user_id,
             ranking_type: ranking.ranking_type,
             ranking_helper: ranking.helper_type,
-        } as RankingFilter;
+        }
+
+        const rankingFilter = rankingFilterData as RankingFilter;
+        if ( ranking.id != undefined) {
+            rankingFilter.not_id = ranking.id
+        }
 
         const existings = await this.rankingRepository.findWithFilter(rankingFilter)
 

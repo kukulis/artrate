@@ -55,6 +55,24 @@ export class RankingController {
             });
         }
     }
+    getRanking = async (req: Request, res: Response): Promise<void> => {
+        const {id} = req.params;
+        try {
+
+            const ranking = await this.rankingRepository.findById(id)
+            if (!ranking) {
+                res.status(404).json({error: 'Ranking not found'});
+                return;
+            }
+            res.json(ranking);
+        } catch (error) {
+            console.error('Error getting ranking:', error);
+            res.status(500).json({
+                error: 'Failed to retrieve ranking',
+                message: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    }
 
     addRanking = async (req: Request, res: Response): Promise<void> => {
         try {
@@ -63,16 +81,16 @@ export class RankingController {
             ranking.setId(this.idGenerator.nextId())
             // other validations ... ?
             const existing = await this.rankingValidator.findDuplicate(ranking)
-            if ( existing != null ) {
+            if (existing != null) {
                 res.status(400).json({
-                    error: "There is an existing ranking with same user, article, type and helper and has id "+existing.id,
+                    error: "There is an existing ranking with same user, article, type and helper and has id " + existing.id,
                 })
                 return;
             }
 
-            const created = this.rankingRepository.createRanking(ranking)
+            const created = await this.rankingRepository.createRanking(ranking)
 
-            res.json(created)
+            res.status(201).json(created)
         } catch (error) {
             console.error('Error creating ranking:', error);
 
@@ -88,7 +106,72 @@ export class RankingController {
 
     }
 
-    // TODO update and delete
+    updateRanking = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const {id} = req.params;
 
-    // then cover with test
+            // Check if ranking exists
+            const existingRanking = await this.rankingRepository.findById(id);
+            if (!existingRanking) {
+                res.status(404).json({error: 'Ranking not found'});
+                return;
+            }
+
+            const ranking = RankingSchemaForInsert.parse(req.body);
+
+            ranking.setId(id)
+            // other validations ... ?
+            const existing = await this.rankingValidator.findDuplicate(ranking)
+            if (existing != null) {
+                res.status(400).json({
+                    error: "There is an existing ranking with same user, article, type and helper and has id " + existing.id,
+                })
+                return;
+            }
+
+            const updated = await this.rankingRepository.updateRanking(ranking)
+
+            res.json(updated)
+        } catch (error) {
+            console.error('Error updating ranking:', error);
+
+            if (ControllerHelper.handleZodError(error, res)) {
+                return
+            }
+
+            res.status(500).json({
+                error: 'Failed to update ranking',
+                message: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    }
+
+    deleteRanking = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const {id} = req.params;
+
+            // Check if ranking exists first
+            const existingRanking = await this.rankingRepository.findById(id);
+            if (!existingRanking) {
+                res.status(404).json({error: 'Ranking not found'});
+                return;
+            }
+
+            await this.rankingRepository.deleteRanking(id)
+
+            res.status(204).send();
+        } catch (error) {
+            console.error('Error deleting ranking:', error);
+
+            if (error instanceof Error && error.message.includes('not found')) {
+                res.status(404).json({error: error.message});
+                return;
+            }
+
+            res.status(500).json({
+                error: 'Failed to delete ranking',
+                message: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    }
 }
