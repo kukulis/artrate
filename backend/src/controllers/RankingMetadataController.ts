@@ -12,9 +12,14 @@ export class RankingMetadataController {
      * Get all available ranking types.
      * @route GET /api/ranking-types
      */
-    getRankingTypes = (_req: Request, res: Response): void => {
+    getRankingTypes = (req: Request, res: Response): void => {
         try {
-            const rankingTypes = RankingType.getAll();
+            let rankingTypes = RankingType.getAll();
+
+            if ( req.query.group_id === "1" ) {
+                rankingTypes = RankingType.getAllGroup1()
+            }
+
             res.json(rankingTypes);
         } catch (error) {
             logger.error('Error getting ranking types', wrapError(error));

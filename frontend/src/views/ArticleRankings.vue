@@ -53,7 +53,7 @@ const fetchRankings = async () => {
 const fetchMetadata = async () => {
   try {
     const [types, helpers, user, article] = await Promise.all([
-      RankingService.getRankingTypes(),
+      RankingService.getRankingTypes(1),
       RankingService.getRankingHelpers(),
       UsersService.getCurrentUser(),
       ArticleService.getById(articleId.value)

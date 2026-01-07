@@ -78,7 +78,6 @@ export class RankingType {
   /**
    * Get all valid ranking types.
    * @returns Array of all RankingType instances
-   * // TODO leave only actual types here
    */
   static getAll(): RankingType[] {
     return [
@@ -92,6 +91,15 @@ export class RankingType {
       RankingType.LOGICAL,
       RankingType.BALANCED,
       RankingType.EMOTIONAL,
+    ];
+  }
+  static getAllGroup1(): RankingType[] {
+    return [
+      RankingType.ACCURACY,
+      RankingType.OBJECTIVITY,
+      RankingType.QUALITY,
+      RankingType.OFFENSIVE,
+      RankingType.LOGICAL,
     ];
   }
 

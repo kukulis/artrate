@@ -57,8 +57,13 @@ class RankingService {
   /**
    * Get all available ranking types
    */
-  async getRankingTypes(): Promise<RankingType[]> {
-    const response = await apiClient.get<RankingType[]>('/ranking-types')
+  async getRankingTypes(group_id?: int): Promise<RankingType[]> {
+
+    let params = '';
+    if ( group_id !== undefined) {
+      params = '?group_id='+group_id
+    }
+    const response = await apiClient.get<RankingType[]>('/ranking-types'+params)
     return response.data
   }
 
