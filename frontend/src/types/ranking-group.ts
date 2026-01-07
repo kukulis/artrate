@@ -1,10 +1,35 @@
 import {Ranking} from "./ranking.ts";
 
 export class RankingGroup {
-    rankings: Record<string, number>
+    rankings: Record<string, number> = {}
     helperType: string
     userId: number
     articleId: string
+
+    public setHelperType(helperType: string): RankingGroup {
+        this.helperType = helperType;
+
+        return this
+    }
+
+    public setUserId(userId: number): RankingGroup {
+        this.userId = userId;
+
+        return this
+    }
+
+    public setArticleId(articleId: string): RankingGroup {
+        this.articleId = articleId;
+
+        return this
+    }
+
+    public setRanking(rankingType, value): RankingGroup {
+        this.rankings[rankingType] = value
+
+        return this
+    }
+
 
     static createGroup(helperType: string, userId: string, articleId: string, rankingTypes: string[]): RankingGroup | null {
 
@@ -27,28 +52,66 @@ export class RankingGroup {
     }
 
     static buildGroups(rankings: Ranking[]): RankingGroup[] {
-        // TODO
-        return [];
-    }
+        const groupsMap: Record<string, RankingGroup> = {};
 
-    static fillFromGroups(rankings: Ranking[], groups: RankingGroup[])  {
-        // TODO
-    }
+        for (const ranking of rankings) {
+            const groupKey = RankingGroup.buildRankingGroupKey(ranking);
 
+            if (!groupsMap[groupKey]) {
+                groupsMap[groupKey] = new RankingGroup()
+                    .setHelperType(ranking.helper_type)
+                    .setUserId(ranking.user_id)
+                    .setArticleId(ranking.article_id);
+            }
+
+            groupsMap[groupKey].setRanking(ranking.ranking_type, ranking.value);
+        }
+
+        return Object.values(groupsMap);
+    }
 
     fillFromRankings(rankings: Ranking[]) {
-        // TODO
+        // may be need to validate other fields
         for (const ranking of rankings) {
-            group.rankings[ranking.ranking_type] = ranking.value
+            this.rankings[ranking.ranking_type] = ranking.value
         }
     }
 
     extractRankings(): Ranking[] {
-        // TODO
-        return [];
+        const rankings: Ranking[] = [];
+
+        for (const rankingType in this.rankings) {
+            const ranking: Ranking = {
+                helper_type: this.helperType,
+                user_id: this.userId,
+                article_id: this.articleId,
+                ranking_type: rankingType,
+                value: this.rankings[rankingType],
+            }
+
+            rankings.push(ranking)
+        }
+
+        return rankings;
     }
 
-    buildRankingKey(ranking: Ranking): string {
+    static buildRankingKey(ranking: Ranking): string {
         return ranking.article_id + '__' + ranking.user_id + '__' + ranking.helper_type + '__' + ranking.ranking_type;
+    }
+
+    static buildRankingGroupKey(ranking: Ranking): string {
+        return ranking.article_id + '__' + ranking.user_id + '__' + ranking.helper_type;
+    }
+
+    buildGroupKey(): string {
+        return this.articleId + '__' + this.userId + '__' + this.helperType;
+    }
+
+    fillMissingRankings(rankingTypes: string [], defaultValue : int ) {
+        for ( const type of  rankingTypes ) {
+            if ( this.rankings [type ] === undefined ) {
+                this.rankings[type] = defaultValue
+            }
+        }
     }
 }

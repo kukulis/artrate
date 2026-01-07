@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { RankingGroup } from './ranking-group'
+import {describe, it, expect} from 'vitest'
+import {RankingGroup} from './ranking-group'
 
 describe('RankingGroup.createGroup', () => {
     it('should create a RankingGroup with valid parameters', () => {
@@ -10,6 +10,7 @@ describe('RankingGroup.createGroup', () => {
         expect(group?.helperType).toBe('grammar')
         expect(group?.userId).toBe('123')
         expect(group?.articleId).toBe('article-1')
+        expect(group?.rankings).toEqual({quality: 5, accuracy: 5, clarity: 5})
     })
 
     it('should return null when rankingTypes array is empty', () => {

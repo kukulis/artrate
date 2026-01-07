@@ -1,23 +1,83 @@
-import { describe, it, expect } from 'vitest'
-import { RankingGroup } from './ranking-group'
-import { Ranking } from './ranking'
+import {describe, it, expect} from 'vitest'
+import {RankingGroup} from './ranking-group'
+import {Ranking} from './ranking'
 
 describe('RankingGroup.buildGroups', () => {
-    it('should return an empty array', () => {
-        const mockRanking: Ranking = {
+    it('should group with a single ranking', () => {
+        const rankings: Ranking[] = [{
             id: '1',
             ranking_type: 'quality',
-            helper_type: 'grammar',
+            helper_type: 'USER',
             user_id: 123,
             article_id: 'article-1',
             value: 8,
             description: 'Test ranking'
-        }
+        }];
 
-        const rankings: Ranking[] = [mockRanking]
-        const result = RankingGroup.buildGroups(rankings)
+        const expectedGroups: RankingGroup[] = [
+            (new RankingGroup())
+                .setHelperType('USER')
+                .setUserId(123)
+                .setArticleId('article-1')
+                .setRanking('quality', 8)
+            ,
+        ];
 
-        expect(result).toEqual([])
-        expect(Array.isArray(result)).toBe(true)
+        const result: RankingGroup = RankingGroup.buildGroups(rankings)
+
+        expect(result).toEqual(expectedGroups)
+    });
+
+    it('should get two groups', () => {
+        const rankings: Ranking[] = [
+            {
+                id: '1',
+                ranking_type: 'quality',
+                helper_type: 'USER',
+                user_id: 123,
+                article_id: 'article-1',
+                value: 8,
+                description: 'Test ranking'
+            },
+            {
+                id: '2',
+                ranking_type: 'ETHICS',
+                helper_type: 'USER',
+                user_id: 123,
+                article_id: 'article-1',
+                value: 7,
+                description: 'Test ranking'
+            },
+            {
+                id: '3',
+                ranking_type: 'ETHICS',
+                helper_type: 'USER',
+                user_id: 123,
+                article_id: 'article-2',
+                value: 7,
+                description: 'Test ranking'
+            },
+
+        ];
+
+        const expectedGroups: RankingGroup[] = [
+            (new RankingGroup())
+                .setHelperType('USER')
+                .setUserId(123)
+                .setArticleId('article-1')
+                .setRanking('quality', 8)
+                .setRanking('ETHICS', 7)
+            ,
+            (new RankingGroup())
+                .setHelperType('USER')
+                .setUserId(123)
+                .setArticleId('article-2')
+                .setRanking('ETHICS', 7)
+            ,
+        ];
+
+        const result: RankingGroup = RankingGroup.buildGroups(rankings)
+
+        expect(result).toEqual(expectedGroups)
     })
 })
