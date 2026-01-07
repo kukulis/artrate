@@ -4,6 +4,8 @@ import {ArticleRepository} from "../repositories/ArticleRepository";
 import {AuthorRepository} from "../repositories/AuthorRepository";
 import {ArticleService} from "../services/ArticleService";
 import {AuthenticationHandler} from "../controllers/AuthenticationHandler";
+import {UserRepository} from "../repositories/UserRepository";
+import {TokenService} from "../services/TokenService";
 import {Pool} from 'mysql2/promise';
 
 /**
@@ -16,7 +18,9 @@ export function createArticleRoutes(dbPool: Pool) {
   const articleRepository = new ArticleRepository(dbPool)
   const authorRepository = new AuthorRepository(dbPool)
   const articleService = new ArticleService(articleRepository, authorRepository)
-  const authenticationHandler = new AuthenticationHandler()
+  const userRepository = new UserRepository(dbPool)
+  const tokenService = new TokenService()
+  const authenticationHandler = new AuthenticationHandler(userRepository, tokenService)
   const articleController = new ArticleController(articleService, articleRepository, authenticationHandler);
 
   /**

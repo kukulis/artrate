@@ -89,7 +89,7 @@ export class ArticleController {
     createArticle = async (req: Request, res: Response): Promise<void> => {
         try {
             // Get current authenticated user
-            const currentUser = this.authenticationHandler.getUser(req);
+            const currentUser = await this.authenticationHandler.getUser(req);
 
             // Validate and parse request body with Zod
             const validatedData = CreateArticleSchema.parse(req.body);

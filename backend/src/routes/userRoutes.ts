@@ -1,21 +1,36 @@
 import { Router } from 'express';
+import { Pool } from 'mysql2/promise';
 import { UsersController } from '../controllers/UsersController';
 import { AuthenticationHandler } from '../controllers/AuthenticationHandler';
+import { UserRepository } from '../repositories/UserRepository';
+import { TokenService } from '../services/TokenService';
+import { authenticateToken } from '../middleware/authMiddleware';
 
 /**
  * Create user routes
  */
-export function createUserRoutes() {
-  const router = Router();
-  const authenticationHandler = new AuthenticationHandler();
-  const usersController = new UsersController(authenticationHandler);
+export function createUserRoutes(pool: Pool) {
+    const router = Router();
 
-  /**
-   * @route   GET /api/current-user
-   * @desc    Get current authenticated user
-   * @access  Public
-   */
-  router.get('/current-user', usersController.getCurrentUser);
+    const userRepository = new UserRepository(pool);
+    const tokenService = new TokenService();
+    const authenticationHandler = new AuthenticationHandler(userRepository, tokenService);
+    const usersController = new UsersController(authenticationHandler);
 
-  return router;
+    // Check if auth is enabled
+    const authEnabled = process.env.AUTH_ENABLED !== 'false';
+
+    /**
+     * @route   GET /api/current-user
+     * @desc    Get current authenticated user
+     * @access  Protected (if AUTH_ENABLED=true) / Public (if AUTH_ENABLED=false)
+     */
+    if (authEnabled) {
+        const authMiddleware = authenticateToken(userRepository, tokenService);
+        router.get('/current-user', authMiddleware, usersController.getCurrentUser);
+    } else {
+        router.get('/current-user', usersController.getCurrentUser);
+    }
+
+    return router;
 }

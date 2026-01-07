@@ -1,27 +1,61 @@
 import { Request } from 'express';
-import { User } from '../types/User';
+import { TokenService } from '../services/TokenService';
+import { UserRepository } from '../repositories/UserRepository';
 
 /**
  * Handles authentication and user extraction from requests
- * Currently returns a hardcoded user, but will be refactored to extract from JWT token
+ * Extracts user from JWT token in Authorization header
+ * Supports development mode with AUTH_ENABLED=false
  */
 export class AuthenticationHandler {
+    private authEnabled: boolean;
+
+    constructor(
+        private userRepository: UserRepository,
+        private tokenService: TokenService
+    ) {
+        // Read AUTH_ENABLED from environment (defaults to true)
+        this.authEnabled = process.env.AUTH_ENABLED !== 'false';
+    }
+
     /**
      * Get the current authenticated user from the request
-     * @param _req - Express request object (will extract from token in future)
-     * @returns User object
+     * @throws Error if token is invalid or user not found
      */
-    getUser(_req: Request): User {
-        // TODO: In the future, extract user from JWT token in request headers
-        // const token = req.headers.authorization?.split(' ')[1];
-        // const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        // return await userRepository.findById(decoded.userId);
+    async getUser(req: Request): Promise<{ id: number; email: string; name: string; role: string }> {
+        // If auth is disabled (for development), return hardcoded admin user
+        if (!this.authEnabled) {
+            return {
+                id: 1,
+                email: 'admin@darbelis.eu',
+                name: 'admin',
+                role: 'admin'
+            };
+        }
 
-        // For now, return hardcoded admin user
+        // Production path: Extract token from Authorization header
+        const authHeader = req.headers.authorization;
+        const token = authHeader?.split(' ')[1]; // Bearer TOKEN
+
+        if (!token) {
+            throw new Error('No authentication token provided');
+        }
+
+        // Verify and decode token
+        const payload = this.tokenService.verifyAccessToken(token);
+
+        // Get user from database
+        const user = await this.userRepository.findById(payload.userId);
+
+        if (!user || !user.is_active) {
+            throw new Error('User not found or disabled');
+        }
+
         return {
-            id: 1,
-            name: 'admin',
-            email: 'admin@darbelis.eu'
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role
         };
     }
 }

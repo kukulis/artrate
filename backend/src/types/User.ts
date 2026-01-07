@@ -1,7 +1,2 @@
-// TODO use as zod partial from entities/User.ts
-
-export interface User {
-    id: number
-    name: string
-    email: string
-}
+// Re-export from entities/User.ts for backward compatibility
+export type { User, SafeUser } from '../entities/User';
