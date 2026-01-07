@@ -11,6 +11,12 @@ ArtCorrect is a full-stack TypeScript application with three main components:
 
 All services run in Docker containers orchestrated by Docker Compose.
 
+## Coding Standards
+
+**Indentation:**
+- Use **4 spaces** for indentation in all files (TypeScript, JavaScript, Vue, JSON, YAML, etc.)
+- Never use tabs for indentation
+
 ## Development Commands
 
 ### Running the Application
