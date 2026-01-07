@@ -7,11 +7,11 @@ describe('LokiClient', () => {
         });
 
         // Write some test messages
-        let result = await client.info('Test message 1: Application started');
+        let result = await client.asyncInfo('Test message 1: Application started');
         expect(result).toBeNull()
-        result = await client.warn('Test message 2: Warning example');
+        result = await client.asyncWarn('Test message 2: Warning example');
         expect(result).toBeNull()
-        result = await client.error('Test message 3: Error example');
+        result = await client.asyncError('Test message 3: Error example');
         expect(result).toBeNull()
 
         console.log('Successfully wrote 3 messages to Loki');

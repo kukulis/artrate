@@ -3,6 +3,7 @@ import {AuthorRepository} from '../repositories/AuthorRepository';
 import {AuthorFilter, AuthorFilterHelpers} from "../types/AuthorFilter";
 import {Author, AuthorHelper} from "../entities";
 import {randomBytes} from "crypto";
+import {logger, wrapError} from "../logging";
 
 export class AuthorController {
     private authorRepository: AuthorRepository;
@@ -22,7 +23,7 @@ export class AuthorController {
             res.json(authors);
 
         } catch (error) {
-            console.error('Error getting authors:', error);
+            logger.error('Error getting authors', wrapError(error));
             res.status(500).json({
                 error: 'Failed to retrieve authors',
                 message: error instanceof Error ? error.message : 'Unknown error'
@@ -48,7 +49,7 @@ export class AuthorController {
 
             res.json(author);
         } catch (error) {
-            console.error('Error getting author:', error);
+            logger.error('Error getting author', wrapError(error));
             res.status(500).json({
                 error: 'Failed to retrieve author',
                 message: error instanceof Error ? error.message : 'Unknown error'
@@ -84,17 +85,18 @@ export class AuthorController {
             res.status(201).json(created[0]);
         } catch (error) {
 
-            console.error('Error creating author:', error);
-
             if (error instanceof Error && error.message.includes('already exists')) {
+                logger.warn('Conflict error creating author', wrapError(error));
                 res.status(409).json({error: error.message});
                 return;
             }
             if (error instanceof Error && error.message.includes('requir')) {
+                logger.warn('Validation error creating author', wrapError(error));
                 res.status(400).json({error: error.message});
                 return;
             }
 
+            logger.error('Error creating author', wrapError(error));
             res.status(500).json({
                 error: 'Failed to create author',
                 message: error instanceof Error ? error.message : 'Unknown error'
@@ -143,23 +145,25 @@ export class AuthorController {
 
             res.json(updated);
         } catch (error) {
-            console.error('Error updating author:', error);
-
             if (error instanceof Error && error.message.includes('requir')) {
+                logger.warn('Validation error updating author', wrapError(error));
                 res.status(400).json({error: error.message});
                 return;
             }
 
             if (error instanceof Error && error.message.includes('not found')) {
+                logger.warn('Error updating author', wrapError(error));
                 res.status(404).json({error: error.message});
                 return;
             }
 
             if (error instanceof Error && error.message.includes('already exists')) {
+                logger.warn('Conflict error updating author', wrapError(error));
                 res.status(409).json({error: error.message});
                 return;
             }
 
+            logger.error('Error updating author', wrapError(error));
             res.status(500).json({
                 error: 'Failed to update author',
                 message: error instanceof Error ? error.message : 'Unknown error'
@@ -181,13 +185,13 @@ export class AuthorController {
                 res.status(404).send({error: 'failed to delete'})
             }
         } catch (error) {
-            console.error('Error deleting author:', error);
-
             if (error instanceof Error && error.message.includes('not found')) {
+                logger.warn('Error deleting author', wrapError(error));
                 res.status(404).json({error: error.message});
                 return;
             }
 
+            logger.error('Error deleting author', wrapError(error));
             res.status(500).json({
                 error: 'Failed to delete author',
                 message: error instanceof Error ? error.message : 'Unknown error'

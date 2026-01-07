@@ -1,3 +1,4 @@
+import '../test-utils/mockLogger';
 import request from 'supertest';
 import express from 'express';
 import { createAuthorRoutes } from './authorRoutes';

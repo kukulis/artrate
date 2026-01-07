@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { AuthenticationHandler } from './AuthenticationHandler';
+import { logger, wrapError } from '../logging';
 
 export class UsersController {
     constructor(private authenticationHandler: AuthenticationHandler) {}
@@ -13,9 +14,7 @@ export class UsersController {
             const currentUser = this.authenticationHandler.getUser(req);
             res.json(currentUser);
         } catch (error) {
-            // TODO debugging for ts
-            // TODO find a better way to log errors
-            console.error('Error getting current user:', error);
+            logger.error('Error getting current user', wrapError(error));
             res.status(500).json({
                 error: 'Failed to get current user',
                 message: error instanceof Error ? error.message : 'Unknown error'

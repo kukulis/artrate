@@ -1,5 +1,5 @@
+import '../test-utils/mockLogger';
 import express from "express";
-
 import { createRankingRoutes } from "./rankingRoutes";
 import request from "supertest";
 import {cleanTestDatabase, setupTestDatabase, waitForDatabase} from "../test-utils/dbSetup";

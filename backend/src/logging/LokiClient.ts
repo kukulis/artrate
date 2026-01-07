@@ -79,20 +79,36 @@ export class LokiClient {
     /**
      * Convenience methods for different log levels
      */
-    async debug(message: string, labels?: Record<string, string>): Promise<unknown|null> {
+    async asyncDebug(message: string, labels?: Record<string, string>): Promise<unknown|null> {
         return await this.log({level: 'debug', message, labels});
     }
 
-    async info(message: string, labels?: Record<string, string>): Promise<unknown|null> {
+    async asyncInfo(message: string, labels?: Record<string, string>): Promise<unknown|null> {
         return await this.log({level: 'info', message, labels});
     }
 
-    async warn(message: string, labels?: Record<string, string>): Promise<unknown|null> {
+    async asyncWarn(message: string, labels?: Record<string, string>): Promise<unknown|null> {
         return await this.log({level: 'warn', message, labels});
     }
 
-    async error(message: string, labels?: Record<string, string>): Promise<unknown|null> {
+    async asyncError(message: string, labels?: Record<string, string>): Promise<unknown|null> {
         return await this.log({level: 'error', message, labels});
+    }
+
+    debug(message: string, labels?: Record<string, string>)  {
+        this.asyncDebug(message, labels);
+    }
+
+    info(message: string, labels?: Record<string, string>)  {
+        this.asyncInfo(message, labels);
+    }
+
+    warn(message: string, labels?: Record<string, string>)  {
+        this.asyncWarn(message, labels);
+    }
+
+    error(message: string, labels?: Record<string, string>)  {
+        this.asyncError(message, labels);
     }
 
     /**

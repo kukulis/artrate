@@ -4,6 +4,7 @@ import {ArticleRepository} from "../repositories/ArticleRepository";
 import {Article, CreateArticleSchema, UpdateArticleSchema} from "../entities";
 import {ControllerHelper} from "./ControllerHelper";
 import {AuthenticationHandler} from "./AuthenticationHandler";
+import {logger, wrapError} from "../logging";
 
 export class ArticleController {
     private articleService: ArticleService;
@@ -31,7 +32,7 @@ export class ArticleController {
             const articles = await this.articleRepository.findAll();
             res.json(articles);
         } catch (error) {
-            console.error('Error getting articles:', error);
+            logger.error('Error getting articles', wrapError(error));
             res.status(500).json({
                 error: 'Failed to retrieve articles',
                 message: error instanceof Error ? error.message : 'Unknown error'
@@ -55,7 +56,7 @@ export class ArticleController {
 
             res.json(article);
         } catch (error) {
-            console.error('Error getting article:', error);
+            logger.error('Error getting article', wrapError(error));
             res.status(500).json({
                 error: 'Failed to retrieve article',
                 message: error instanceof Error ? error.message : 'Unknown error'
@@ -73,7 +74,7 @@ export class ArticleController {
             const articles = await this.articleRepository.findByAuthorId(authorId);
             res.json(articles);
         } catch (error) {
-            console.error('Error getting articles by author:', error);
+            logger.error('Error getting articles by author', wrapError(error));
             res.status(500).json({
                 error: 'Failed to retrieve articles',
                 message: error instanceof Error ? error.message : 'Unknown error'
@@ -103,17 +104,19 @@ export class ArticleController {
 
             res.status(201).json(created);
         } catch (error) {
-            if ( ControllerHelper.handleZodError(error, res )) {
+            if (ControllerHelper.handleZodError(error, res)) {
+                logger.error('ZOD Error creating article', wrapError(error));
                 return
             }
 
-            console.error('Error creating article:', error);
 
             if (error instanceof Error && error.message.includes('does not exist')) {
+                logger.error('Validation Error creating article', wrapError(error));
                 res.status(400).json({error: error.message});
                 return;
             }
 
+            logger.error('Error creating article', wrapError(error));
             res.status(500).json({
                 error: 'Failed to create article',
                 message: error instanceof Error ? error.message : 'Unknown error'
@@ -140,22 +143,24 @@ export class ArticleController {
             res.json(updated);
         } catch (error) {
             // Handle Zod validation errors
-            if ( ControllerHelper.handleZodError(error, res )) {
+            if (ControllerHelper.handleZodError(error, res)) {
+                logger.warn('ZOD Error updating article', wrapError(error));
                 return
             }
 
-            console.error('Error updating article:', error);
-
             if (error instanceof Error && error.message.includes('not found')) {
                 res.status(404).json({error: error.message});
+                logger.warn('Error updating article', wrapError(error));
                 return;
             }
 
             if (error instanceof Error && error.message.includes('does not exist')) {
                 res.status(400).json({error: error.message});
+                logger.warn('Validation error updating article', wrapError(error));
                 return;
             }
 
+            logger.error('Error updating article', wrapError(error));
             res.status(500).json({
                 error: 'Failed to update article',
                 message: error instanceof Error ? error.message : 'Unknown error'
@@ -179,13 +184,14 @@ export class ArticleController {
 
             res.status(204).send();
         } catch (error) {
-            console.error('Error deleting article:', error);
-
             if (error instanceof Error && error.message.includes('not found')) {
+                logger.warn('Error deleting article', wrapError(error));
                 res.status(404).json({error: error.message});
                 return;
             }
 
+            // NEVER add await!
+            logger.error('Error deleting article', wrapError(error));
             res.status(500).json({
                 error: 'Failed to delete article',
                 message: error instanceof Error ? error.message : 'Unknown error'

@@ -1,6 +1,7 @@
 import {Request, Response} from "express";
 import {RankingType} from "../types/RankingType";
 import {RankingHelper} from "../types/RankingHelper";
+import {logger, wrapError} from "../logging";
 
 /**
  * Controller for ranking metadata endpoints.
@@ -16,7 +17,7 @@ export class RankingMetadataController {
             const rankingTypes = RankingType.getAll();
             res.json(rankingTypes);
         } catch (error) {
-            console.error('Error getting ranking types:', error);
+            logger.error('Error getting ranking types', wrapError(error));
             res.status(500).json({
                 error: 'Failed to retrieve ranking types',
                 message: error instanceof Error ? error.message : 'Unknown error'
@@ -33,7 +34,7 @@ export class RankingMetadataController {
             const rankingHelpers = RankingHelper.getAll();
             res.json(rankingHelpers);
         } catch (error) {
-            console.error('Error getting ranking helpers:', error);
+            logger.error('Error getting ranking helpers', wrapError(error));
             res.status(500).json({
                 error: 'Failed to retrieve ranking helpers',
                 message: error instanceof Error ? error.message : 'Unknown error'

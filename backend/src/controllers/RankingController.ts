@@ -6,6 +6,7 @@ import {ControllerHelper} from "./ControllerHelper";
 import {IdGenerator} from "../services/IdGenerator";
 import {RankingValidator} from "../services/RankingValidator";
 import {z} from "zod";
+import {logger, wrapError} from "../logging";
 
 export class RankingController {
     public constructor(private rankingRepository: RankingRepository,
@@ -45,7 +46,7 @@ export class RankingController {
 
             res.json(rankings);
         } catch (error) {
-            console.error('Error getting rankings:', error);
+            logger.error('Error getting rankings', wrapError(error));
             res.status(500).json({
                 error: 'Failed to retrieve rankings',
                 message: error instanceof Error ? error.message : 'Unknown error'
@@ -63,7 +64,7 @@ export class RankingController {
             }
             res.json(ranking);
         } catch (error) {
-            console.error('Error getting ranking:', error);
+            logger.error('Error getting ranking', wrapError(error));
             res.status(500).json({
                 error: 'Failed to retrieve ranking',
                 message: error instanceof Error ? error.message : 'Unknown error'
@@ -89,12 +90,12 @@ export class RankingController {
 
             res.status(201).json(created)
         } catch (error) {
-            console.error('Error creating ranking:', error);
-
             if (ControllerHelper.handleZodError(error, res)) {
+                logger.warn('ZOD Error creating ranking', wrapError(error));
                 return
             }
 
+            logger.error('Error creating ranking', wrapError(error));
             res.status(500).json({
                 error: 'Failed to create ranking',
                 message: error instanceof Error ? error.message : 'Unknown error'
@@ -130,12 +131,12 @@ export class RankingController {
 
             res.json(updated)
         } catch (error) {
-            console.error('Error updating ranking:', error);
-
             if (ControllerHelper.handleZodError(error, res)) {
+                logger.warn('ZOD Error updating ranking', wrapError(error));
                 return
             }
 
+            logger.error('Error updating ranking', wrapError(error));
             res.status(500).json({
                 error: 'Failed to update ranking',
                 message: error instanceof Error ? error.message : 'Unknown error'
@@ -158,13 +159,13 @@ export class RankingController {
 
             res.status(204).send();
         } catch (error) {
-            console.error('Error deleting ranking:', error);
-
             if (error instanceof Error && error.message.includes('not found')) {
+                logger.warn('Error deleting ranking', wrapError(error));
                 res.status(404).json({error: error.message});
                 return;
             }
 
+            logger.error('Error deleting ranking', wrapError(error));
             res.status(500).json({
                 error: 'Failed to delete ranking',
                 message: error instanceof Error ? error.message : 'Unknown error'
@@ -191,12 +192,12 @@ export class RankingController {
                 count: rankings.length
             });
         } catch (error) {
-            console.error('Error upserting rankings:', error);
-
             if (ControllerHelper.handleZodError(error, res)) {
+                logger.warn('ZOD Error upserting rankings', wrapError(error));
                 return;
             }
 
+            logger.error('Error upserting rankings', wrapError(error));
             res.status(500).json({
                 error: 'Failed to upsert rankings',
                 message: error instanceof Error ? error.message : 'Unknown error'
