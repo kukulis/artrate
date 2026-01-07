@@ -1,6 +1,7 @@
 import {connectDatabase} from '../config/database';
 import knex from 'knex';
 import knexConfig from '../../knexfile';
+import {logger, wrapError} from "../logging";
 
 /**
  * Verify we're using a test database
@@ -39,6 +40,7 @@ export async function setupTestDatabase() {
         // console.log('✅ Test database migrations completed');
     } catch (error) {
         console.error('❌ Error running migrations:', error);
+        logger.error('❌ Error running migrations:', wrapError(error))
         throw error;
     } finally {
         await db.destroy();
@@ -79,6 +81,7 @@ export async function cleanTestDatabase() {
         // console.log('✅ Test database cleaned');
     } catch (error) {
         console.error('❌ Error cleaning database:', error);
+        logger.error('❌ Error cleaning database:', wrapError(error))
         throw error;
     } finally {
         await connection.end();
