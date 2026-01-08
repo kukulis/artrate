@@ -238,24 +238,32 @@ onMounted(() => {
     <div v-else class="rankings-list">
       <div v-for="rankingGroup in rankingsGroups" :key="rankingGroup.buildGroupKey()" class="ranking-card">
         <div class="ranking-content">
-          <div class="ranking-header">
-            <h3>{{ 'TODO' /* getRankingTypeName(rankingGroup.rankingType)*/ }}</h3>
-            <span class="ranking-value">{{ 'TODO' /*ranking.value*/ }}/10</span>
-          </div>
-          <p class="ranking-description">{{ 'TODO' /* ranking.description */ }}</p>
-          <div class="ranking-meta">
+
+<!--          <div v-for="ranking in rankingGroup.rankings" :key="RankingGroup.buildRankingKey(ranking)" class="ranking-card">-->
+<!--            -->
+<!--          </div>-->
+
+<!--          <div class="ranking-header">-->
+<!--            <h3>{{ 'TODO' /* getRankingTypeName(rankingGroup.rankingType)*/ }}</h3>-->
+<!--            <span class="ranking-value">{{ 'TODO' /*ranking.value*/ }}/10</span>-->
+<!--          </div>-->
+<!--          <p class="ranking-description">{{ 'TODO' /* ranking.description */ }}</p>-->
+<!--          <div class="ranking-meta">-->
             <span class="meta-item">
               <strong>Helper:</strong> {{ getHelperName(rankingGroup.helperType) }}
             </span>
             <span class="meta-item">
               <strong>User ID:</strong> {{ rankingGroup.userId }}
             </span>
+
+            <p class="ranking-description">{{ rankingGroup.buildValuesRepresentation() }}</p>
+
 <!--            <span v-if="ranking.created_at" class="meta-item">-->
 <!--              {{ formatDate(ranking.created_at) }}-->
 <!--            </span>-->
           </div>
 <!--          <div class="ranking-id">ID: {{ ranking.id }}</div>-->
-        </div>
+<!--        </div>-->
         <div class="ranking-actions">
           <button @click="openEditForm(rankingGroup)" class="btn-edit">Edit</button>
           <button @click="deleteRankingGroup(rankingGroup)" class="btn-delete">Delete</button>

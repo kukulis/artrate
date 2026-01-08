@@ -31,6 +31,12 @@ export class RankingGroup {
         return this
     }
 
+    public addRanking(ranking: Ranking): RankingGroup {
+        this.rankings[ranking.ranking_type] = ranking
+
+        return this
+    }
+
 
     static createGroup(helperType: string, userId: number, articleId: string, rankingTypes: string[]): RankingGroup | null {
         if (rankingTypes.length == 0) {
@@ -107,5 +113,15 @@ export class RankingGroup {
                 this.rankings[type] = defaultValue
             }
         }
+    }
+
+    buildValuesRepresentation(): string {
+        const rezs: string[] = [];
+        for (const key in this.rankings) {
+            const ranking = this.rankings[key]
+            rezs.push(key + ':' + ranking.value)
+        }
+
+        return rezs.join('; ')
     }
 }
