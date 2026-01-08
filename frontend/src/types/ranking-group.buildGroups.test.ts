@@ -19,7 +19,15 @@ describe('RankingGroup.buildGroups', () => {
                 .setHelperType('USER')
                 .setUserId(123)
                 .setArticleId('article-1')
-                .setRanking('quality', 8)
+                .setRanking('quality', {
+                    id: '1',
+                    ranking_type: 'quality',
+                    helper_type: 'USER',
+                    user_id: 123,
+                    article_id: 'article-1',
+                    value: 8,
+                    description: 'Test ranking'
+                })
             ,
         ];
 
@@ -65,14 +73,38 @@ describe('RankingGroup.buildGroups', () => {
                 .setHelperType('USER')
                 .setUserId(123)
                 .setArticleId('article-1')
-                .setRanking('quality', 8)
-                .setRanking('ETHICS', 7)
+                .setRanking('quality', {
+                    id: '1',
+                    ranking_type: 'quality',
+                    helper_type: 'USER',
+                    user_id: 123,
+                    article_id: 'article-1',
+                    value: 8,
+                    description: 'Test ranking'
+                })
+                .setRanking('ETHICS', {
+                    id: '2',
+                    ranking_type: 'ETHICS',
+                    helper_type: 'USER',
+                    user_id: 123,
+                    article_id: 'article-1',
+                    value: 7,
+                    description: 'Test ranking'
+                })
             ,
             (new RankingGroup())
                 .setHelperType('USER')
                 .setUserId(123)
                 .setArticleId('article-2')
-                .setRanking('ETHICS', 7)
+                .setRanking('ETHICS', {
+                    id: '3',
+                    ranking_type: 'ETHICS',
+                    helper_type: 'USER',
+                    user_id: 123,
+                    article_id: 'article-2',
+                    value: 7,
+                    description: 'Test ranking'
+                })
             ,
         ];
 

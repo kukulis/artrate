@@ -1,7 +1,8 @@
 import {Ranking} from "./ranking.ts";
 
 export class RankingGroup {
-    rankings: Record<string, number> = {}
+    // rankings: Record<string, number> = {}
+    rankings: Record<string, Ranking> = {}
     helperType: string
     userId: number
     articleId: string
@@ -24,15 +25,14 @@ export class RankingGroup {
         return this
     }
 
-    public setRanking(rankingType, value): RankingGroup {
-        this.rankings[rankingType] = value
+    public setRanking(rankingType: string, ranking: Ranking): RankingGroup {
+        this.rankings[rankingType] = ranking
 
         return this
     }
 
 
-    static createGroup(helperType: string, userId: string, articleId: string, rankingTypes: string[]): RankingGroup | null {
-
+    static createGroup(helperType: string, userId: number, articleId: string, rankingTypes: string[]): RankingGroup | null {
         if (rankingTypes.length == 0) {
             return null;
         }
@@ -45,7 +45,15 @@ export class RankingGroup {
         group.rankings = {}
 
         for (const rankingType of rankingTypes) {
-            group.rankings[rankingType] = 5
+            group.rankings[rankingType] = {
+                id: '',
+                user_id: userId,
+                article_id: articleId,
+                ranking_type: rankingType,
+                helper_type: helperType,
+                value: 5,
+                description: ''
+            }
         }
 
         return group;
@@ -64,7 +72,7 @@ export class RankingGroup {
                     .setArticleId(ranking.article_id);
             }
 
-            groupsMap[groupKey].setRanking(ranking.ranking_type, ranking.value);
+            groupsMap[groupKey].setRanking(ranking.ranking_type, ranking);
         }
 
         return Object.values(groupsMap);
@@ -73,26 +81,27 @@ export class RankingGroup {
     fillFromRankings(rankings: Ranking[]) {
         // may be need to validate other fields
         for (const ranking of rankings) {
-            this.rankings[ranking.ranking_type] = ranking.value
+            this.rankings[ranking.ranking_type] = ranking
         }
     }
 
-    extractRankings(): Ranking[] {
-        const rankings: Ranking[] = [];
-
-        for (const rankingType in this.rankings) {
-            const ranking: Ranking = {
-                helper_type: this.helperType,
-                user_id: this.userId,
-                article_id: this.articleId,
-                ranking_type: rankingType,
-                value: this.rankings[rankingType],
-            }
-
-            rankings.push(ranking)
-        }
-
-        return rankings;
+    getRankings(): Ranking[] {
+        // const rankings: Ranking[] = [];
+        //
+        // for (const rankingType in this.rankings) {
+        //     const ranking: Ranking = {
+        //         helper_type: this.helperType,
+        //         user_id: this.userId,
+        //         article_id: this.articleId,
+        //         ranking_type: rankingType,
+        //         value: this.rankings[rankingType],
+        //     }
+        //
+        //     rankings.push(ranking)
+        // }
+        //
+        // return rankings;
+        return this.rankings
     }
 
     static buildRankingKey(ranking: Ranking): string {
@@ -107,9 +116,9 @@ export class RankingGroup {
         return this.articleId + '__' + this.userId + '__' + this.helperType;
     }
 
-    fillMissingRankings(rankingTypes: string [], defaultValue : int ) {
-        for ( const type of  rankingTypes ) {
-            if ( this.rankings [type ] === undefined ) {
+    fillMissingRankings(rankingTypes: string [], defaultValue: int) {
+        for (const type of rankingTypes) {
+            if (this.rankings [type] === undefined) {
                 this.rankings[type] = defaultValue
             }
         }
