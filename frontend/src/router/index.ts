@@ -3,6 +3,7 @@ import Home from '../views/Home.vue'
 import Articles from '../views/Articles.vue'
 import Authors from '../views/Authors.vue'
 import ArticleRankings from '../views/ArticleRankings.vue'
+import ArticleRankingsGroups from "../views/ArticleRankingsGroups.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -21,6 +22,11 @@ const router = createRouter({
       path: '/articles/:article_id/rankings',
       name: 'article-rankings',
       component: ArticleRankings
+    },
+    {
+      path: '/articles/:article_id/rankings-groups',
+      name: 'article-rankings-groups',
+      component: ArticleRankingsGroups
     },
     {
       path: '/authors',

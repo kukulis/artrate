@@ -18,7 +18,10 @@ export function createUserRoutes(pool: Pool) {
     const usersController = new UsersController(authenticationHandler);
 
     // Check if auth is enabled
+    console.log('createUserRoutes: process.env.AUTH_ENABLED:'+process.env.AUTH_ENABLED)
+    // TODO no direct env access here
     const authEnabled = process.env.AUTH_ENABLED !== 'false';
+
 
     /**
      * @route   GET /api/current-user

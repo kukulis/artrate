@@ -5,9 +5,9 @@ import {pool, connectDatabase} from './config/database';
 import {createRouter} from "./routes";
 import {logger, wrapError} from "./logging";
 
-const apiRoutes = createRouter(pool)
-
 dotenv.config();
+
+const apiRoutes = createRouter(pool)
 
 const app = express();
 const PORT = process.env.PORT || 3000;

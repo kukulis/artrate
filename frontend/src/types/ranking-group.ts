@@ -86,21 +86,6 @@ export class RankingGroup {
     }
 
     getRankings(): Ranking[] {
-        // const rankings: Ranking[] = [];
-        //
-        // for (const rankingType in this.rankings) {
-        //     const ranking: Ranking = {
-        //         helper_type: this.helperType,
-        //         user_id: this.userId,
-        //         article_id: this.articleId,
-        //         ranking_type: rankingType,
-        //         value: this.rankings[rankingType],
-        //     }
-        //
-        //     rankings.push(ranking)
-        // }
-        //
-        // return rankings;
         return this.rankings
     }
 

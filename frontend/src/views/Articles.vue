@@ -189,6 +189,9 @@ onMounted(() => {
           <router-link :to="`/articles/${article.id}/rankings`" class="btn-rankings">
             Rankings
           </router-link>
+          <router-link :to="`/articles/${article.id}/rankings-groups`" class="btn-rankings">
+            Rankings groups
+          </router-link>
           <button @click="openEditForm(article)" class="btn-edit">Edit</button>
           <button @click="deleteArticle(article)" class="btn-delete">Delete</button>
         </div>
