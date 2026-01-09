@@ -1,4 +1,4 @@
-import {Ranking} from "./ranking.ts";
+import {Ranking} from "./ranking";
 
 export class RankingGroup {
     // rankings: Record<string, number> = {}
@@ -91,7 +91,7 @@ export class RankingGroup {
         }
     }
 
-    getRankings(): Ranking[] {
+    getRankings(): Record<string, Ranking> {
         return this.rankings
     }
 
@@ -107,12 +107,24 @@ export class RankingGroup {
         return this.articleId + '__' + this.userId + '__' + this.helperType;
     }
 
-    fillMissingRankings(rankingTypes: string [], defaultValue: int) {
+    fillMissingRankings(rankingTypes: string [], defaultValue: number) {
         for (const type of rankingTypes) {
             if (this.rankings [type] === undefined) {
-                this.rankings[type] = defaultValue
+                this.rankings[type] = {
+                    user_id: this.userId,
+                    article_id: this.articleId,
+                    helper_type: this.helperType,
+                    value: defaultValue,
+                    description: '',
+                    ranking_type: type,
+                    id: '',
+                }
             }
         }
+    }
+
+    getRankingsCount(): number {
+         return Object.keys( this.rankings ).length
     }
 
     buildValuesRepresentation(): string {

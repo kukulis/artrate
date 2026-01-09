@@ -3,9 +3,9 @@ import {computed, onMounted, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import RankingService from '../services/RankingService'
 import UsersService from '../services/UsersService'
-import type {Ranking, RankingHelper, RankingType} from '../types/ranking'
+import type {RankingHelper, RankingType} from '../types/ranking'
 import type {User} from '../types/user'
-import {formatDate} from '../utils/dateFormat'
+// import {formatDate} from '../utils/dateFormat'
 import ArticleService from "../services/ArticleService.ts";
 import {Article} from "../types/article.ts";
 import {RankingGroup} from "../types/ranking-group.ts";
@@ -22,15 +22,41 @@ const currentArticle = ref<Article | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
 const showForm = ref(false)
-const editingRanking = ref<Ranking | null>(null)
+const editingRankingGroup = ref<RankingGroup | null>(null)
 
 // Form fields
 const formUserId = ref<number>(0)
 const formArticleId = ref('')
-const formRankingType = ref('')
 const formHelperType = ref('')
-const formValue = ref<number>(0)
-const formDescription = ref('')
+
+const formRankingTypes = [
+  ref(''),
+  ref(''),
+  ref(''),
+  ref(''),
+  ref(''),
+]
+
+const formValues = [
+  ref<number>(0),
+  ref<number>(0),
+  ref<number>(0),
+  ref<number>(0),
+  ref<number>(0),
+]
+
+const formDescriptions = [
+  ref(''),
+  ref(''),
+  ref(''),
+  ref(''),
+  ref(''),
+]
+
+// const formRankingType = ref('')
+// const formValue = ref<number>(0)
+// const formDescription = ref('')
+
 const formError = ref<string | null>(null)
 const formLoading = ref(false)
 
@@ -43,6 +69,14 @@ const fetchRankingsGroups = async () => {
   error.value = null
   try {
     rankingsGroups.value = await RankingService.getRankingGroups(articleId.value)
+
+    console.log('ArticleRankingsGroups.vue[73]: rankingsGroups.value:', rankingsGroups.value)
+    // console.log ( 'ArticleRankingsGroups.vue[74]: rankingsGroups.value.rankings:', rankingsGroups.)
+
+    for (const r in rankingsGroups.value.rankings) {
+      console.log('ArticleRankingsGroups.vue[77]: r:', r)
+    }
+
   } catch (err) {
     error.value = 'Failed to load rankings groups'
     console.error('Error fetching rankings groups:', err)
@@ -69,38 +103,47 @@ const fetchMetadata = async () => {
 }
 
 const openCreateForm = () => {
-  editingRanking.value = null
+  editingRankingGroup.value = null
   formUserId.value = currentUser.value ? currentUser.value.id : 0
   formArticleId.value = articleId.value
   formRankingType.value = ''
   formHelperType.value = ''
-  formValue.value = 5
-  formDescription.value = ''
+  // formValue.value = 5
+  // formDescription.value = ''
   formError.value = null
   showForm.value = true
 }
 
-const openEditForm = (ranking: Ranking) => {
-  editingRanking.value = ranking
-  formUserId.value = ranking.user_id
-  formArticleId.value = ranking.article_id
-  formRankingType.value = ranking.ranking_type
-  formHelperType.value = ranking.helper_type
-  formValue.value = ranking.value
-  formDescription.value = ranking.description
+const openEditForm = (rankingGroup: RankingGroup) => {
+  editingRankingGroup.value = rankingGroup
+  formUserId.value = rankingGroup.userId
+  formArticleId.value = rankingGroup.articleId
+  formHelperType.value = rankingGroup.helperType
+
+  // TODO
+
+  const rankingTypesCodes = rankingTypes.value.map((rt: RankingType) => rt.code)
+  console.log('Before fillMissingRankings: rankingTypes codes: ', rankingTypesCodes )
+  rankingGroup.fillMissingRankings(rankingTypesCodes, 5)
+  console.log('After fillMissingRankings')
+
+  // formRankingType.value = ranking.ranking_type
+  // formValue.value = ranking.value
+  // formDescription.value = ranking.description
+
   formError.value = null
   showForm.value = true
 }
 
 const closeForm = () => {
   showForm.value = false
-  editingRanking.value = null
+  editingRankingGroup.value = null
   formUserId.value = 0
   formArticleId.value = ''
-  formRankingType.value = ''
+  // formRankingType.value = ''
   formHelperType.value = ''
-  formValue.value = 0
-  formDescription.value = ''
+  // formValue.value = 0
+  // formDescription.value = ''
   formError.value = null
 }
 
@@ -135,22 +178,27 @@ const saveRankingGroup = async () => {
   formError.value = null
 
   try {
-    const rankingData = {
-      user_id: formUserId.value,
-      article_id: formArticleId.value,
-      ranking_type: formRankingType.value,
-      helper_type: formHelperType.value,
-      value: formValue.value,
-      description: formDescription.value.trim()
-    }
+    // TODO remake here
+    // const rankingData = {
+    //   user_id: formUserId.value,
+    //   article_id: formArticleId.value,
+    //   ranking_type: formRankingType.value,
+    //   helper_type: formHelperType.value,
+    //   value: formValue.value,
+    //   description: formDescription.value.trim()
+    // }
 
-    if (editingRanking.value) {
-      // Update existing ranking
-      await RankingService.update(editingRanking.value.id, rankingData)
-    } else {
-      // Create new ranking
-      await RankingService.create(rankingData)
-    }
+    console.log('ArticleRankingsGroups.vue[176]: inside saveRankingGroup')
+
+    // if (editingRankingGroup.value) {
+    //   // Update existing ranking
+    //   // TODO upsert
+    //   await RankingService.update(editingRankingGroup.value.id, rankingData)
+    // } else {
+    //   // Create new ranking
+    //   // TODO upsert
+    //   await RankingService.create(rankingData)
+    // }
 
     await fetchRankingsGroups()
     closeForm()
@@ -238,32 +286,14 @@ onMounted(() => {
     <div v-else class="rankings-list">
       <div v-for="rankingGroup in rankingsGroups" :key="rankingGroup.buildGroupKey()" class="ranking-card">
         <div class="ranking-content">
-
-<!--          <div v-for="ranking in rankingGroup.rankings" :key="RankingGroup.buildRankingKey(ranking)" class="ranking-card">-->
-<!--            -->
-<!--          </div>-->
-
-<!--          <div class="ranking-header">-->
-<!--            <h3>{{ 'TODO' /* getRankingTypeName(rankingGroup.rankingType)*/ }}</h3>-->
-<!--            <span class="ranking-value">{{ 'TODO' /*ranking.value*/ }}/10</span>-->
-<!--          </div>-->
-<!--          <p class="ranking-description">{{ 'TODO' /* ranking.description */ }}</p>-->
-<!--          <div class="ranking-meta">-->
             <span class="meta-item">
               <strong>Helper:</strong> {{ getHelperName(rankingGroup.helperType) }}
             </span>
-            <span class="meta-item">
+          <span class="meta-item">
               <strong>User ID:</strong> {{ rankingGroup.userId }}
             </span>
-
-            <p class="ranking-description">{{ rankingGroup.buildValuesRepresentation() }}</p>
-
-<!--            <span v-if="ranking.created_at" class="meta-item">-->
-<!--              {{ formatDate(ranking.created_at) }}-->
-<!--            </span>-->
-          </div>
-<!--          <div class="ranking-id">ID: {{ ranking.id }}</div>-->
-<!--        </div>-->
+          <p class="ranking-description">{{ rankingGroup.buildValuesRepresentation() }}</p>
+        </div>
         <div class="ranking-actions">
           <button @click="openEditForm(rankingGroup)" class="btn-edit">Edit</button>
           <button @click="deleteRankingGroup(rankingGroup)" class="btn-delete">Delete</button>
@@ -275,7 +305,7 @@ onMounted(() => {
     <div v-if="showForm" class="modal-overlay" @click.self="closeForm">
       <div class="modal">
         <div class="modal-header">
-          <h3>{{ editingRanking ? 'Edit Ranking Group' : 'Create New Ranking Group' }}</h3>
+          <h3>{{ editingRankingGroup ? 'Edit Ranking Group' : 'Create New Ranking Group' }}</h3>
           <button @click="closeForm" class="btn-close">&times;</button>
         </div>
 
@@ -310,30 +340,12 @@ onMounted(() => {
             <small class="field-note">Article ID is based on current article</small>
           </div>
 
-          <!-- Tipų dropdownas -->
-          <div class="form-group">
-            <label for="ranking-type">Ranking Type *</label>
-            <select
-                id="ranking-type"
-                v-model="formRankingType"
-                required
-                :disabled="formLoading"
-            >
-              <option value="">Select a ranking type</option>
-              <option v-for="type in rankingTypes" :key="type.code" :value="type.code">
-                {{ type.description }}
-              </option>
-            </select>
-          </div>
-
-          <!-- Helperių dropdownas -->
           <div class="form-group">
             <label for="helper-type">Helper Type *</label>
             <select
                 id="helper-type"
                 v-model="formHelperType"
-                required
-                :disabled="formLoading"
+                disabled
             >
               <option value="">Select a helper type</option>
               <option v-for="helper in rankingHelpers" :key="helper.code" :value="helper.code">
@@ -343,37 +355,28 @@ onMounted(() => {
           </div>
 
           <div class="form-group">
-            <label for="value">Value (0-10) *</label>
-            <input
-                id="value"
-                v-model.number="formValue"
-                type="number"
-                min="0"
-                max="10"
-                step="0.1"
-                required
-                :disabled="formLoading"
-            />
-          </div>
+            <label for="helper-type">Rankings: </label>
+            <div>Rankings amount: {{ editingRankingGroup.getRankingsCount() }}</div>
+            <div>
+              <!-- TODO iterate ranking types, and try to get ranking by type -->
+              <div v-for="rankingType in rankingTypes" :key="rankingType.code">
+                <div>Ranking Type: {{ rankingType.code }}</div>
+                <div>Ranking: {{ editingRankingGroup.rankings[rankingType.code] }}</div>
+              </div>
 
-          <div class="form-group">
-            <label for="description">Description *</label>
-            <textarea
-                id="description"
-                v-model="formDescription"
-                placeholder="Enter ranking description"
-                rows="4"
-                required
-                :disabled="formLoading"
-            ></textarea>
-          </div>
+              <!--              <div v-for="ranking in editingRankingGroup.rankings" :key="RankingGroup.buildRankingKey(ranking)">-->
+              <!--                <div>Ranking:{{ranking}}</div><br/>-->
+              <!--                <div>key:{{RankingGroup.buildRankingKey(ranking)}}</div><br/>-->
+              <!--              </div>-->
 
+            </div>
+          </div>
           <div class="modal-footer">
             <button type="button" @click="closeForm" class="btn-cancel" :disabled="formLoading">
               Cancel
             </button>
             <button type="submit" class="btn-primary" :disabled="formLoading">
-              {{ formLoading ? 'Saving...' : (editingRanking ? 'Update' : 'Create') }}
+              {{ formLoading ? 'Saving...' : (editingRankingGroup ? 'Update' : 'Create') }}
             </button>
           </div>
         </form>

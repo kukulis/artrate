@@ -151,3 +151,10 @@ docker exec -it artcorrect-mysql mysql -u artcorrect -partcorrect_password artco
 # Or from host (if you have mysql client installed)
 mysql -h 127.0.0.1 -P 3306 -u artcorrect -partcorrect_password artcorrect_db
 ```
+
+## Watch type script errors
+
+npx vue-tsc --noEmit --watch
+
+npm run type-check
+
