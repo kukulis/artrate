@@ -31,7 +31,7 @@ describe('RankingGroup.buildGroups', () => {
             ,
         ];
 
-        const result: RankingGroup = RankingGroup.buildGroups(rankings)
+        const result: RankingGroup[] = RankingGroup.buildGroups(rankings)
 
         expect(result).toEqual(expectedGroups)
     });
@@ -108,7 +108,7 @@ describe('RankingGroup.buildGroups', () => {
             ,
         ];
 
-        const result: RankingGroup = RankingGroup.buildGroups(rankings)
+        const result: RankingGroup[] = RankingGroup.buildGroups(rankings)
 
         expect(result).toEqual(expectedGroups)
     })

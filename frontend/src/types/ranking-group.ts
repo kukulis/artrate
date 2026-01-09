@@ -3,9 +3,9 @@ import {Ranking} from "./ranking";
 export class RankingGroup {
     // rankings: Record<string, number> = {}
     rankings: Record<string, Ranking> = {}
-    helperType: string
-    userId: number
-    articleId: string
+    helperType: string = ''
+    userId: number = 0
+    articleId: string = ''
 
     public setHelperType(helperType: string): RankingGroup {
         this.helperType = helperType;
@@ -124,7 +124,7 @@ export class RankingGroup {
     }
 
     getRankingsCount(): number {
-         return Object.keys( this.rankings ).length
+        return Object.keys(this.rankings).length
     }
 
     buildValuesRepresentation(): string {

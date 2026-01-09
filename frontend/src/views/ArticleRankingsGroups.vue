@@ -70,12 +70,12 @@ const fetchRankingsGroups = async () => {
   try {
     rankingsGroups.value = await RankingService.getRankingGroups(articleId.value)
 
-    console.log('ArticleRankingsGroups.vue[73]: rankingsGroups.value:', rankingsGroups.value)
+    // console.log('ArticleRankingsGroups.vue[73]: rankingsGroups.value:', rankingsGroups.value)
     // console.log ( 'ArticleRankingsGroups.vue[74]: rankingsGroups.value.rankings:', rankingsGroups.)
 
-    for (const r in rankingsGroups.value.rankings) {
-      console.log('ArticleRankingsGroups.vue[77]: r:', r)
-    }
+    // for (const r in rankingsGroups.value.rankings) {
+    //   console.log('ArticleRankingsGroups.vue[77]: r:', r)
+    // }
 
   } catch (err) {
     error.value = 'Failed to load rankings groups'
@@ -106,8 +106,8 @@ const openCreateForm = () => {
   editingRankingGroup.value = null
   formUserId.value = currentUser.value ? currentUser.value.id : 0
   formArticleId.value = articleId.value
-  formRankingType.value = ''
-  formHelperType.value = ''
+  // formRankingType.value = ''
+  // formHelperType.value = ''
   // formValue.value = 5
   // formDescription.value = ''
   formError.value = null
@@ -149,30 +149,30 @@ const closeForm = () => {
 
 const saveRankingGroup = async () => {
   // Validation
-  if (!formUserId.value) {
-    formError.value = 'User ID is required'
-    return
-  }
-  if (!formArticleId.value) {
-    formError.value = 'Article ID is required'
-    return
-  }
-  if (!formRankingType.value) {
-    formError.value = 'Ranking type is required'
-    return
-  }
-  if (!formHelperType.value) {
-    formError.value = 'Helper type is required'
-    return
-  }
-  if (formValue.value < 0 || formValue.value > 10) {
-    formError.value = 'Value must be between 0 and 10'
-    return
-  }
-  if (!formDescription.value.trim()) {
-    formError.value = 'Description is required'
-    return
-  }
+  // if (!formUserId.value) {
+  //   formError.value = 'User ID is required'
+  //   return
+  // }
+  // if (!formArticleId.value) {
+  //   formError.value = 'Article ID is required'
+  //   return
+  // }
+  // if (!formRankingType.value) {
+  //   formError.value = 'Ranking type is required'
+  //   return
+  // }
+  // if (!formHelperType.value) {
+  //   formError.value = 'Helper type is required'
+  //   return
+  // }
+  // if (formValue.value < 0 || formValue.value > 10) {
+  //   formError.value = 'Value must be between 0 and 10'
+  //   return
+  // }
+  // if (!formDescription.value.trim()) {
+  //   formError.value = 'Description is required'
+  //   return
+  // }
 
   formLoading.value = true
   formError.value = null

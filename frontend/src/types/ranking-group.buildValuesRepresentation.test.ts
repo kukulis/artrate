@@ -1,5 +1,6 @@
 import {describe, expect, it} from "vitest";
-import {RankingGroup} from "./ranking-group.ts";
+import {RankingGroup} from "./ranking-group";
+import {Ranking} from "./ranking";
 
 describe('RankingGroup.buildValuesRepresentation', () => {
     it('empty string for group without rankings', () => {
@@ -15,31 +16,31 @@ describe('RankingGroup.buildValuesRepresentation', () => {
             'OBJECTIVITY',
             {
                 value:5,
-            }
+            } as Ranking
         )
         group.setRanking(
             'ACCURACY',
             {
                 value:4,
-            }
+            } as Ranking
         )
         group.setRanking(
             'LOGIC',
             {
                 value:6,
-            }
+            } as Ranking
         )
         group.setRanking(
             'QUALITY',
             {
                 value:6,
-            }
+            } as Ranking
         )
         group.addRanking(
             {
                 ranking_type: 'OFFENSIVE',
                 value:3,
-            }
+            } as Ranking
         )
         const representation =  group.buildValuesRepresentation()
 

@@ -1,6 +1,6 @@
 import apiClient from './api'
 import type {Ranking, RankingFilter, RankingType, RankingHelper} from '../types/ranking'
-import {RankingGroup} from "../types/ranking-group.ts";
+import {RankingGroup} from "../types/ranking-group";
 
 /**
  * Service for Ranking-related API calls
@@ -65,7 +65,7 @@ class RankingService {
     /**
      * Get all available ranking types
      */
-    async getRankingTypes(group_id?: int): Promise<RankingType[]> {
+    async getRankingTypes(group_id?: number): Promise<RankingType[]> {
 
         let params = '';
         if (group_id !== undefined) {
@@ -85,7 +85,7 @@ class RankingService {
         return response.data
     }
 
-    async getRankingGroups( articleId: string ): Promise<RankingGroup> {
+    async getRankingGroups( articleId: string ): Promise<RankingGroup[]> {
         // console.log('getRankingGroups: articleId:', articleId)
         const rankingFilter = {
             article_id: articleId

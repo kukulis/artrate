@@ -44,7 +44,7 @@ describe('RankingGroup.createGroup', () => {
     })
 
     it('should return null when rankingTypes array is empty', () => {
-        const group = RankingGroup.createGroup('grammar', '123', 'article-1', [])
+        const group = RankingGroup.createGroup('grammar', 123, 'article-1', [])
 
         expect(group).toBeNull()
     })
