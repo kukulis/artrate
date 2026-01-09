@@ -29,29 +29,27 @@ const formUserId = ref<number>(0)
 const formArticleId = ref('')
 const formHelperType = ref('')
 
-const formRankingTypes = [
-  ref(''),
-  ref(''),
-  ref(''),
-  ref(''),
-  ref(''),
-]
+const formValues = ref<Record<string, number>>({});
+const formDescriptions = ref<Record<string, string>>({})
 
-const formValues = [
-  ref<number>(0),
-  ref<number>(0),
-  ref<number>(0),
-  ref<number>(0),
-  ref<number>(0),
-]
+// TODO modify to not use global variables
+function initializeFormValuesAndDescriptions(rankingGroup: RankingGroup) {
+  for (const key in rankingGroup.rankings) {
+    const ranking = rankingGroup.rankings[key];
+    formValues.value[key] = ranking.value;
+    formDescriptions.value[key] = ranking.description;
+  }
+}
 
-const formDescriptions = [
-  ref(''),
-  ref(''),
-  ref(''),
-  ref(''),
-  ref(''),
-]
+// TODO modify to not use global variables
+function extractFromValuesAndDescriptions(rankingGroup: RankingGroup) {
+  for (const key in rankingGroup.rankings) {
+    const ranking = rankingGroup.rankings[key];
+    ranking.value = formValues.value[key]
+    ranking.description = formDescriptions.value[key]
+  }
+}
+
 
 // const formRankingType = ref('')
 // const formValue = ref<number>(0)
@@ -123,9 +121,13 @@ const openEditForm = (rankingGroup: RankingGroup) => {
   // TODO
 
   const rankingTypesCodes = rankingTypes.value.map((rt: RankingType) => rt.code)
-  console.log('Before fillMissingRankings: rankingTypes codes: ', rankingTypesCodes )
+  // console.log('Before fillMissingRankings: rankingTypes codes: ', rankingTypesCodes )
   rankingGroup.fillMissingRankings(rankingTypesCodes, 5)
-  console.log('After fillMissingRankings')
+  console.log('ArticleRankingsGroups.vue After fillMissingRankings:', rankingGroup)
+
+  initializeFormValuesAndDescriptions(rankingGroup)
+  console.log('ArticleRankingsGroups.vue After initializeFormValuesAndDescriptions formValues:', formValues)
+  console.log('ArticleRankingsGroups.vue After initializeFormValuesAndDescriptions formDescriptions:', formDescriptions)
 
   // formRankingType.value = ranking.ranking_type
   // formValue.value = ranking.value
@@ -148,57 +150,25 @@ const closeForm = () => {
 }
 
 const saveRankingGroup = async () => {
-  // Validation
-  // if (!formUserId.value) {
-  //   formError.value = 'User ID is required'
-  //   return
-  // }
-  // if (!formArticleId.value) {
-  //   formError.value = 'Article ID is required'
-  //   return
-  // }
-  // if (!formRankingType.value) {
-  //   formError.value = 'Ranking type is required'
-  //   return
-  // }
-  // if (!formHelperType.value) {
-  //   formError.value = 'Helper type is required'
-  //   return
-  // }
-  // if (formValue.value < 0 || formValue.value > 10) {
-  //   formError.value = 'Value must be between 0 and 10'
-  //   return
-  // }
-  // if (!formDescription.value.trim()) {
-  //   formError.value = 'Description is required'
-  //   return
-  // }
-
   formLoading.value = true
   formError.value = null
 
   try {
-    // TODO remake here
-    // const rankingData = {
-    //   user_id: formUserId.value,
-    //   article_id: formArticleId.value,
-    //   ranking_type: formRankingType.value,
-    //   helper_type: formHelperType.value,
-    //   value: formValue.value,
-    //   description: formDescription.value.trim()
-    // }
-
     console.log('ArticleRankingsGroups.vue[176]: inside saveRankingGroup')
 
-    // if (editingRankingGroup.value) {
-    //   // Update existing ranking
-    //   // TODO upsert
-    //   await RankingService.update(editingRankingGroup.value.id, rankingData)
-    // } else {
-    //   // Create new ranking
-    //   // TODO upsert
-    //   await RankingService.create(rankingData)
-    // }
+    let rankingGroup = RankingGroup.createGroup(
+        formHelperType.value,
+        formUserId.value,
+        formArticleId.value,
+        rankingTypes.value.map(rt => rt.code)
+    )
+
+    extractFromValuesAndDescriptions(rankingGroup)
+    console.log('ArticleRankingsGroups.vue: editingRankingGroup before upsert: ', rankingGroup)
+
+    // TODO validate rankings
+    const upsertResult = await RankingService.upsert(Object.values(rankingGroup.rankings))
+    console.log('ArticleRankingsGroups.vue: upsertResult: ', upsertResult)
 
     await fetchRankingsGroups()
     closeForm()
@@ -356,19 +326,41 @@ onMounted(() => {
 
           <div class="form-group">
             <label for="helper-type">Rankings: </label>
-            <div>Rankings amount: {{ editingRankingGroup.getRankingsCount() }}</div>
+            <!--            <div>Rankings amount: {{ editingRankingGroup.getRankingsCount() }}</div>-->
             <div>
-              <!-- TODO iterate ranking types, and try to get ranking by type -->
               <div v-for="rankingType in rankingTypes" :key="rankingType.code">
-                <div>Ranking Type: {{ rankingType.code }}</div>
-                <div>Ranking: {{ editingRankingGroup.rankings[rankingType.code] }}</div>
+                <div>Ranking Type: {{ rankingType.code }} <span
+                    class="ranking-type-description"> {{ rankingType.description }} </span></div>
+                <!--                <div>Ranking value: {{ editingRankingGroup.rankings[rankingType.code].value }}</div>-->
+                <!--                <div>Ranking description: {{ editingRankingGroup.rankings[rankingType.code].description }}</div>-->
+
+                <div class="form-group">
+                  <label for="value">Value (0-10) *</label>
+                  <input
+                      id="value"
+                      v-model.number="formValues[rankingType.code]"
+                      type="number"
+                      min="0"
+                      max="10"
+                      step="0.1"
+                      required
+                      :disabled="formLoading"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="description">Description *</label>
+                  <textarea
+                      id="description"
+                      v-model="formDescriptions[rankingType.code]"
+                      placeholder="Enter ranking description"
+                      rows="4"
+                      :disabled="formLoading"
+                  ></textarea>
+                </div>
+
+
               </div>
-
-              <!--              <div v-for="ranking in editingRankingGroup.rankings" :key="RankingGroup.buildRankingKey(ranking)">-->
-              <!--                <div>Ranking:{{ranking}}</div><br/>-->
-              <!--                <div>key:{{RankingGroup.buildRankingKey(ranking)}}</div><br/>-->
-              <!--              </div>-->
-
             </div>
           </div>
           <div class="modal-footer">
