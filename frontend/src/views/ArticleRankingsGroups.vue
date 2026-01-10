@@ -5,7 +5,7 @@ import RankingService from '../services/RankingService'
 import UsersService from '../services/UsersService'
 import type {RankingHelper, RankingType} from '../types/ranking'
 import type {User} from '../types/user'
-// import {formatDate} from '../utils/dateFormat'
+import {formatDate} from '../utils/dateFormat'
 import ArticleService from "../services/ArticleService.ts";
 import {Article} from "../types/article.ts";
 import {RankingGroup} from "../types/ranking-group.ts";
@@ -22,7 +22,6 @@ const currentArticle = ref<Article | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
 const showForm = ref(false)
-const editingRankingGroup = ref<RankingGroup | null>(null)
 
 // Form fields
 const formUserId = ref<number>(0)
@@ -32,7 +31,6 @@ const formHelperType = ref('')
 const formValues = ref<Record<string, number>>({});
 const formDescriptions = ref<Record<string, string>>({})
 
-// TODO modify to not use global variables
 function initializeFormValuesAndDescriptions(rankingGroup: RankingGroup) {
   for (const key in rankingGroup.rankings) {
     const ranking = rankingGroup.rankings[key];
@@ -41,7 +39,6 @@ function initializeFormValuesAndDescriptions(rankingGroup: RankingGroup) {
   }
 }
 
-// TODO modify to not use global variables
 function extractFromValuesAndDescriptions(rankingGroup: RankingGroup) {
   for (const key in rankingGroup.rankings) {
     const ranking = rankingGroup.rankings[key];
@@ -50,10 +47,6 @@ function extractFromValuesAndDescriptions(rankingGroup: RankingGroup) {
   }
 }
 
-
-// const formRankingType = ref('')
-// const formValue = ref<number>(0)
-// const formDescription = ref('')
 
 const formError = ref<string | null>(null)
 const formLoading = ref(false)
@@ -67,14 +60,6 @@ const fetchRankingsGroups = async () => {
   error.value = null
   try {
     rankingsGroups.value = await RankingService.getRankingGroups(articleId.value)
-
-    // console.log('ArticleRankingsGroups.vue[73]: rankingsGroups.value:', rankingsGroups.value)
-    // console.log ( 'ArticleRankingsGroups.vue[74]: rankingsGroups.value.rankings:', rankingsGroups.)
-
-    // for (const r in rankingsGroups.value.rankings) {
-    //   console.log('ArticleRankingsGroups.vue[77]: r:', r)
-    // }
-
   } catch (err) {
     error.value = 'Failed to load rankings groups'
     console.error('Error fetching rankings groups:', err)
@@ -101,51 +86,29 @@ const fetchMetadata = async () => {
 }
 
 const openCreateForm = () => {
-  editingRankingGroup.value = null
   formUserId.value = currentUser.value ? currentUser.value.id : 0
   formArticleId.value = articleId.value
-  // formRankingType.value = ''
-  // formHelperType.value = ''
-  // formValue.value = 5
-  // formDescription.value = ''
+  formHelperType.value = 'USER'
   formError.value = null
   showForm.value = true
 }
 
 const openEditForm = (rankingGroup: RankingGroup) => {
-  editingRankingGroup.value = rankingGroup
   formUserId.value = rankingGroup.userId
   formArticleId.value = rankingGroup.articleId
   formHelperType.value = rankingGroup.helperType
-
-  // TODO
-
   const rankingTypesCodes = rankingTypes.value.map((rt: RankingType) => rt.code)
-  // console.log('Before fillMissingRankings: rankingTypes codes: ', rankingTypesCodes )
   rankingGroup.fillMissingRankings(rankingTypesCodes, 5)
-  console.log('ArticleRankingsGroups.vue After fillMissingRankings:', rankingGroup)
-
   initializeFormValuesAndDescriptions(rankingGroup)
-  console.log('ArticleRankingsGroups.vue After initializeFormValuesAndDescriptions formValues:', formValues)
-  console.log('ArticleRankingsGroups.vue After initializeFormValuesAndDescriptions formDescriptions:', formDescriptions)
-
-  // formRankingType.value = ranking.ranking_type
-  // formValue.value = ranking.value
-  // formDescription.value = ranking.description
-
   formError.value = null
   showForm.value = true
 }
 
 const closeForm = () => {
   showForm.value = false
-  editingRankingGroup.value = null
   formUserId.value = 0
   formArticleId.value = ''
-  // formRankingType.value = ''
   formHelperType.value = ''
-  // formValue.value = 0
-  // formDescription.value = ''
   formError.value = null
 }
 
@@ -154,7 +117,6 @@ const saveRankingGroup = async () => {
   formError.value = null
 
   try {
-    console.log('ArticleRankingsGroups.vue[176]: inside saveRankingGroup')
 
     let rankingGroup = RankingGroup.createGroup(
         formHelperType.value,
@@ -164,9 +126,8 @@ const saveRankingGroup = async () => {
     )
 
     extractFromValuesAndDescriptions(rankingGroup)
-    console.log('ArticleRankingsGroups.vue: editingRankingGroup before upsert: ', rankingGroup)
 
-    // TODO validate rankings
+    // validate rankings?
     const upsertResult = await RankingService.upsert(Object.values(rankingGroup.rankings))
     console.log('ArticleRankingsGroups.vue: upsertResult: ', upsertResult)
 
@@ -181,27 +142,36 @@ const saveRankingGroup = async () => {
 }
 
 const deleteRankingGroup = async (rankingGroup: RankingGroup) => {
-
-  console.log('TODO delete rankingGroup', rankingGroup)
-
   // const typeName = rankingTypes.value.find(t => t.code === ranking.ranking_type)?.description || ranking.ranking_type
-  // if (!confirm(`Are you sure you want to delete the "${typeName}" ranking?`)) {
-  //   return
-  // }
-  //
-  // try {
-  //   await RankingService.delete(ranking.id)
-  //   await fetchRankingsGroups()
-  // } catch (err: any) {
-  //   alert(err.response?.data?.error || 'Failed to delete ranking')
-  //   console.error('Error deleting ranking:', err)
-  // }
+  if (!confirm(`Are you sure you want to delete these rankings?`)) {
+    return
+  }
+
+  loading.value = true;
+
+  try {
+    for (const rankingType in rankingGroup.rankings) {
+      const ranking = rankingGroup.rankings[rankingType]
+
+      if (ranking.id !== '') {
+        await RankingService.delete(ranking.id)
+      }
+    }
+
+    await fetchRankingsGroups()
+  } catch (err: any) {
+    alert(err.response?.data?.error || 'Failed to delete ranking')
+    console.error('Error deleting ranking:', err)
+  }
+  finally {
+    loading.value = false;
+  }
 }
 
-const getRankingTypeName = (code: string): string => {
-  const type = rankingTypes.value.find(t => t.code === code)
-  return type ? type.description : code
-}
+// const getRankingTypeName = (code: string): string => {
+//   const type = rankingTypes.value.find(t => t.code === code)
+//   return type ? type.description : code
+// }
 
 const getHelperName = (code: string): string => {
   const helper = rankingHelpers.value.find(h => h.code === code)
@@ -249,7 +219,6 @@ onMounted(() => {
     <!-- Empty State -->
     <div v-else-if="rankingsGroups.length === 0" class="empty">
       <p>No rankings found for this article</p>
-      <button @click="openCreateForm" class="btn-primary">Create First Ranking Group</button>
     </div>
 
     <!-- Rankings groups List -->
@@ -263,6 +232,7 @@ onMounted(() => {
               <strong>User ID:</strong> {{ rankingGroup.userId }}
             </span>
           <p class="ranking-description">{{ rankingGroup.buildValuesRepresentation() }}</p>
+          <p class="ranking-meta">{{ formatDate( rankingGroup.getDate() ) }}</p>
         </div>
         <div class="ranking-actions">
           <button @click="openEditForm(rankingGroup)" class="btn-edit">Edit</button>
@@ -273,9 +243,9 @@ onMounted(() => {
 
     <!-- Create/Edit Form Modal -->
     <div v-if="showForm" class="modal-overlay" @click.self="closeForm">
-      <div class="modal">
+      <div class="modal modal-wide">
         <div class="modal-header">
-          <h3>{{ editingRankingGroup ? 'Edit Ranking Group' : 'Create New Ranking Group' }}</h3>
+          <h3>{{ 'Edit Rankings' }}</h3>
           <button @click="closeForm" class="btn-close">&times;</button>
         </div>
 
@@ -284,91 +254,57 @@ onMounted(() => {
             {{ formError }}
           </div>
 
-          <div class="form-group">
-            <label for="user-id">User ID *</label>
-            <input
-                id="user-id"
-                v-model="formUserId"
-                type="text"
-                readonly
-                disabled
-                class="readonly-field"
-            />
-            <small class="field-note">User ID is set automatically</small>
+          <!-- Compact Info Bar for Readonly Fields -->
+          <div class="info-bar">
+            <span><strong>User:</strong> {{ formUserId }}</span>
+            <span><strong>Article:</strong> {{ formArticleId }}</span>
+            <span><strong>Helper:</strong> {{ getHelperName(formHelperType) }}</span>
           </div>
 
-          <div class="form-group">
-            <label for="article-id">Article ID *</label>
-            <input
-                id="article-id"
-                v-model="formArticleId"
-                type="text"
-                readonly
-                disabled
-                class="readonly-field"
-            />
-            <small class="field-note">Article ID is based on current article</small>
-          </div>
+          <!-- Compact Rankings Table -->
+          <div class="rankings-table">
+            <div class="rankings-header">
+              <div class="col-type">Type</div>
+              <div class="col-value">Value</div>
+              <div class="col-description">Description</div>
+            </div>
 
-          <div class="form-group">
-            <label for="helper-type">Helper Type *</label>
-            <select
-                id="helper-type"
-                v-model="formHelperType"
-                disabled
-            >
-              <option value="">Select a helper type</option>
-              <option v-for="helper in rankingHelpers" :key="helper.code" :value="helper.code">
-                {{ helper.description }}
-              </option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="helper-type">Rankings: </label>
-            <!--            <div>Rankings amount: {{ editingRankingGroup.getRankingsCount() }}</div>-->
-            <div>
-              <div v-for="rankingType in rankingTypes" :key="rankingType.code">
-                <div>Ranking Type: {{ rankingType.code }} <span
-                    class="ranking-type-description"> {{ rankingType.description }} </span></div>
-                <!--                <div>Ranking value: {{ editingRankingGroup.rankings[rankingType.code].value }}</div>-->
-                <!--                <div>Ranking description: {{ editingRankingGroup.rankings[rankingType.code].description }}</div>-->
-
-                <div class="form-group">
-                  <label for="value">Value (0-10) *</label>
-                  <input
-                      id="value"
-                      v-model.number="formValues[rankingType.code]"
-                      type="number"
-                      min="0"
-                      max="10"
-                      step="0.1"
-                      required
-                      :disabled="formLoading"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="description">Description *</label>
-                  <textarea
-                      id="description"
-                      v-model="formDescriptions[rankingType.code]"
-                      placeholder="Enter ranking description"
-                      rows="4"
-                      :disabled="formLoading"
-                  ></textarea>
-                </div>
-
-
+            <div v-for="rankingType in rankingTypes" :key="rankingType.code" class="ranking-row">
+              <div class="col-type">
+                <strong>{{ rankingType.code }}</strong>
+                <small class="type-desc">{{ rankingType.description }}</small>
+              </div>
+              <div class="col-value">
+                <input
+                    v-model.number="formValues[rankingType.code]"
+                    type="number"
+                    min="0"
+                    max="10"
+                    step="0.1"
+                    required
+                    :disabled="formLoading"
+                    class="compact-input"
+                />
+              </div>
+              <div class="col-description">
+                <textarea
+                    v-model="formDescriptions[rankingType.code]"
+                    placeholder="Enter description"
+                    rows="2"
+                    required
+                    :disabled="formLoading"
+                    class="compact-textarea"
+                ></textarea>
               </div>
             </div>
           </div>
+
           <div class="modal-footer">
             <button type="button" @click="closeForm" class="btn-cancel" :disabled="formLoading">
               Cancel
             </button>
             <button type="submit" class="btn-primary" :disabled="formLoading">
-              {{ formLoading ? 'Saving...' : (editingRankingGroup ? 'Update' : 'Create') }}
+              {{ formLoading ? 'Saving...' : 'Store' }}
             </button>
           </div>
         </form>
@@ -507,26 +443,10 @@ onMounted(() => {
   flex: 1;
 }
 
-.ranking-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
 .ranking-header h3 {
   margin: 0;
   color: #2c3e50;
   font-size: 1.3rem;
-}
-
-.ranking-value {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #27ae60;
-  background-color: #e8f5e9;
-  padding: 0.25rem 0.75rem;
-  border-radius: 4px;
 }
 
 .ranking-description {
@@ -547,12 +467,6 @@ onMounted(() => {
 .meta-item {
   display: flex;
   gap: 0.25rem;
-}
-
-.ranking-id {
-  font-size: 0.8rem;
-  color: #95a5a6;
-  font-family: monospace;
 }
 
 .ranking-actions {
@@ -611,6 +525,10 @@ onMounted(() => {
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal-wide {
+  max-width: 1000px;
 }
 
 .modal-header {
@@ -735,6 +653,125 @@ onMounted(() => {
 
 .btn-primary:disabled {
   opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ranking-type-description {
+  font-size: 0.8rem;
+  color: #95a5a6;
+}
+
+/* Compact Info Bar */
+.info-bar {
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  gap: 2rem;
+  font-size: 0.9rem;
+}
+
+.info-bar span {
+  color: #2c3e50;
+}
+
+/* Compact Rankings Table */
+.rankings-table {
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.rankings-header {
+  display: grid;
+  grid-template-columns: 200px 100px 1fr;
+  gap: 1rem;
+  background-color: #34495e;
+  color: white;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.ranking-row {
+  display: grid;
+  grid-template-columns: 200px 100px 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  align-items: start;
+}
+
+.ranking-row:last-child {
+  border-bottom: none;
+}
+
+.ranking-row:hover {
+  background-color: #f8f9fa;
+}
+
+.col-type {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.col-type strong {
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+.col-type .type-desc {
+  color: #7f8c8d;
+  font-size: 0.8rem;
+  font-weight: normal;
+}
+
+.col-value {
+  display: flex;
+  align-items: center;
+}
+
+.col-description {
+  display: flex;
+  align-items: start;
+}
+
+.compact-input {
+  width: 80px;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.compact-input:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.compact-textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 50px;
+}
+
+.compact-textarea:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.compact-input:disabled,
+.compact-textarea:disabled {
+  background-color: #f5f5f5;
   cursor: not-allowed;
 }
 </style>

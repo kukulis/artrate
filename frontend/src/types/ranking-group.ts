@@ -136,4 +136,19 @@ export class RankingGroup {
 
         return rezs.join('; ')
     }
+
+    getDate(): Date|null  {
+        for ( const rankingKey in this.rankings) {
+            const ranking = this.rankings[rankingKey]
+
+            if ( ranking.updated_at != null ) {
+                return ranking.updated_at
+            }
+            if ( ranking.created_at != null ) {
+                return ranking.created_at
+            }
+        }
+
+        return null;
+    }
 }

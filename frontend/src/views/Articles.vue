@@ -186,9 +186,10 @@ onMounted(() => {
           </div>
         </div>
         <div class="article-actions">
-          <router-link :to="`/articles/${article.id}/rankings`" class="btn-rankings">
-            Rankings
-          </router-link>
+          <!-- TODO to admin only -->
+<!--          <router-link :to="`/articles/${article.id}/rankings`" class="btn-rankings">-->
+<!--            Rankings-->
+<!--          </router-link>-->
           <router-link :to="`/articles/${article.id}/rankings-groups`" class="btn-rankings">
             Rankings groups
           </router-link>

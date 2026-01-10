@@ -3,7 +3,11 @@
  * @param date - Date object or string to format
  * @returns Formatted date string in 'yyyy-mm-dd' format
  */
-export function formatDate(date: Date | string): string {
+export function formatDate(date: Date | string | null ): string {
+  if (date == null ) {
+    return '-'
+  }
+
   const d = typeof date === 'string' ? new Date(date) : date
 
   const year = d.getFullYear()
