@@ -1,7 +1,12 @@
 import {connectDatabase} from '../config/database';
 import knex from 'knex';
 import knexConfig from '../../knexfile';
-import {logger, wrapError} from "../logging";
+import {initLogger, wrapError} from "../logging";
+
+export const logger = initLogger({
+    lokiUrl: '',
+    environment: 'test'
+});
 
 /**
  * Verify we're using a test database

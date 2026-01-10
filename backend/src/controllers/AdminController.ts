@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { UserRepository } from '../repositories/UserRepository';
-import { logger, wrapError } from '../logging';
+import { getLogger, wrapError } from '../logging';
+
+const logger = getLogger();
 
 export class AdminController {
     constructor(private userRepository: UserRepository) {}

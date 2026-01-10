@@ -4,14 +4,17 @@ import { createConnectionPool } from '../config/database';
 import { cleanTestDatabase, setupTestDatabase, waitForDatabase } from '../test-utils/dbSetup';
 import { seedTestData } from '../test-utils/testData';
 import { Pool } from 'mysql2/promise';
+import {loadConfig} from "../config";
+import {initLogger} from "../logging";
 
 let testPool: Pool;
 let repository: RankingRepository;
 
 describe('RankingRepository', () => {
     beforeAll(async () => {
-        // console.log('\n🧪 Setting up RankingRepository tests...');
-        testPool = createConnectionPool();
+        const config = loadConfig()
+        initLogger({lokiUrl: config.logging.lokiUrl, environment: 'test' } )
+        testPool = createConnectionPool(config.database);
         repository = new RankingRepository(testPool);
 
         await waitForDatabase();

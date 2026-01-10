@@ -7,7 +7,9 @@ import {
     PasswordResetConfirmSchema
 } from '../entities/User';
 import { ControllerHelper } from './ControllerHelper';
-import { logger, wrapError } from '../logging';
+import { getLogger, wrapError } from '../logging';
+
+const logger = getLogger();
 
 export class AuthController {
     constructor(private authService: AuthService) {}

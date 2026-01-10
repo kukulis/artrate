@@ -3,20 +3,87 @@
  * Import and use throughout the app without needing to pass logger instances
  */
 
-import { ILogger } from './ILogger';
-import { createLokiClient } from './LokiClient';
+import type { ILogger } from './ILogger';
+import { LokiClient } from "./LokiClient";
+import { ConsoleLogger } from "./ConsoleLogger";
+
+/**
+ * Logger configuration interface
+ */
+export interface LoggerConfig {
+    lokiUrl: string;
+    environment: string;
+    defaultLabels?: Record<string, string>;
+}
+
+/**
+ * Create a logger instance based on configuration
+ * Falls back to ConsoleLogger if Loki URL is not provided
+ */
+export function createLogger(config: LoggerConfig): ILogger {
+    const url = config.lokiUrl;
+
+    if (!url || url === '') {
+        console.log('Loki URL not configured, using ConsoleLogger');
+        return new ConsoleLogger({
+            app: 'artcorrect-backend',
+            environment: config.environment,
+            ...config.defaultLabels
+        });
+    }
+
+    const defaultLabels = {
+        app: 'artcorrect-backend',
+        environment: config.environment,
+        ...config.defaultLabels
+    };
+
+    return new LokiClient({url, defaultLabels});
+}
 
 /**
  * Global logger instance
- * Use this in your routes, services, and middleware
+ * Initialized via initLogger()
+ */
+let _logger: ILogger | null = null;
+
+/**
+ * Initialize the global logger
+ * Must be called before using getLogger()
+ */
+export function initLogger(config: LoggerConfig): ILogger {
+    if (_logger) {
+        console.log('Logger already initialized');
+        return _logger;
+    }
+
+    _logger = createLogger(config);
+    console.log('Logger initialized successfully');
+    return _logger;
+}
+
+/**
+ * Get the global logger instance
+ * Throws error if logger not initialized
  *
  * @example
- * import { logger } from './logging';
+ * import { getLogger } from './logging';
  *
+ * const logger = getLogger();
  * logger.info('User logged in', { userId: user.id });
  * logger.error('Failed to process order', { orderId: order.id });
  */
-export const logger = createLokiClient({url: process.env.LOKI_URL});
+
+export function getLogger(): ILogger {
+    if (!_logger) {
+        // throw new Error('Logger not initialized. Call initLogger() first.');
+        return new ConsoleLogger({
+            app: 'artcorrect-backend',
+            environment: 'badtest',
+        }, true);
+    }
+    return _logger;
+}
 
 export function wrapError (error :unknown ) {
     return {error: error instanceof Error ? error.message : 'Unknown error'}
@@ -26,19 +93,5 @@ export function wrapError (error :unknown ) {
  * Re-export types and classes for when you need them
  */
 export { ILogger } from './ILogger';
-export { LokiClient, LokiLogEntry, LokiClientConfig, createLokiClient } from './LokiClient';
+export { LokiClient, LokiLogEntry } from './LokiClient';
 export { ConsoleLogger, createConsoleLogger } from './ConsoleLogger';
-
-/**
- * Factory for creating service-specific loggers with custom labels
- * Use this when you need a logger with specific context
- *
- * @example
- * const orderLogger = createServiceLogger('OrderService');
- * orderLogger.info('Order created');  // Automatically includes service: 'OrderService' label
- */
-export function createServiceLogger(serviceName: string): ILogger {
-    return createLokiClient({
-        defaultLabels: { service: serviceName }
-    });
-}

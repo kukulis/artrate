@@ -1,16 +1,35 @@
 import express, {Request, Response} from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import {pool, connectDatabase} from './config/database';
-import {createRouter} from "./routes";
-import {logger, wrapError} from "./logging";
 
+// STEP 1: Load environment variables FIRST
 dotenv.config();
 
+// STEP 2: Load and validate configuration
+import { initConfig } from './config';
+const config = initConfig();
+
+// STEP 3: Initialize database pool with config
+import { initPool, getPool, connectDatabase } from './config/database';
+initPool(config.database);
+
+// STEP 4: Initialize logger with config
+import { initLogger, getLogger, wrapError } from './logging';
+initLogger({
+    lokiUrl: config.logging.lokiUrl,
+    environment: config.nodeEnv,
+});
+
+// STEP 5: Get initialized instances
+const pool = getPool();
+const logger = getLogger();
+
+// STEP 6: Create routes and app
+import {createRouter} from "./routes";
 const apiRoutes = createRouter(pool)
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = config.port;
 
 // Middleware
 app.use(cors());
@@ -25,7 +44,7 @@ app.get('/health', (_req: Request, res: Response) => {
 // Database test endpoint
 app.get('/api/test', async (_req: Request, res: Response) => {
     try {
-        const connection = await connectDatabase();
+        const connection = await connectDatabase(config.database);
         const [rows] = await connection.query('SELECT 1 + 1 AS result');
         await connection.end();
 

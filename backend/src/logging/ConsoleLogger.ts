@@ -6,9 +6,11 @@ import { ILogger } from './ILogger';
  */
 export class ConsoleLogger implements ILogger {
     private defaultLabels: Record<string, string>;
+    private silent: boolean
 
-    constructor(defaultLabels?: Record<string, string>) {
+    constructor(defaultLabels?: Record<string, string>, silent : boolean = false ) {
         this.defaultLabels = defaultLabels || {};
+        this.silent = silent
     }
 
     /**
@@ -25,14 +27,17 @@ export class ConsoleLogger implements ILogger {
     }
 
     debug(message: string, labels?: Record<string, string>): void {
+        if ( this.silent ) return;
         console.log(this.formatMessage('debug', message, labels));
     }
 
     info(message: string, labels?: Record<string, string>): void {
+        if ( this.silent ) return;
         console.log(this.formatMessage('info', message, labels));
     }
 
     warn(message: string, labels?: Record<string, string>): void {
+        if ( this.silent ) return;
         console.warn(this.formatMessage('warn', message, labels));
     }
 

@@ -1,7 +1,9 @@
 import {Request, Response} from "express";
 import {RankingType} from "../types/RankingType";
 import {RankingHelper} from "../types/RankingHelper";
-import {logger, wrapError} from "../logging";
+import {getLogger, wrapError} from "../logging";
+
+const logger = getLogger()
 
 /**
  * Controller for ranking metadata endpoints.

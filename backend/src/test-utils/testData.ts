@@ -1,6 +1,7 @@
 import {connectDatabase} from '../config/database';
-import {logger, wrapError} from "../logging";
+import {getLogger, wrapError} from "../logging";
 
+const logger = getLogger()
 /**
  * Seed test data into database
  */

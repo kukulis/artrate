@@ -1,4 +1,3 @@
-import '../test-utils/mockLogger';
 import request from 'supertest';
 import express from 'express';
 import { createAuthorRoutes } from './authorRoutes';
@@ -6,6 +5,8 @@ import { setupTestDatabase, cleanTestDatabase, waitForDatabase } from '../test-u
 import { seedTestData, TEST_AUTHORS } from '../test-utils/testData';
 import { createConnectionPool } from '../config/database';
 import { Pool } from 'mysql2/promise';
+import {loadConfig} from "../config";
+import {initLogger} from "../logging";
 
 // Create a dedicated pool for this test suite
 let testPool: Pool;
@@ -14,8 +15,10 @@ let app: express.Application;
 describe('Author API Integration Tests', () => {
   // Setup: Run once before all tests
   beforeAll(async () => {
-    // console.log('\n🧪 Setting up Author API integration tests...');
-    testPool = createConnectionPool();
+    const config = loadConfig()
+    initLogger({lokiUrl: config.logging.lokiUrl, environment: 'test' } )
+    testPool = createConnectionPool(config.database);
+
 
     // Create Express app with test-specific pool
     app = express();

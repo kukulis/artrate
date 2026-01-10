@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { TokenService } from '../services/TokenService';
 import { UserRepository } from '../repositories/UserRepository';
-import { logger, wrapError } from '../logging';
+import {getLogger, wrapError} from '../logging';
+
+const logger = getLogger()
 
 // Extend Express Request type to include user
 declare global {

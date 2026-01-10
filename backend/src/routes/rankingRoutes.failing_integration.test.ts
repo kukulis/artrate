@@ -5,6 +5,8 @@ import request from "supertest";
 import {createRankingRoutes} from "./rankingRoutes";
 import {createConnectionPool} from "../config/database";
 import {Pool} from "mysql2/promise";
+import {loadConfig} from "../config";
+import {initLogger} from "../logging";
 
 let testPool:Pool;
 let app: express.Application;
@@ -15,7 +17,10 @@ describe('Ranking API Integration Tests', () => {
         app = express();
         app.use(express.json());
 
-        testPool = createConnectionPool();
+        const config = loadConfig()
+        initLogger({lokiUrl: config.logging.lokiUrl, environment: 'test' } )
+        testPool = createConnectionPool(config.database);
+
         const rankingRoutes = createRankingRoutes(testPool)
         app.use('/api/rankings', rankingRoutes);
     })

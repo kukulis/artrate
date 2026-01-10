@@ -3,7 +3,9 @@ import {AuthorRepository} from '../repositories/AuthorRepository';
 import {AuthorFilter, AuthorFilterHelpers} from "../types/AuthorFilter";
 import {Author, AuthorHelper} from "../entities";
 import {randomBytes} from "crypto";
-import {logger, wrapError} from "../logging";
+import {getLogger, wrapError} from "../logging";
+
+const logger = getLogger();
 
 export class AuthorController {
     private authorRepository: AuthorRepository;

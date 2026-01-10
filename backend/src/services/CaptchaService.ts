@@ -1,5 +1,7 @@
 import axios from 'axios';
-import { logger, wrapError } from '../logging';
+import {getLogger, wrapError} from '../logging';
+
+const logger = getLogger()
 
 export class CaptchaService {
     private readonly secretKey: string;

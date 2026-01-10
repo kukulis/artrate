@@ -1,4 +1,3 @@
-import '../test-utils/mockLogger';
 import express from "express";
 import { createRankingRoutes } from "./rankingRoutes";
 import request from "supertest";
@@ -6,6 +5,8 @@ import {cleanTestDatabase, setupTestDatabase, waitForDatabase} from "../test-uti
 import {seedTestData} from "../test-utils/testData";
 import { createConnectionPool } from '../config/database';
 import { Pool } from 'mysql2/promise';
+import {loadConfig} from "../config";
+import {initLogger} from "../logging";
 
 // Create a dedicated pool for this test suite
 let testPool: Pool;
@@ -15,7 +16,12 @@ describe('Ranking API Integration Tests', () => {
     // connection and migrations
     beforeAll(async () => {
         // console.log('\n🧪 Setting up Ranking API integration tests...');
-        testPool = createConnectionPool();
+
+        const config = loadConfig()
+        initLogger({lokiUrl: config.logging.lokiUrl, environment: 'test' } )
+        testPool = createConnectionPool(config.database);
+
+        testPool = createConnectionPool(config.database);
 
         // Create Express app with test-specific pool
         app = express();

@@ -4,7 +4,9 @@ import {ArticleRepository} from "../repositories/ArticleRepository";
 import {Article, CreateArticleSchema, UpdateArticleSchema} from "../entities";
 import {ControllerHelper} from "./ControllerHelper";
 import {AuthenticationHandler} from "./AuthenticationHandler";
-import {logger, wrapError} from "../logging";
+import {getLogger, wrapError} from "../logging";
+
+const logger = getLogger();
 
 export class ArticleController {
     private articleService: ArticleService;
@@ -105,13 +107,13 @@ export class ArticleController {
             res.status(201).json(created);
         } catch (error) {
             if (ControllerHelper.handleZodError(error, res)) {
-                logger.error('ZOD Error creating article', wrapError(error));
+                logger.warn('ZOD Error creating article', wrapError(error));
                 return
             }
 
 
             if (error instanceof Error && error.message.includes('does not exist')) {
-                logger.error('Validation Error creating article', wrapError(error));
+                logger.warn('Validation Error creating article', wrapError(error));
                 res.status(400).json({error: error.message});
                 return;
             }

@@ -6,7 +6,9 @@ import {ControllerHelper} from "./ControllerHelper";
 import {IdGenerator} from "../services/IdGenerator";
 import {RankingValidator} from "../services/RankingValidator";
 import {z} from "zod";
-import {logger, wrapError} from "../logging";
+import {getLogger, wrapError} from "../logging";
+
+const logger = getLogger();
 
 export class RankingController {
     public constructor(private rankingRepository: RankingRepository,

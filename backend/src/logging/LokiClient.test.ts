@@ -1,10 +1,15 @@
-import {createLokiClient} from './LokiClient';
+import {LokiClient} from "./LokiClient";
+
 
 describe('LokiClient', () => {
     it('should write a few messages to Loki', async () => {
-        const client = createLokiClient({
-            url: 'http://loki:3100'
-        });
+
+        const defaultLabels = {
+            app: 'artcorrect-backend',
+            environment: process.env.NODE_ENV || 'development',
+        };
+
+        const client = new LokiClient({url:'http://loki:3100', defaultLabels});
 
         // Write some test messages
         let result = await client.asyncInfo('Test message 1: Application started');

@@ -55,8 +55,8 @@ export class LokiClient implements ILogger {
         const body = JSON.stringify(payload);
         try {
 
-            console.log('Trying to send a request to loki url:', url)
-            console.log('Trying to send a request to loki body:', body)
+            // console.log('Trying to send a request to loki url:', url)
+            // console.log('Trying to send a request to loki body:', body)
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -166,21 +166,3 @@ export class LokiClient implements ILogger {
     }
 }
 
-/**
- * Create a singleton instance for the application
- */
-export function createLokiClient(config?: Partial<LokiClientConfig>): LokiClient {
-    const url = config?.url || '';
-
-    if ( url === '' ) {
-        console.error('The loki url is empty')
-    }
-
-    const defaultLabels = {
-        app: 'artcorrect-backend',
-        environment: process.env.NODE_ENV || 'development',
-        ...config?.defaultLabels
-    };
-
-    return new LokiClient({url, defaultLabels});
-}

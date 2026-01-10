@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { AuthenticationHandler } from './AuthenticationHandler';
-import { logger, wrapError } from '../logging';
+import {getLogger, wrapError} from '../logging';
+
+const logger = getLogger()
 
 export class UsersController {
     constructor(private authenticationHandler: AuthenticationHandler) {}
