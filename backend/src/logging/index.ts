@@ -44,6 +44,7 @@ export function createLogger(config: LoggerConfig): ILogger {
 /**
  * Global logger instance
  * Initialized via initLogger()
+ * TODO not working in the tests
  */
 let _logger: ILogger | null = null;
 
@@ -77,6 +78,7 @@ export function initLogger(config: LoggerConfig): ILogger {
 export function getLogger(): ILogger {
     if (!_logger) {
         // throw new Error('Logger not initialized. Call initLogger() first.');
+        // TODO not working here
         return new ConsoleLogger({
             app: 'artcorrect-backend',
             environment: 'badtest',
