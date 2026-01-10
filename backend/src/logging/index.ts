@@ -3,7 +3,8 @@
  * Import and use throughout the app without needing to pass logger instances
  */
 
-import { createLokiClient, LokiClient } from './LokiClient';
+import { ILogger } from './ILogger';
+import { createLokiClient } from './LokiClient';
 
 /**
  * Global logger instance
@@ -24,7 +25,9 @@ export function wrapError (error :unknown ) {
 /**
  * Re-export types and classes for when you need them
  */
+export { ILogger } from './ILogger';
 export { LokiClient, LokiLogEntry, LokiClientConfig, createLokiClient } from './LokiClient';
+export { ConsoleLogger, createConsoleLogger } from './ConsoleLogger';
 
 /**
  * Factory for creating service-specific loggers with custom labels
@@ -34,7 +37,7 @@ export { LokiClient, LokiLogEntry, LokiClientConfig, createLokiClient } from './
  * const orderLogger = createServiceLogger('OrderService');
  * orderLogger.info('Order created');  // Automatically includes service: 'OrderService' label
  */
-export function createServiceLogger(serviceName: string): LokiClient {
+export function createServiceLogger(serviceName: string): ILogger {
     return createLokiClient({
         defaultLabels: { service: serviceName }
     });

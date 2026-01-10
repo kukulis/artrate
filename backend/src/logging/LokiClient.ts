@@ -3,6 +3,8 @@
  * Uses native fetch API (Node.js 18+)
  */
 
+import { ILogger } from './ILogger';
+
 export interface LokiLogEntry {
     level: 'debug' | 'info' | 'warn' | 'error';
     message: string;
@@ -15,7 +17,7 @@ export interface LokiClientConfig {
     defaultLabels?: Record<string, string>;
 }
 
-export class LokiClient {
+export class LokiClient implements ILogger {
     private url: string;
     private defaultLabels: Record<string, string>;
 
@@ -169,6 +171,11 @@ export class LokiClient {
  */
 export function createLokiClient(config?: Partial<LokiClientConfig>): LokiClient {
     const url = config?.url || '';
+
+    if ( url === '' ) {
+        console.error('The loki url is empty')
+    }
+
     const defaultLabels = {
         app: 'artcorrect-backend',
         environment: process.env.NODE_ENV || 'development',
