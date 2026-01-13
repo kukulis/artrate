@@ -6,6 +6,14 @@ import { PasswordHashService } from './PasswordHashService';
 import { TokenService } from './TokenService';
 import { CaptchaService } from './CaptchaService';
 import { RegisterUserDTO, LoginUserDTO, User } from '../entities/User';
+import { AppConfig } from '../config';
+
+// Mock the config module
+jest.mock('../config', () => ({
+    getConfig: jest.fn()
+}));
+
+const mockGetConfig = require('../config').getConfig as jest.MockedFunction<() => AppConfig>;
 
 describe('AuthService', () => {
     let authService: AuthService;
@@ -32,6 +40,35 @@ describe('AuthService', () => {
     };
 
     beforeEach(() => {
+        // Mock config with default values
+        mockGetConfig.mockReturnValue({
+            port: 3000,
+            nodeEnv: 'test',
+            database: {
+                host: 'localhost',
+                port: 3306,
+                user: 'test',
+                password: 'test',
+                database: 'test'
+            },
+            logging: { lokiUrl: '' },
+            cors: { allowedOrigins: [] },
+            email: {
+                smtpHost: 'localhost',
+                smtpPort: 587,
+                smtpSecure: false,
+                smtpUser: 'test@test.com',
+                smtpPassword: 'test',
+                from: 'test@test.com'
+            },
+            site: { url: 'http://localhost:3000' },
+            captcha: {
+                enabled: false,
+                secretKey: '',
+                siteKey: ''
+            }
+        });
+
         mockEmail = new MockEmailService();
 
         userRepository = {
@@ -88,9 +125,6 @@ describe('AuthService', () => {
             captchaToken: 'valid-token'
         };
 
-        beforeEach(() => {
-            process.env.RECAPTCHA_ENABLE = 'false';
-        });
 
         it('should create user with hashed password', async () => {
             userRepository.findByEmail.mockResolvedValue(null);
@@ -154,7 +188,12 @@ describe('AuthService', () => {
         });
 
         it('should fail if CAPTCHA verification fails when enabled', async () => {
-            process.env.RECAPTCHA_ENABLE = 'true';
+            // Enable CAPTCHA for this test
+            mockGetConfig.mockReturnValue({
+                ...mockGetConfig(),
+                captcha: { enabled: true, secretKey: 'test', siteKey: 'test' }
+            });
+
             userRepository.findByEmail.mockResolvedValue(null);
             captchaService.verify.mockResolvedValue(false);
 
@@ -276,6 +315,7 @@ describe('AuthService', () => {
 
     describe('requestPasswordReset', () => {
         const email = 'test@example.com';
+        const captchaToken = 'valid-captcha-token';
         const resetToken = 'reset-token-123';
         const expiresAt = new Date();
 
@@ -284,7 +324,7 @@ describe('AuthService', () => {
             tokenService.generatePasswordResetToken.mockReturnValue(resetToken);
             tokenService.getPasswordResetExpiration.mockReturnValue(expiresAt);
 
-            await authService.requestPasswordReset(email);
+            await authService.requestPasswordReset(email, captchaToken);
 
             expect(tokenService.generatePasswordResetToken).toHaveBeenCalled();
             expect(mockEmail.wasCalled('sendPasswordResetEmail')).toBe(true);
@@ -296,7 +336,7 @@ describe('AuthService', () => {
             tokenService.generatePasswordResetToken.mockReturnValue(resetToken);
             tokenService.getPasswordResetExpiration.mockReturnValue(expiresAt);
 
-            await authService.requestPasswordReset(email);
+            await authService.requestPasswordReset(email, captchaToken);
 
             expect(userRepository.setPasswordResetToken).toHaveBeenCalledWith(
                 mockUser.id,
@@ -308,9 +348,64 @@ describe('AuthService', () => {
         it('should silently succeed if user not found', async () => {
             userRepository.findByEmail.mockResolvedValue(null);
 
-            await authService.requestPasswordReset(email);
+            await authService.requestPasswordReset(email, captchaToken);
 
             expect(tokenService.generatePasswordResetToken).not.toHaveBeenCalled();
+            expect(mockEmail.wasCalled('sendPasswordResetEmail')).toBe(false);
+        });
+
+        it('should not send email if unexpired token already exists', async () => {
+            const futureDate = new Date();
+            futureDate.setHours(futureDate.getHours() + 1);
+
+            const userWithToken = {
+                ...mockUser,
+                password_reset_token: 'existing-token',
+                password_reset_expires: futureDate
+            };
+
+            userRepository.findByEmail.mockResolvedValue(userWithToken);
+
+            await authService.requestPasswordReset(email, captchaToken);
+
+            expect(tokenService.generatePasswordResetToken).not.toHaveBeenCalled();
+            expect(mockEmail.wasCalled('sendPasswordResetEmail')).toBe(false);
+        });
+
+        it('should send email if previous token expired', async () => {
+            const pastDate = new Date();
+            pastDate.setHours(pastDate.getHours() - 1);
+
+            const userWithExpiredToken = {
+                ...mockUser,
+                password_reset_token: 'expired-token',
+                password_reset_expires: pastDate
+            };
+
+            userRepository.findByEmail.mockResolvedValue(userWithExpiredToken);
+            tokenService.generatePasswordResetToken.mockReturnValue(resetToken);
+            tokenService.getPasswordResetExpiration.mockReturnValue(expiresAt);
+
+            await authService.requestPasswordReset(email, captchaToken);
+
+            expect(tokenService.generatePasswordResetToken).toHaveBeenCalled();
+            expect(mockEmail.wasCalled('sendPasswordResetEmail')).toBe(true);
+        });
+
+        it('should fail if CAPTCHA verification fails when enabled', async () => {
+            // Enable CAPTCHA for this test
+            mockGetConfig.mockReturnValue({
+                ...mockGetConfig(),
+                captcha: { enabled: true, secretKey: 'test', siteKey: 'test' }
+            });
+
+            captchaService.verify.mockResolvedValue(false);
+
+            await expect(authService.requestPasswordReset(email, captchaToken)).rejects.toThrow(
+                'CAPTCHA verification failed'
+            );
+
+            expect(userRepository.findByEmail).not.toHaveBeenCalled();
             expect(mockEmail.wasCalled('sendPasswordResetEmail')).toBe(false);
         });
     });

@@ -35,7 +35,8 @@ export const LoginUserSchema = z.object({
 
 // Schema for password reset request
 export const PasswordResetRequestSchema = z.object({
-    email: z.string().email("Valid email is required")
+    email: z.string().email("Valid email is required"),
+    captchaToken: z.string().min(1, "CAPTCHA verification required")
 });
 
 // Schema for password reset confirmation

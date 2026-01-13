@@ -42,6 +42,13 @@ export interface AppConfig {
     site: {
         url: string;
     };
+
+    // CAPTCHA/reCAPTCHA configuration
+    captcha: {
+        enabled: boolean;
+        secretKey: string;
+        siteKey: string;
+    };
 }
 
 /**
@@ -96,6 +103,12 @@ export function loadConfig(): AppConfig {
 
         site: {
             url: getOptional('SITE_URL', 'http://localhost:3000'),
+        },
+
+        captcha: {
+            enabled: getOptional('RECAPTCHA_ENABLE', 'false') === 'true',
+            secretKey: getOptional('RECAPTCHA_SECRET_KEY', ''),
+            siteKey: getOptional('RECAPTCHA_SITE_KEY', ''),
         },
     };
 }

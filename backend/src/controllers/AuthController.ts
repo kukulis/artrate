@@ -182,7 +182,14 @@ export class AuthController {
         try {
             const validatedData = PasswordResetRequestSchema.parse(req.body);
 
-            await this.authService.requestPasswordReset(validatedData.email);
+            // Get IP address for CAPTCHA verification
+            const ipAddress = req.ip || req.socket.remoteAddress;
+
+            await this.authService.requestPasswordReset(
+                validatedData.email,
+                validatedData.captchaToken,
+                ipAddress
+            );
 
             // Always return success to prevent email enumeration
             res.json({
@@ -191,6 +198,12 @@ export class AuthController {
         } catch (error) {
             if (ControllerHelper.handleZodError(error, res)) {
                 logger.warn('Validation error in password reset request', wrapError(error));
+                return;
+            }
+
+            if (error instanceof Error && error.message.includes('CAPTCHA')) {
+                logger.warn('Password reset failed: CAPTCHA verification failed');
+                res.status(400).json({error: error.message});
                 return;
             }
 

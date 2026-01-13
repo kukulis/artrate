@@ -6,6 +6,7 @@ import {CaptchaService} from './CaptchaService';
 import {EmailInterface} from './EmailService';
 import {LoginUserDTO, RegisterUserDTO, User} from '../entities/User';
 import {generateRandomString} from "../utils/crypto";
+import {getConfig} from '../config';
 
 export class AuthService {
     constructor(
@@ -25,10 +26,10 @@ export class AuthService {
         data: RegisterUserDTO,
         ipAddress?: string
     ): Promise<User> {
-        const captchaEnabled = process.env.RECAPTCHA_ENABLE === 'true' || false
+        const config = getConfig();
 
         // Verify CAPTCHA
-        if (captchaEnabled) {
+        if (config.captcha.enabled) {
             const captchaValid = await this.captchaService.verify(data.captchaToken, ipAddress);
             if (!captchaValid) {
                 throw new Error('CAPTCHA verification failed');
@@ -132,11 +133,30 @@ export class AuthService {
     /**
      * Request password reset
      */
-    async requestPasswordReset(email: string): Promise<void> {
+    async requestPasswordReset(email: string, captchaToken: string, ipAddress?: string): Promise<void> {
+        const config = getConfig();
+
+        // Verify CAPTCHA if enabled
+        if (config.captcha.enabled) {
+            const captchaValid = await this.captchaService.verify(captchaToken, ipAddress);
+            if (!captchaValid) {
+                throw new Error('CAPTCHA verification failed');
+            }
+        }
+
         const user = await this.userRepository.findByEmail(email);
         if (!user) {
             // Don't reveal if user exists
             return;
+        }
+
+        // Check if there's already an unexpired reset token
+        if (user.password_reset_token && user.password_reset_expires) {
+            const now = new Date();
+            if (user.password_reset_expires > now) {
+                // Token still valid, don't send another email (prevents spam)
+                return;
+            }
         }
 
         // Generate reset token

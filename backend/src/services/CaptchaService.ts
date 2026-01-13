@@ -1,5 +1,6 @@
 import axios from 'axios';
-import {getLogger, wrapError} from '../logging';
+import { getConfig } from '../config';
+import { getLogger, wrapError } from '../logging';
 
 const logger = getLogger()
 
@@ -7,7 +8,8 @@ export class CaptchaService {
     private readonly secretKey: string;
 
     constructor() {
-        this.secretKey = process.env.RECAPTCHA_SECRET_KEY || '';
+        const config = getConfig();
+        this.secretKey = config.captcha.secretKey;
 
         if (!this.secretKey) {
             console.warn('WARNING: RECAPTCHA_SECRET_KEY not set. CAPTCHA verification will fail!');
