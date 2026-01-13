@@ -7,7 +7,7 @@ export const UserSchema = z.object({
     name: z.string().min(1),
     password_hash: z.string().nullable(),
     is_active: z.boolean(),
-    role: z.enum(['user', 'admin']),
+    role: z.enum(['user', 'admin', 'super_admin']),
     password_reset_token: z.string().nullable(),
     password_reset_expires: z.date().nullable(),
     last_login_at: z.date().nullable(),

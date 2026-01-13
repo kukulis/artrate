@@ -15,7 +15,8 @@
     "migrate:make": "knex migrate:make --knexfile knexfile.ts -x ts",
     "migrate:status": "knex migrate:status --knexfile knexfile.ts",
     "seed:run": "knex seed:run --knexfile knexfile.ts",
-    "seed:make": "knex seed:make --knexfile knexfile.ts -x ts"
+    "seed:make": "knex seed:make --knexfile knexfile.ts -x ts",
+    "passwordhash": "ts-node src/scripts/password_hash.ts"
   },
   "keywords": [],
   "author": "",
