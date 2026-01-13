@@ -47,7 +47,7 @@ export class UserRepository {
         email: string;
         name: string;
         password_hash: string;
-        role?: 'user' | 'admin';
+        role?: 'user' | 'admin' | 'super_admin';
     }): Promise<User> {
         const connection = await this.pool.getConnection();
         try {

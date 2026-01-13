@@ -12,7 +12,7 @@ declare global {
             user?: {
                 userId: number;
                 email: string;
-                role: 'user' | 'admin';
+                role: 'user' | 'admin' | 'super_admin';
             };
         }
     }

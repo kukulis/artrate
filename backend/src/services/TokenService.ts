@@ -4,7 +4,7 @@ import { randomBytes } from 'crypto';
 export interface JwtPayload {
     userId: number;
     email: string;
-    role: 'user' | 'admin';
+    role: 'user' | 'admin' | 'super_admin';
 }
 
 export class TokenService {

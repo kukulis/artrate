@@ -7,6 +7,10 @@ async function main() {
     const hashService = new PasswordHashService();
     const passwordHash = await hashService.hash(password)
     console.log('password = ' + password + '  passwordHash = ' + passwordHash)
+
+    const compareResult = await hashService.compare(password, passwordHash)
+
+    console.log( "compare result: ", compareResult)
 }
 
 main().catch((error) => {
