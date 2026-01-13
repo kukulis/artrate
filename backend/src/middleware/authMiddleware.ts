@@ -97,7 +97,7 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction): v
         return;
     }
 
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
         logger.warn('Unauthorized admin access attempt', { userId: req.user.userId.toString() });
         res.status(403).json({ error: 'Admin access required' });
         return;

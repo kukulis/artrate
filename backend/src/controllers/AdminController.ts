@@ -20,12 +20,22 @@ export class AdminController {
                 return;
             }
 
-            const user = await this.userRepository.updateActiveStatus(userId, false);
+            const user = await this.userRepository.findById(userId)
 
             if (!user) {
                 res.status(404).json({ error: 'User not found' });
                 return;
             }
+
+
+            if ( user?.role === 'super_admin') {
+                res.status(403).json({ error: 'Not allowed to disable this user' });
+                return
+            }
+
+            user.is_active = false;
+
+            await this.userRepository.update(user);
 
             logger.info('User disabled', { userId: userId.toString(), adminId: (req as any).user?.userId });
             res.json({ message: 'User disabled successfully', user });
