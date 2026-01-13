@@ -158,3 +158,33 @@ npx vue-tsc --noEmit --watch
 
 npm run type-check
 
+
+## email config
+
+apt install sasl2-bin libsasl2-modules
+
+After installation:
+
+# 1. Create password for noreply
+saslpasswd2 -c -u darbelis.eu noreply
+
+saslpasswd2 -c -f /var/spool/postfix/etc/sasldb2 noreply
+
+# 2. Set permissions
+chown postfix:postfix /etc/sasldb2
+chmod 640 /etc/sasldb2
+
+same with /var/spool/postfix/etc/sasldb2
+
+# 3. List users to verify
+sasldblistusers2
+
+# Add user - only need one command now
+saslpasswd2 -c -u darbelis.eu newuser
+
+# Delete user - only one command
+saslpasswd2 -d newuser@darbelis.eu
+
+# List users - check either location (both show same file)
+sasldblistusers2
+

@@ -3,6 +3,7 @@ import {RefreshTokenRepository} from '../repositories/RefreshTokenRepository';
 import {PasswordHashService} from './PasswordHashService';
 import {TokenService} from './TokenService';
 import {CaptchaService} from './CaptchaService';
+import {EmailInterface} from './EmailService';
 import {LoginUserDTO, RegisterUserDTO, User} from '../entities/User';
 import {generateRandomString} from "../utils/crypto";
 
@@ -12,7 +13,8 @@ export class AuthService {
         private refreshTokenRepository: RefreshTokenRepository,
         private passwordHashService: PasswordHashService,
         private tokenService: TokenService,
-        private captchaService: CaptchaService
+        private captchaService: CaptchaService,
+        private emailService: EmailInterface
     ) {
     }
 
@@ -43,14 +45,18 @@ export class AuthService {
         const passwordHash = await this.passwordHashService.hash(data.password);
 
         // Create user
+        const confirmToken = generateRandomString(128);
         const user = await this.userRepository.create({
             email: data.email,
             name: data.name,
             password_hash: passwordHash,
             role: 'user',
             is_active: false,
-            confirm_token: generateRandomString(128)
+            confirm_token: confirmToken
         });
+
+        // Send confirmation email
+        await this.emailService.sendConfirmationEmail(user.email, confirmToken);
 
         return user;
     }
@@ -140,10 +146,8 @@ export class AuthService {
         // Save token to database
         await this.userRepository.setPasswordResetToken(user.id, resetToken, expiresAt);
 
-        // TODO: Send email with reset link
-        // For now, just log it (in production, integrate with email service)
-        console.log(`Password reset token for ${email}: ${resetToken}`);
-        console.log(`Reset link: http://your-frontend-url/reset-password?token=${resetToken}`);
+        // Send password reset email
+        await this.emailService.sendPasswordResetEmail(user.email, resetToken);
     }
 
     /**

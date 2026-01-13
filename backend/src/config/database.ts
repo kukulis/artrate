@@ -69,6 +69,7 @@ export function getPool(): Pool {
  * Remember to call connection.end() when done
  *
  * @param config - Optional database configuration. If not provided, reads from environment variables.
+ *
  */
 export async function connectDatabase(config?: DatabaseConfig): Promise<Connection> {
     const dbConfig = config || {

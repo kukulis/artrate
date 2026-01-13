@@ -27,6 +27,21 @@ export interface AppConfig {
     cors: {
         allowedOrigins: string[];
     };
+
+    // Email/SMTP configuration
+    email: {
+        smtpHost: string;
+        smtpPort: number;
+        smtpSecure: boolean;
+        smtpUser: string;
+        smtpPassword: string;
+        from: string;
+    };
+
+    // Site configuration
+    site: {
+        url: string;
+    };
 }
 
 /**
@@ -68,6 +83,19 @@ export function loadConfig(): AppConfig {
             allowedOrigins: getOptional('CORS_ALLOWED_ORIGINS', 'http://localhost:5173')
                 .split(',')
                 .map(origin => origin.trim()),
+        },
+
+        email: {
+            smtpHost: getOptional('SMTP_HOST', 'mail.darbelis.eu'),
+            smtpPort: parseInt(getOptional('SMTP_PORT', '587'), 10),
+            smtpSecure: getOptional('SMTP_SECURE', 'false') === 'true',
+            smtpUser: getOptional('SMTP_USER', 'noreply@darbelis.eu'),
+            smtpPassword: getOptional('SMTP_PASSWORD', ''),
+            from: getOptional('SMTP_USER', 'noreply@darbelis.eu'),
+        },
+
+        site: {
+            url: getOptional('SITE_URL', 'http://localhost:3000'),
         },
     };
 }

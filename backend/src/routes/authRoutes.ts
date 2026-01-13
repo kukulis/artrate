@@ -8,6 +8,7 @@ import { RefreshTokenRepository } from '../repositories/RefreshTokenRepository';
 import { PasswordHashService } from '../services/PasswordHashService';
 import { TokenService } from '../services/TokenService';
 import { CaptchaService } from '../services/CaptchaService';
+import { EmailInterface, EmailService } from '../services/EmailService';
 import { authenticateToken, requireAdmin } from '../middleware/authMiddleware';
 
 /**
@@ -22,13 +23,15 @@ export function createAuthRoutes(pool: Pool) {
     const passwordHashService = new PasswordHashService();
     const tokenService = new TokenService();
     const captchaService = new CaptchaService();
+    const emailService: EmailInterface = new EmailService();
 
     const authService = new AuthService(
         userRepository,
         refreshTokenRepository,
         passwordHashService,
         tokenService,
-        captchaService
+        captchaService,
+        emailService
     );
 
     const authController = new AuthController(

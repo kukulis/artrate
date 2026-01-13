@@ -17,6 +17,21 @@ All services run in Docker containers orchestrated by Docker Compose.
 - Use **4 spaces** for indentation in all files (TypeScript, JavaScript, Vue, JSON, YAML, etc.)
 - Never use tabs for indentation
 
+## Development Philosophy
+
+**Simplicity First:**
+- When asked to implement a feature or solve a problem, **always propose the simplest and most straightforward solution first**
+- Don't over-engineer or add unnecessary abstractions
+- If a solution is too simplistic and may cause issues (security risks, scalability problems, maintainability concerns), include a clear warning explaining the risks
+- Example: "This is the simplest approach, but **WARNING**: it uses Math.random() which is not cryptographically secure and should not be used for security tokens"
+
+**Repository Design:**
+- Repository methods must be **as universal as possible**
+- Avoid specialized methods that only work for specific use cases
+- Prefer generic CRUD operations (create, read, update, delete) over specialized business logic
+- Keep repositories focused on data access, not business rules
+- Example: Instead of `activateUserAfterEmailConfirmation()`, use generic `update()` method that can update any user fields
+
 ## Development Commands
 
 ### Running the Application
