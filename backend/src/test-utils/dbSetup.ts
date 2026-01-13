@@ -110,7 +110,7 @@ export async function waitForDatabase(maxAttempts = 30, delayMs = 1000): Promise
             const connection = await connectDatabase();
             await connection.query('SELECT 1');
             await connection.end();
-            console.log('✅ Database is ready');
+            // console.log('✅ Database is ready');
             return;
         } catch (error) {
             if (attempt === maxAttempts) {

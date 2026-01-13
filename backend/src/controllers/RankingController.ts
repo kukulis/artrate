@@ -18,19 +18,21 @@ export class RankingController {
     }
 
     async getRankings2(req: Request, res: Response): Promise<void> {
+        let message = '';
+
         if (req == undefined) {
-            console.log('req is undefined')
+            message = message + 'req is undefined'
         } else {
-            console.log('req is IS DEFINED')
+            message = message + 'req is IS DEFINED'
         }
         if (res == undefined) {
-            console.log('res is undefined')
+            message = message + 'res is undefined'
             return;
         } else {
-            console.log('res is DEFINED')
+            message = message +'res is DEFINED'
         }
 
-        res.json({laba: 'diena'})
+        res.json({laba: 'diena ' + message})
     }
 
     getRankings = async (req: Request, res: Response): Promise<void> => {

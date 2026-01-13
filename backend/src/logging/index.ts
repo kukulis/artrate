@@ -24,7 +24,7 @@ export function createLogger(config: LoggerConfig): ILogger {
     const url = config.lokiUrl;
 
     if (!url || url === '') {
-        console.log('Loki URL not configured, using ConsoleLogger');
+        // console.log('Loki URL not configured, using ConsoleLogger');
         return new ConsoleLogger({
             app: 'artcorrect-backend',
             environment: config.environment,
@@ -54,12 +54,12 @@ let _logger: ILogger | null = null;
  */
 export function initLogger(config: LoggerConfig): ILogger {
     if (_logger) {
-        console.log('Logger already initialized');
+        // console.log('Logger already initialized');
         return _logger;
     }
 
     _logger = createLogger(config);
-    console.log('Logger initialized successfully');
+    // console.log('Logger initialized successfully');
     return _logger;
 }
 
