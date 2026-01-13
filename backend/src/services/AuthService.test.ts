@@ -66,6 +66,9 @@ describe('AuthService', () => {
                 enabled: false,
                 secretKey: '',
                 siteKey: ''
+            },
+            auth: {
+                enabled: false
             }
         });
 

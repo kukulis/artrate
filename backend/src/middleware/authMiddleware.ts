@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { TokenService } from '../services/TokenService';
 import { UserRepository } from '../repositories/UserRepository';
+import { getConfig } from '../config';
 import {getLogger, wrapError} from '../logging';
 
 const logger = getLogger()
@@ -26,6 +27,15 @@ export function authenticateToken(
     tokenService: TokenService
 ) {
     return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const config = getConfig();
+
+        // If authentication is disabled, skip authentication and proceed
+        if (!config.auth.enabled) {
+            next();
+            return;
+        }
+
+        // Authentication is enabled, proceed with token verification
         try {
             // Extract token from Authorization header
             const authHeader = req.headers.authorization;

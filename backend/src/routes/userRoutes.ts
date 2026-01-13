@@ -17,23 +17,15 @@ export function createUserRoutes(pool: Pool) {
     const authenticationHandler = new AuthenticationHandler(userRepository, tokenService);
     const usersController = new UsersController(authenticationHandler);
 
-    // Check if auth is enabled
-    console.log('createUserRoutes: process.env.AUTH_ENABLED:'+process.env.AUTH_ENABLED)
-    // TODO no direct env access here
-    const authEnabled = process.env.AUTH_ENABLED !== 'false';
-
+    // Create authentication middleware (checks AUTH_ENABLED internally)
+    const authMiddleware = authenticateToken(userRepository, tokenService);
 
     /**
      * @route   GET /api/current-user
      * @desc    Get current authenticated user
-     * @access  Protected (if AUTH_ENABLED=true) / Public (if AUTH_ENABLED=false)
+     * @access  Protected (controlled by AUTH_ENABLED config)
      */
-    if (authEnabled) {
-        const authMiddleware = authenticateToken(userRepository, tokenService);
-        router.get('/current-user', authMiddleware, usersController.getCurrentUser);
-    } else {
-        router.get('/current-user', usersController.getCurrentUser);
-    }
+    router.get('/current-user', authMiddleware, usersController.getCurrentUser);
 
     return router;
 }

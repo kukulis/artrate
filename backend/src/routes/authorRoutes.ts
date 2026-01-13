@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import { AuthorRepository } from '../repositories/AuthorRepository';
 import { AuthorController } from '../controllers/AuthorController';
+import { UserRepository } from '../repositories/UserRepository';
+import { TokenService } from '../services/TokenService';
+import { authenticateToken } from '../middleware/authMiddleware';
 import { Pool } from 'mysql2/promise';
 
 /**
@@ -8,47 +11,52 @@ import { Pool } from 'mysql2/promise';
  * This allows tests to inject their own pool for better isolation
  */
 export function createAuthorRoutes(dbPool: Pool) {
-  const router = Router();
+    const router = Router();
 
-  // Dependency injection: wire dependencies together
-  const authorRepository = new AuthorRepository(dbPool);
-  const authorController = new AuthorController(authorRepository);
+    // Dependency injection: wire dependencies together
+    const authorRepository = new AuthorRepository(dbPool);
+    const authorController = new AuthorController(authorRepository);
 
-  /**
-   * @route   GET /api/authors
-   * @desc    Get all authors (supports ?search=name query parameter)
-   * @access  Public
-   */
-  router.get('/', authorController.getAuthors);
+    // Create authentication middleware
+    const userRepository = new UserRepository(dbPool);
+    const tokenService = new TokenService();
+    const authMiddleware = authenticateToken(userRepository, tokenService);
 
-  /**
-   * @route   GET /api/authors/:id
-   * @desc    Get author by ID
-   * @access  Public
-   */
-  router.get('/:id', authorController.getAuthorById);
+    /**
+     * @route   GET /api/authors
+     * @desc    Get all authors (supports ?search=name query parameter)
+     * @access  Protected (controlled by AUTH_ENABLED config)
+     */
+    router.get('/', authMiddleware, authorController.getAuthors);
 
-  /**
-   * @route   POST /api/authors
-   * @desc    Create a new author
-   * @access  Public
-   */
-  router.post('/', authorController.createAuthor);
+    /**
+     * @route   GET /api/authors/:id
+     * @desc    Get author by ID
+     * @access  Protected (controlled by AUTH_ENABLED config)
+     */
+    router.get('/:id', authMiddleware, authorController.getAuthorById);
 
-  /**
-   * @route   PATCH /api/authors/:id
-   * @desc    Update an author
-   * @access  Public
-   */
-  router.patch('/:id', authorController.updateAuthor);
+    /**
+     * @route   POST /api/authors
+     * @desc    Create a new author
+     * @access  Protected (controlled by AUTH_ENABLED config)
+     */
+    router.post('/', authMiddleware, authorController.createAuthor);
 
-  /**
-   * @route   DELETE /api/authors/:id
-   * @desc    Delete an author
-   * @access  Public
-   */
-  router.delete('/:id', authorController.deleteAuthor);
+    /**
+     * @route   PATCH /api/authors/:id
+     * @desc    Update an author
+     * @access  Protected (controlled by AUTH_ENABLED config)
+     */
+    router.patch('/:id', authMiddleware, authorController.updateAuthor);
 
-  return router;
+    /**
+     * @route   DELETE /api/authors/:id
+     * @desc    Delete an author
+     * @access  Protected (controlled by AUTH_ENABLED config)
+     */
+    router.delete('/:id', authMiddleware, authorController.deleteAuthor);
+
+    return router;
 }
 

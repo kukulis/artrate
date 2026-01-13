@@ -49,6 +49,11 @@ export interface AppConfig {
         secretKey: string;
         siteKey: string;
     };
+
+    // Authentication configuration
+    auth: {
+        enabled: boolean;
+    };
 }
 
 /**
@@ -110,6 +115,10 @@ export function loadConfig(): AppConfig {
             secretKey: getOptional('RECAPTCHA_SECRET_KEY', ''),
             siteKey: getOptional('RECAPTCHA_SITE_KEY', ''),
         },
+
+        auth: {
+            enabled: getOptional('AUTH_ENABLED', 'true') === 'true',
+        },
     };
 }
 
@@ -129,7 +138,7 @@ export function initConfig(): AppConfig {
 
 export function getConfig(): AppConfig {
     if (!config) {
-        throw new Error('Configuration not initialized. Call initConfig() first.');
+        config = loadConfig();
     }
     return config;
 }

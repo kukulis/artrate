@@ -1,6 +1,7 @@
 import { Request } from 'express';
 import { TokenService } from '../services/TokenService';
 import { UserRepository } from '../repositories/UserRepository';
+import { getConfig } from '../config';
 
 /**
  * Handles authentication and user extraction from requests
@@ -14,8 +15,9 @@ export class AuthenticationHandler {
         private userRepository: UserRepository,
         private tokenService: TokenService
     ) {
-        // Read AUTH_ENABLED from environment (defaults to true)
-        this.authEnabled = process.env.AUTH_ENABLED !== 'false';
+        // Read AUTH_ENABLED from config
+        const config = getConfig();
+        this.authEnabled = config.auth.enabled;
     }
 
     /**

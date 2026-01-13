@@ -61,6 +61,9 @@ describe('AuthService - User Registration Flow Scenario', () => {
                 enabled: false,
                 secretKey: '',
                 siteKey: ''
+            },
+            auth: {
+                enabled: false
             }
         });
 

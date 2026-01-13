@@ -41,17 +41,21 @@ export function createAuthRoutes(pool: Pool) {
     );
     const adminController = new AdminController(userRepository);
 
-    // Public authentication routes
+    // Create authentication middleware
+    const authMiddleware = authenticateToken(userRepository, tokenService);
+
+    // Public authentication routes (no auth required)
     router.post('/register', authController.register);
     router.post('/login', authController.login);
     router.post('/refresh', authController.refreshToken);
-    router.post('/logout', authController.logout);
     router.post('/password-reset/request', authController.requestPasswordReset);
     router.post('/password-reset/confirm', authController.confirmPasswordReset);
     router.get('/confirm', authController.confirm);
 
+    // Protected authentication routes
+    router.post('/logout', authMiddleware, authController.logout);
+
     // Admin routes (protected)
-    const authMiddleware = authenticateToken(userRepository, tokenService);
     router.patch(
         '/admin/users/:id/disable',
         authMiddleware,
