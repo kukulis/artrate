@@ -1,15 +1,10 @@
-import { UserRepository } from '../repositories/UserRepository';
-import { RefreshTokenRepository } from '../repositories/RefreshTokenRepository';
-import { PasswordHashService } from './PasswordHashService';
-import { TokenService } from './TokenService';
-import { CaptchaService } from './CaptchaService';
-import { RegisterUserDTO, LoginUserDTO, User, SafeUser } from '../entities/User';
-
-export interface AuthResponse {
-    user: SafeUser;
-    accessToken: string;
-    refreshToken: string;
-}
+import {UserRepository} from '../repositories/UserRepository';
+import {RefreshTokenRepository} from '../repositories/RefreshTokenRepository';
+import {PasswordHashService} from './PasswordHashService';
+import {TokenService} from './TokenService';
+import {CaptchaService} from './CaptchaService';
+import {LoginUserDTO, RegisterUserDTO, User} from '../entities/User';
+import {generateRandomString} from "../utils/crypto";
 
 export class AuthService {
     constructor(
@@ -18,7 +13,8 @@ export class AuthService {
         private passwordHashService: PasswordHashService,
         private tokenService: TokenService,
         private captchaService: CaptchaService
-    ) {}
+    ) {
+    }
 
     /**
      * Register a new user
@@ -26,11 +22,15 @@ export class AuthService {
     async register(
         data: RegisterUserDTO,
         ipAddress?: string
-    ): Promise<AuthResponse> {
+    ): Promise<User> {
+        const captchaEnabled = process.env.RECAPTCHA_ENABLE === 'true' || false
+
         // Verify CAPTCHA
-        const captchaValid = await this.captchaService.verify(data.captchaToken, ipAddress);
-        if (!captchaValid) {
-            throw new Error('CAPTCHA verification failed');
+        if (captchaEnabled) {
+            const captchaValid = await this.captchaService.verify(data.captchaToken, ipAddress);
+            if (!captchaValid) {
+                throw new Error('CAPTCHA verification failed');
+            }
         }
 
         // Check if user already exists
@@ -47,17 +47,18 @@ export class AuthService {
             email: data.email,
             name: data.name,
             password_hash: passwordHash,
-            role: 'user'
+            role: 'user',
+            is_active: false,
+            confirm_token: generateRandomString(128)
         });
 
-        // Generate tokens
-        return this.generateAuthResponse(user);
+        return user;
     }
 
     /**
      * Login user
      */
-    async login(data: LoginUserDTO): Promise<AuthResponse> {
+    async login(data: LoginUserDTO): Promise<User> {
         // Find user by email
         const user = await this.userRepository.findByEmail(data.email);
         if (!user) {
@@ -85,14 +86,13 @@ export class AuthService {
         // Update last login
         await this.userRepository.updateLastLogin(user.id);
 
-        // Generate tokens
-        return this.generateAuthResponse(user);
+        return user;
     }
 
     /**
      * Refresh access token using refresh token
      */
-    async refreshToken(refreshToken: string): Promise<AuthResponse> {
+    async refreshToken(refreshToken: string): Promise<User> {
         // Find refresh token in database
         const tokenRecord = await this.refreshTokenRepository.findByToken(refreshToken);
         if (!tokenRecord) {
@@ -113,8 +113,7 @@ export class AuthService {
         // Revoke old refresh token
         await this.refreshTokenRepository.revoke(refreshToken);
 
-        // Generate new tokens
-        return this.generateAuthResponse(user);
+        return user;
     }
 
     /**
@@ -167,52 +166,26 @@ export class AuthService {
         await this.refreshTokenRepository.revokeAllForUser(user.id);
     }
 
-    /**
-     * Generate authentication response with tokens
-     */
-    private async generateAuthResponse(user: User): Promise<AuthResponse> {
-        // Generate access token
-        const accessToken = this.tokenService.generateAccessToken({
-            userId: user.id,
-            email: user.email,
-            role: user.role
-        });
+    public async confirm(token: string): Promise<boolean> {
+        const user = await this.userRepository.findByConfirmationToken(token);
 
-        // Generate refresh token
-        const refreshToken = this.tokenService.generateRefreshToken();
-        const refreshExpiresAt = this.tokenService.getRefreshTokenExpiration();
+        if (user === undefined || user === null) {
+            return false;
+        }
 
-        // Save refresh token to database
-        await this.refreshTokenRepository.create({
-            user_id: user.id,
-            token: refreshToken,
-            expires_at: refreshExpiresAt
-        });
+        user.confirm_token = ''
+        user.is_active = true
 
-        // Return safe user (without password hash)
-        const safeUser: SafeUser = {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            is_active: user.is_active,
-            role: user.role,
-            last_login_at: user.last_login_at,
-            created_at: user.created_at,
-            updated_at: user.updated_at
-        };
+        await this.userRepository.update(user);
 
-        return {
-            user: safeUser,
-            accessToken,
-            refreshToken
-        };
+        return true;
     }
 
-    /**
-     * Remove sensitive fields from User object
-     */
-    toSafeUser(user: User): SafeUser {
-        const { password_hash, password_reset_token, password_reset_expires, ...safeUser } = user;
-        return safeUser as SafeUser;
-    }
+    // /**
+    //  * Remove sensitive fields from User object
+    //  */
+    // toSafeUser(user: User): SafeUser {
+    //     const {password_hash, password_reset_token, password_reset_expires, ...safeUser} = user;
+    //     return safeUser as SafeUser;
+    // }
 }

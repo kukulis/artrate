@@ -31,7 +31,11 @@ export function createAuthRoutes(pool: Pool) {
         captchaService
     );
 
-    const authController = new AuthController(authService);
+    const authController = new AuthController(
+        authService,
+        tokenService,
+        refreshTokenRepository
+    );
     const adminController = new AdminController(userRepository);
 
     // Public authentication routes
@@ -41,6 +45,7 @@ export function createAuthRoutes(pool: Pool) {
     router.post('/logout', authController.logout);
     router.post('/password-reset/request', authController.requestPasswordReset);
     router.post('/password-reset/confirm', authController.confirmPasswordReset);
+    router.get('/confirm', authController.confirm);
 
     // Admin routes (protected)
     const authMiddleware = authenticateToken(userRepository, tokenService);

@@ -10,6 +10,7 @@ export const UserSchema = z.object({
     role: z.enum(['user', 'admin', 'super_admin']),
     password_reset_token: z.string().nullable(),
     password_reset_expires: z.date().nullable(),
+    confirm_token: z.string().nullable(),
     last_login_at: z.date().nullable(),
     created_at: z.date(),
     updated_at: z.date()
@@ -54,5 +55,5 @@ export type PasswordResetRequestDTO = z.infer<typeof PasswordResetRequestSchema>
 export type PasswordResetConfirmDTO = z.infer<typeof PasswordResetConfirmSchema>;
 
 // Safe user object (without sensitive data)
-export type SafeUser = Omit<User, 'password_hash' | 'password_reset_token' | 'password_reset_expires'>;
+export type SafeUser = Omit<User, 'password_hash' | 'password_reset_token' | 'password_reset_expires' | 'confirm_token'>;
 

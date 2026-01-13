@@ -11,6 +11,7 @@ export async function up(knex: Knex): Promise<void> {
         table.enum('role', ['user', 'admin']).defaultTo('user').notNullable();
 
         // Password reset flow
+        table.string('confirm_token', 255).nullable();
         table.string('password_reset_token', 255).nullable();
         table.timestamp('password_reset_expires').nullable();
 
@@ -20,6 +21,7 @@ export async function up(knex: Knex): Promise<void> {
         // Add indexes for performance
         table.index('is_active');
         table.index('password_reset_token');
+        table.index('confirm_token');
     });
 }
 
