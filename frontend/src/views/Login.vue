@@ -31,11 +31,11 @@ const userLogin = async () => {
 }
 
 onMounted(() => {
-  console.log('AuthenticationHandler.getUser()', AuthenticationHandler.getUser())
-  if ( AuthenticationHandler.getUser() != null ) {
-    console.log('AuthenticationHandler.getUser().email', AuthenticationHandler.getUser().email)
-  }
-  console.log('AuthenticationHandler.getAccessToken()', AuthenticationHandler.getAccessToken())
+  // console.log('AuthenticationHandler.getUser()', AuthenticationHandler.getUser())
+  // if ( AuthenticationHandler.getUser() != null ) {
+  //   console.log('AuthenticationHandler.getUser().email', AuthenticationHandler.getUser().email)
+  // }
+  // console.log('AuthenticationHandler.getAccessToken()', AuthenticationHandler.getAccessToken())
   const user = AuthenticationHandler.getUser()
   if (user != null) {
     currentUser.value = user.email
@@ -86,6 +86,10 @@ onMounted(() => {
         </dd>
       </dl>
     </form>
+    <p>OR</p>
+    <p><RouterLink to="/password-reset-request">Forgot password?</RouterLink> </p>
+    <p>OR</p>
+    <p><RouterLink to="/register">Register</RouterLink> </p>
   </div>
 </template>
 

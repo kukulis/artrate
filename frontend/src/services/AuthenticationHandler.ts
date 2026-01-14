@@ -22,6 +22,20 @@ class AuthenticationHandler {
         this.setRefreshToken(null)
     }
 
+    async register(email:string, name:string, password: string ) {
+        console.log("TODO AuthenticationHandler.register ")
+
+        const response = await apiClient.post('/auth/register', {
+            email: email,
+            name: name,
+            password: password,
+        })
+
+
+
+        return response.data
+    }
+
     postLoginActions(data: any) {
         if (data.user) {
             this.setUser(data.user)
