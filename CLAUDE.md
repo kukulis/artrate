@@ -66,6 +66,57 @@ describe('ArticleController', () => {
 })
 ```
 
+**Test Development Workflow:**
+
+**IMPORTANT**: When writing tests, follow this incremental approach:
+
+1. **One test file at a time**
+   - Create ONE test file
+   - Complete it fully (write tests, fix bugs, verify)
+   - Only then move to the next test file
+   - **NEVER create multiple test files simultaneously** unless explicitly agreed upon in the session
+
+2. **Skeleton-first approach**
+   - Start by creating test skeletons with `assert(true)` and TODO comments
+   - This provides an overview of what will be tested
+   - Then flesh out one test case at a time
+
+Example skeleton:
+```typescript
+describe('UserService', () => {
+    it('should create a user', () => {
+        // TODO: Implement test
+        expect(true).toBe(true)
+    })
+
+    it('should validate email format', () => {
+        // TODO: Implement test
+        expect(true).toBe(true)
+    })
+
+    it('should hash passwords', () => {
+        // TODO: Implement test
+        expect(true).toBe(true)
+    })
+})
+```
+
+3. **Test-Driven Development (TDD) approach**
+   - Write test → Run test (should fail) → Fix/implement code → Verify test passes
+   - Tests should **find bugs**, not just validate existing behavior
+   - If tests don't find any bugs, question whether they're valuable
+   - Document any bugs found and code changes made during testing
+
+4. **Explicit communication**
+   - Show each bug discovered during testing
+   - Explain what code was fixed and why
+   - Get explicit permission before doing bulk changes (creating multiple files, refactoring, etc.)
+
+5. **Avoid "conformist" tests**
+   - Tests that only validate existing working behavior have limited value
+   - Focus on edge cases, error conditions, and integration points
+   - Tests should serve as regression prevention, not just documentation
+
 ## Development Philosophy
 
 **Simplicity First:**
