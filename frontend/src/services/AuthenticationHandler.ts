@@ -32,7 +32,11 @@ class AuthenticationHandler {
             captchaToken: captchaToken,
         })
 
+        return response.data
+    }
 
+    async confirmLogin(token:string ) {
+        const response =  await apiClient.get('/auth/confirm?token='+token)
 
         return response.data
     }

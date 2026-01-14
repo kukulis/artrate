@@ -71,7 +71,7 @@ export class EmailService implements EmailInterface {
      * Send email confirmation link to user
      */
     async sendConfirmationEmail(email: string, token: string): Promise<void> {
-        const confirmLink = `${this.siteUrl}/api/auth/confirm?token=${token}`;
+        const confirmLink = `${this.siteUrl}/confirm-login?token=${token}`;
 
         const text = `Please press the link to confirm your login:\n\n${confirmLink}\n\nIf you did not register for this account, please ignore this email.`;
 
