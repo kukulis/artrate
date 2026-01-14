@@ -1,5 +1,6 @@
 import {Pool} from 'mysql2/promise';
 import {User} from '../entities/User';
+import {logger} from "../test-utils/dbSetup";
 
 export class UserRepository {
     private pool: Pool;
@@ -54,18 +55,31 @@ export class UserRepository {
         confirm_token: string;
     }): Promise<User> {
         const connection = await this.pool.getConnection();
+
+        const query = 'INSERT INTO users (email, name, password_hash, role, is_active, confirm_token) VALUES (?, ?, ?, ?, ?, ?)';
+        const params = [data.email, data.name, data.password_hash, data.role, data.is_active, data.confirm_token];
         try {
             const [result] = await connection.query<any>(
-                'INSERT INTO users (email, name, password_hash, role, is_active) VALUES (?, ?, ?, ?, ?, ?)',
-                [data.email, data.name, data.password_hash, data.role, data.is_active, data.confirm_token]
+                query,
+                params
             );
-
 
             const created = await this.findById(result.insertId);
             if (!created) {
                 throw new Error('Failed to retrieve created user');
             }
             return created;
+        } catch (err) {
+            let message = '';
+
+            if (err instanceof Error) {
+                message = err.message
+            }
+            logger.error('UserRepository.create: Error executing query:'+message, {query: query, params: params.join('; ')})
+            if (err instanceof Error) {
+                throw new Error(err.message + ' query=' + query)
+            }
+            throw err;
         } finally {
             connection.release();
         }
@@ -201,7 +215,7 @@ export class UserRepository {
     async update(data: User): Promise<void> {
         const connection = await this.pool.getConnection();
         try {
-            const { id, ...updateFields } = data;
+            const {id, ...updateFields} = data;
 
             // Build SET clause dynamically
             const setClause = Object.keys(updateFields)
@@ -211,7 +225,9 @@ export class UserRepository {
             const values = [...Object.values(updateFields), id];
 
             await connection.query(
-                `UPDATE users SET ${setClause} WHERE id = ?`,
+                `UPDATE users
+                 SET ${setClause}
+                 WHERE id = ?`,
                 values
             );
         } finally {

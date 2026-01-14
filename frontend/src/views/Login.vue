@@ -51,9 +51,9 @@ onMounted(() => {
   <h1>Login</h1>
 
   <div v-if="currentUser">
-    You already logged in.
+    You successfully logged-in.
     <div>{{currentUser.valueOf() }}</div>
-    Go to <RouterLink to="/logout">Logout</RouterLink> page first.
+    <RouterLink to="/logout">Logout</RouterLink> before logging-in with a different user.
   </div>
 
   <div v-else>

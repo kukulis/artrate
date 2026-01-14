@@ -45,9 +45,9 @@ export class AuthController {
             const user = await this.authService.register(validatedData, ipAddress);
 
             // Generate authentication response with tokens
-            const authResponse = await this.generateAuthResponse(user);
+            // const authResponse = await this.generateAuthResponse(user);
 
-            res.status(201).json(authResponse);
+            res.status(201).json({user: { email: user.email}});
         } catch (error) {
             if (ControllerHelper.handleZodError(error, res)) {
                 logger.warn('Validation error during registration', wrapError(error));

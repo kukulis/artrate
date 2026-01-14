@@ -46,7 +46,7 @@ export class AuthService {
         const passwordHash = await this.passwordHashService.hash(data.password);
 
         // Create user
-        const confirmToken = generateRandomString(128);
+        const confirmToken = generateRandomString(100);
         const user = await this.userRepository.create({
             email: data.email,
             name: data.name,

@@ -22,13 +22,14 @@ class AuthenticationHandler {
         this.setRefreshToken(null)
     }
 
-    async register(email:string, name:string, password: string ) {
+    async register(email:string, name:string, password: string, captchaToken: string ) {
         console.log("TODO AuthenticationHandler.register ")
 
         const response = await apiClient.post('/auth/register', {
             email: email,
             name: name,
             password: password,
+            captchaToken: captchaToken,
         })
 
 
