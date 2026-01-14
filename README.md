@@ -188,3 +188,7 @@ saslpasswd2 -d newuser@darbelis.eu
 # List users - check either location (both show same file)
 sasldblistusers2
 
+## random string generator
+
+    openssl rand -base64 64
+

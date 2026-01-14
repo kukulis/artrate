@@ -99,7 +99,7 @@ export class ArticleController {
             // Add user_id from authenticated user
             const articleData = {
                 ...validatedData,
-                user_id: String(currentUser.id)  // Convert number to string for consistency
+                user_id: currentUser.id  // user_id should be a number (as per ArticleSchema)
             };
 
             const created = await this.articleService.createArticle(articleData);

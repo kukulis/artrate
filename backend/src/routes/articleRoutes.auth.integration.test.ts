@@ -2,7 +2,7 @@ import request from 'supertest';
 import express from 'express';
 import { createArticleRoutes } from './articleRoutes';
 import { setupTestDatabase, cleanTestDatabase, waitForDatabase } from '../test-utils/dbSetup';
-import { seedTestData, TEST_ARTICLES } from '../test-utils/testData';
+import { seedTestData, TEST_ARTICLES, TEST_AUTHORS } from '../test-utils/testData';
 import { createConnectionPool } from '../config/database';
 import { Pool } from 'mysql2/promise';
 import { loadConfig } from '../config';
@@ -84,6 +84,75 @@ describe('Article API Integration Tests - WITH Authentication', () => {
             // Should return 401 (Unauthorized) or 403 (Forbidden)
             expect([401, 403]).toContain(response.status);
             expect(response.body).toHaveProperty('error');
+        });
+    });
+
+    describe('POST /api/articles - WITH Authentication', () => {
+        it('should assign current user id as article user_id when creating article', async () => {
+            // Test with user1 (id: 101)
+            const user1Payload: JwtPayload = {
+                userId: 101,
+                email: 'user1@darbelis.eu',
+                role: 'user'
+            };
+            const user1Token = tokenService.generateAccessToken(user1Payload);
+
+            const article1Data = {
+                title: 'Test Article by User 1',
+                author_id: TEST_AUTHORS.JOHN.id,
+                content: 'This article should have user_id = 101'
+            };
+
+            const response1 = await request(app)
+                .post('/api/articles')
+                .set('Authorization', `Bearer ${user1Token}`)
+                .send(article1Data);
+
+            expect(response1.status).toBe(201);
+            expect(response1.body).toHaveProperty('id');
+            expect(response1.body.title).toBe(article1Data.title);
+            expect(response1.body.author_id).toBe(article1Data.author_id);
+            expect(response1.body.user_id).toBe(101);  // Should be assigned from token (as number)
+
+            // Test with user2 (id: 102)
+            const user2Payload: JwtPayload = {
+                userId: 102,
+                email: 'user2@darbelis.eu',
+                role: 'user'
+            };
+            const user2Token = tokenService.generateAccessToken(user2Payload);
+
+            const article2Data = {
+                title: 'Test Article by User 2',
+                author_id: TEST_AUTHORS.JANE.id,
+                content: 'This article should have user_id = 102'
+            };
+
+            const response2 = await request(app)
+                .post('/api/articles')
+                .set('Authorization', `Bearer ${user2Token}`)
+                .send(article2Data);
+
+            expect(response2.status).toBe(201);
+            expect(response2.body).toHaveProperty('id');
+            expect(response2.body.title).toBe(article2Data.title);
+            expect(response2.body.author_id).toBe(article2Data.author_id);
+            expect(response2.body.user_id).toBe(102);  // Should be assigned from token (as number)
+
+            // Verify the articles are stored correctly in database
+            const getResponse1 = await request(app)
+                .get(`/api/articles/${response1.body.id}`)
+                .set('Authorization', `Bearer ${user1Token}`);
+
+            expect(getResponse1.status).toBe(200);
+            expect(getResponse1.body.user_id).toBe(101);
+
+            const getResponse2 = await request(app)
+                .get(`/api/articles/${response2.body.id}`)
+                .set('Authorization', `Bearer ${user2Token}`);
+
+            expect(getResponse2.status).toBe(200);
+            expect(getResponse2.body.user_id).toBe(102);
         });
     });
 });
