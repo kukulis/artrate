@@ -25,7 +25,6 @@ export class AuthenticationHandler {
      * @throws Error if token is invalid or user not found
      */
     async getUser(req: Request): Promise<{ id: number; email: string; name: string; role: string }> {
-        // If auth is disabled (for development), return hardcoded admin user
         if (!this.authEnabled) {
             return {
                 id: 1,
@@ -40,6 +39,7 @@ export class AuthenticationHandler {
         const token = authHeader?.split(' ')[1]; // Bearer TOKEN
 
         if (!token) {
+            // If auth is disabled (for development), return hardcoded admin user
             throw new Error('No authentication token provided');
         }
 

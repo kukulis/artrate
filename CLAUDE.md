@@ -17,6 +17,55 @@ All services run in Docker containers orchestrated by Docker Compose.
 - Use **4 spaces** for indentation in all files (TypeScript, JavaScript, Vue, JSON, YAML, etc.)
 - Never use tabs for indentation
 
+**Return Statement Formatting:**
+- Always leave **one empty line** before `return` statements
+- This improves code readability by visually separating the return from preceding logic
+
+Example:
+```typescript
+function calculateTotal(items: Item[]): number {
+    const sum = items.reduce((acc, item) => acc + item.price, 0)
+    const tax = sum * 0.1
+
+    return sum + tax
+}
+```
+
+**Testing Guidelines:**
+- **NEVER use `wget`, `curl`, or manual HTTP requests** to test endpoints
+- Instead, **always propose writing automated tests** using the project's testing framework
+- Automated tests are:
+  - Repeatable and consistent
+  - Can be run in CI/CD pipelines
+  - Serve as living documentation
+  - Catch regressions automatically
+
+**How to test endpoints:**
+```bash
+# DON'T do this:
+curl -X POST http://localhost:3000/api/articles -H "Content-Type: application/json" -d '{"title":"test"}'
+
+# DO this instead:
+# Write a test in backend/src/controllers/ArticleController.test.ts
+docker compose exec backend npm test -- ArticleController.test.ts
+```
+
+Example test structure:
+```typescript
+describe('ArticleController', () => {
+    it('should create a new article', async () => {
+        const response = await request(app)
+            .post('/api/articles')
+            .set('Authorization', `Bearer ${validToken}`)
+            .send({ title: 'Test Article', author_id: '1', content: 'Content' })
+            .expect(201)
+
+        expect(response.body).toHaveProperty('id')
+        expect(response.body.title).toBe('Test Article')
+    })
+})
+```
+
 ## Development Philosophy
 
 **Simplicity First:**

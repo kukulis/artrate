@@ -16,6 +16,7 @@ const editingArticle = ref<Article | null>(null)
 // Form fields
 const formTitle = ref('')
 const formAuthorId = ref('')
+const formUserId = ref('')
 const formContent = ref('')
 const formError = ref<string | null>(null)
 const formLoading = ref(false)
@@ -42,12 +43,15 @@ const fetchAuthors = async () => {
 }
 
 const openCreateForm = () => {
+
+
   editingArticle.value = null
   formTitle.value = ''
   formAuthorId.value = ''
   formContent.value = ''
   formError.value = null
   showForm.value = true
+  formUserId.value = ''
 }
 
 const openEditForm = (article: Article) => {
@@ -56,6 +60,7 @@ const openEditForm = (article: Article) => {
   formAuthorId.value = article.author_id
   formContent.value = article.content
   formError.value = null
+  formUserId.value = article.user_id
   showForm.value = true
 }
 
@@ -222,6 +227,9 @@ onMounted(() => {
               required
               :disabled="formLoading"
             />
+          </div>
+          <div class="form-group">
+            User : {{ formUserId}}
           </div>
 
           <div class="form-group">

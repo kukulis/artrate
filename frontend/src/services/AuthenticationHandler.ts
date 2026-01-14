@@ -15,9 +15,16 @@ class AuthenticationHandler {
     async logout() {
         this.setAccessToken(null)
         this.setUser(null)
-        await apiClient.post('/auth/logout', {
-            refreshToken: this.getRefreshToken()
-        })
+
+        try {
+            const refreshToken = this.getRefreshToken()
+            if (refreshToken) {
+                await apiClient.post('/auth/logout', { refreshToken })
+            }
+        } catch (error) {
+            // Ignore logout errors - we're clearing local state anyway
+            console.warn('Logout API call failed, clearing local storage anyway', error)
+        }
 
         this.setRefreshToken(null)
     }
@@ -53,18 +60,27 @@ class AuthenticationHandler {
         this.setRefreshToken(data.refreshToken)
     }
 
-    setAccessToken(accessToken: string) {
+    setAccessToken(accessToken: string | null) {
+        if (accessToken == null) {
+            localStorage.removeItem('accessToken')
+            return
+        }
         localStorage.setItem('accessToken', accessToken)
     }
 
-    setRefreshToken(refreshToken: string) {
+    setRefreshToken(refreshToken: string | null) {
+        if (refreshToken == null) {
+            localStorage.removeItem('refreshToken')
+            return
+        }
         localStorage.setItem('refreshToken', refreshToken)
     }
 
     // TODO create type user
     setUser(user: any) {
         if (user == null) {
-            localStorage.setItem('user', null)
+            localStorage.removeItem('user')
+            return
         }
         localStorage.setItem('user', JSON.stringify(user))
     }
