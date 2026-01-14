@@ -13,10 +13,13 @@ class AuthenticationHandler {
     }
 
     async logout() {
-        // TODO backend ?
         this.setAccessToken(null)
-        this.setRefreshToken(null)
         this.setUser(null)
+        await apiClient.post('/auth/logout', {
+            refreshToken: this.getRefreshToken()
+        })
+
+        this.setRefreshToken(null)
     }
 
     postLoginActions(data: any) {
