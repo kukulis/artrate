@@ -1,5 +1,24 @@
 <script setup lang="ts">
-import { RouterView, RouterLink } from 'vue-router'
+import { ref, onMounted, watch } from 'vue'
+import { RouterView, RouterLink, useRoute } from 'vue-router'
+import AuthenticationHandler from './services/AuthenticationHandler'
+import type { UserResponse } from './types/api'
+
+const route = useRoute()
+const currentUser = ref<UserResponse | null>(null)
+
+const checkAuthState = () => {
+    currentUser.value = AuthenticationHandler.getUser()
+}
+
+onMounted(() => {
+    checkAuthState()
+})
+
+// Re-check auth state on route changes (e.g., after login/logout)
+watch(() => route.path, () => {
+    checkAuthState()
+})
 </script>
 
 <template>
@@ -10,6 +29,8 @@ import { RouterView, RouterLink } from 'vue-router'
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/articles">Articles</RouterLink>
         <RouterLink to="/authors">Authors</RouterLink>
+        <RouterLink v-if="currentUser" to="/logout">Logout ({{ currentUser.name }})</RouterLink>
+        <RouterLink v-else to="/login">Login</RouterLink>
       </nav>
     </header>
     <main>
