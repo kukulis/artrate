@@ -1,8 +1,15 @@
-import {Ranking} from "./ranking";
+import type { RankingResponse } from './api'
+
+/**
+ * Ranking data used within RankingGroup (may or may not have timestamps)
+ */
+type RankingData = Omit<RankingResponse, 'created_at' | 'updated_at'> & {
+    created_at?: string
+    updated_at?: string
+}
 
 export class RankingGroup {
-    // rankings: Record<string, number> = {}
-    rankings: Record<string, Ranking> = {}
+    rankings: Record<string, RankingData> = {}
     helperType: string = ''
     userId: number = 0
     articleId: string = ''
@@ -25,18 +32,17 @@ export class RankingGroup {
         return this
     }
 
-    public setRanking(rankingType: string, ranking: Ranking): RankingGroup {
+    public setRanking(rankingType: string, ranking: RankingData): RankingGroup {
         this.rankings[rankingType] = ranking
 
         return this
     }
 
-    public addRanking(ranking: Ranking): RankingGroup {
+    public addRanking(ranking: RankingData): RankingGroup {
         this.rankings[ranking.ranking_type] = ranking
 
         return this
     }
-
 
     static createGroup(helperType: string, userId: number, articleId: string, rankingTypes: string[]): RankingGroup | null {
         if (rankingTypes.length == 0) {
@@ -65,7 +71,7 @@ export class RankingGroup {
         return group;
     }
 
-    static buildGroups(rankings: Ranking[]): RankingGroup[] {
+    static buildGroups(rankings: RankingResponse[]): RankingGroup[] {
         const groupsMap: Record<string, RankingGroup> = {};
 
         for (const ranking of rankings) {
@@ -84,22 +90,21 @@ export class RankingGroup {
         return Object.values(groupsMap);
     }
 
-    fillFromRankings(rankings: Ranking[]) {
-        // may be need to validate other fields
+    fillFromRankings(rankings: RankingData[]) {
         for (const ranking of rankings) {
             this.rankings[ranking.ranking_type] = ranking
         }
     }
 
-    getRankings(): Record<string, Ranking> {
+    getRankings(): Record<string, RankingData> {
         return this.rankings
     }
 
-    static buildRankingKey(ranking: Ranking): string {
+    static buildRankingKey(ranking: RankingData): string {
         return ranking.article_id + '__' + ranking.user_id + '__' + ranking.helper_type + '__' + ranking.ranking_type;
     }
 
-    static buildRankingGroupKey(ranking: Ranking): string {
+    static buildRankingGroupKey(ranking: RankingData): string {
         return ranking.article_id + '__' + ranking.user_id + '__' + ranking.helper_type;
     }
 
@@ -107,9 +112,9 @@ export class RankingGroup {
         return this.articleId + '__' + this.userId + '__' + this.helperType;
     }
 
-    fillMissingRankings(rankingTypes: string [], defaultValue: number) {
+    fillMissingRankings(rankingTypes: string[], defaultValue: number) {
         for (const type of rankingTypes) {
-            if (this.rankings [type] === undefined) {
+            if (this.rankings[type] === undefined) {
                 this.rankings[type] = {
                     user_id: this.userId,
                     article_id: this.articleId,
@@ -137,15 +142,15 @@ export class RankingGroup {
         return rezs.join('; ')
     }
 
-    getDate(): Date|null  {
-        for ( const rankingKey in this.rankings) {
+    getDate(): Date | null {
+        for (const rankingKey in this.rankings) {
             const ranking = this.rankings[rankingKey]
 
-            if ( ranking.updated_at != null ) {
-                return ranking.updated_at
+            if (ranking.updated_at != null) {
+                return new Date(ranking.updated_at)
             }
-            if ( ranking.created_at != null ) {
-                return ranking.created_at
+            if (ranking.created_at != null) {
+                return new Date(ranking.created_at)
             }
         }
 

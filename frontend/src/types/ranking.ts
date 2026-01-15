@@ -1,13 +1,13 @@
 export interface Ranking {
-  id: string
-  ranking_type: string
-  helper_type: string
-  user_id: number
-  article_id: string
-  value: number
-  description: string
-  created_at?: Date
-  updated_at?: Date
+    id: string
+    ranking_type: string
+    helper_type: string
+    user_id: number
+    article_id: string
+    value: number
+    description: string
+    created_at?: string
+    updated_at?: string
 }
 
 export interface RankingFilter {

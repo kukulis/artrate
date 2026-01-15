@@ -1,6 +1,14 @@
 import apiClient from './api'
-import type {Ranking, RankingFilter, RankingType, RankingHelper} from '../types/ranking'
-import {RankingGroup} from "../types/ranking-group";
+import type {
+    RankingResponse,
+    RankingFilterParams,
+    CreateRankingRequest,
+    UpdateRankingRequest,
+    RankingUpsertResponse,
+    RankingTypeResponse,
+    RankingHelperResponse
+} from '../types/api'
+import { RankingGroup } from "../types/ranking-group"
 
 /**
  * Service for Ranking-related API calls
@@ -9,8 +17,8 @@ class RankingService {
     /**
      * Get rankings with optional filters
      */
-    async getAll(filter: RankingFilter): Promise<Ranking[]> {
-        const response = await apiClient.get<Ranking[]>('/rankings', {
+    async getAll(filter: RankingFilterParams): Promise<RankingResponse[]> {
+        const response = await apiClient.get<RankingResponse[]>('/rankings', {
             params: filter
         })
 
@@ -20,8 +28,8 @@ class RankingService {
     /**
      * Get a single ranking by ID
      */
-    async getById(id: string): Promise<Ranking> {
-        const response = await apiClient.get<Ranking>(`/rankings/${id}`)
+    async getById(id: string): Promise<RankingResponse> {
+        const response = await apiClient.get<RankingResponse>(`/rankings/${id}`)
 
         return response.data
     }
@@ -29,8 +37,8 @@ class RankingService {
     /**
      * Create a new ranking
      */
-    async create(ranking: Omit<Ranking, 'id' | 'created_at' | 'updated_at'>): Promise<Ranking> {
-        const response = await apiClient.post<Ranking>('/rankings', ranking)
+    async create(ranking: CreateRankingRequest): Promise<RankingResponse> {
+        const response = await apiClient.post<RankingResponse>('/rankings', ranking)
 
         return response.data
     }
@@ -38,8 +46,8 @@ class RankingService {
     /**
      * Update an existing ranking
      */
-    async update(id: string, ranking: Omit<Ranking, 'id' | 'created_at' | 'updated_at'>): Promise<Ranking> {
-        const response = await apiClient.patch<Ranking>(`/rankings/${id}`, ranking)
+    async update(id: string, ranking: UpdateRankingRequest): Promise<RankingResponse> {
+        const response = await apiClient.patch<RankingResponse>(`/rankings/${id}`, ranking)
 
         return response.data
     }
@@ -54,24 +62,21 @@ class RankingService {
     /**
      * Upsert multiple rankings
      */
-    async upsert(rankings: Omit<Ranking, 'id' | 'created_at' | 'updated_at'>[]): Promise<{
-        message: string;
-        count: number
-    }> {
-        const response = await apiClient.put<{ message: string; count: number }>('/rankings/upsert', rankings)
+    async upsert(rankings: CreateRankingRequest[]): Promise<RankingUpsertResponse> {
+        const response = await apiClient.put<RankingUpsertResponse>('/rankings/upsert', rankings)
+
         return response.data
     }
 
     /**
      * Get all available ranking types
      */
-    async getRankingTypes(group_id?: number): Promise<RankingType[]> {
-
+    async getRankingTypes(group_id?: number): Promise<RankingTypeResponse[]> {
         let params = '';
         if (group_id !== undefined) {
             params = '?group_id=' + group_id
         }
-        const response = await apiClient.get<RankingType[]>('/ranking-types' + params)
+        const response = await apiClient.get<RankingTypeResponse[]>('/ranking-types' + params)
 
         return response.data
     }
@@ -79,21 +84,18 @@ class RankingService {
     /**
      * Get all available ranking helpers
      */
-    async getRankingHelpers(): Promise<RankingHelper[]> {
-        const response = await apiClient.get<RankingHelper[]>('/ranking-helpers')
+    async getRankingHelpers(): Promise<RankingHelperResponse[]> {
+        const response = await apiClient.get<RankingHelperResponse[]>('/ranking-helpers')
 
         return response.data
     }
 
-    async getRankingGroups( articleId: string ): Promise<RankingGroup[]> {
-        // console.log('getRankingGroups: articleId:', articleId)
-        const rankingFilter = {
+    async getRankingGroups(articleId: string): Promise<RankingGroup[]> {
+        const rankingFilter: RankingFilterParams = {
             article_id: articleId
-        } as RankingFilter;
+        }
 
-        const rankings =  await this.getAll(rankingFilter)
-
-        // console.log ( 'gerRankingGroups: received '+rankings.length+' rankings from api' )
+        const rankings = await this.getAll(rankingFilter)
 
         return RankingGroup.buildGroups(rankings)
     }

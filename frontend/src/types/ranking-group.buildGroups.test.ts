@@ -1,17 +1,19 @@
-import {describe, it, expect} from 'vitest'
-import {RankingGroup} from './ranking-group'
-import {Ranking} from './ranking'
+import { describe, it, expect } from 'vitest'
+import { RankingGroup } from './ranking-group'
+import type { RankingResponse } from './api'
 
 describe('RankingGroup.buildGroups', () => {
     it('should group with a single ranking', () => {
-        const rankings: Ranking[] = [{
+        const rankings: RankingResponse[] = [{
             id: '1',
             ranking_type: 'quality',
             helper_type: 'USER',
             user_id: 123,
             article_id: 'article-1',
             value: 8,
-            description: 'Test ranking'
+            description: 'Test ranking',
+            created_at: '2024-01-01T00:00:00Z',
+            updated_at: '2024-01-01T00:00:00Z'
         }];
 
         const expectedGroups: RankingGroup[] = [
@@ -26,7 +28,9 @@ describe('RankingGroup.buildGroups', () => {
                     user_id: 123,
                     article_id: 'article-1',
                     value: 8,
-                    description: 'Test ranking'
+                    description: 'Test ranking',
+                    created_at: '2024-01-01T00:00:00Z',
+                    updated_at: '2024-01-01T00:00:00Z'
                 })
             ,
         ];
@@ -37,7 +41,7 @@ describe('RankingGroup.buildGroups', () => {
     });
 
     it('should get two groups', () => {
-        const rankings: Ranking[] = [
+        const rankings: RankingResponse[] = [
             {
                 id: '1',
                 ranking_type: 'quality',
@@ -45,7 +49,9 @@ describe('RankingGroup.buildGroups', () => {
                 user_id: 123,
                 article_id: 'article-1',
                 value: 8,
-                description: 'Test ranking'
+                description: 'Test ranking',
+                created_at: '2024-01-01T00:00:00Z',
+                updated_at: '2024-01-01T00:00:00Z'
             },
             {
                 id: '2',
@@ -54,7 +60,9 @@ describe('RankingGroup.buildGroups', () => {
                 user_id: 123,
                 article_id: 'article-1',
                 value: 7,
-                description: 'Test ranking'
+                description: 'Test ranking',
+                created_at: '2024-01-01T00:00:00Z',
+                updated_at: '2024-01-01T00:00:00Z'
             },
             {
                 id: '3',
@@ -63,9 +71,10 @@ describe('RankingGroup.buildGroups', () => {
                 user_id: 123,
                 article_id: 'article-2',
                 value: 7,
-                description: 'Test ranking'
+                description: 'Test ranking',
+                created_at: '2024-01-01T00:00:00Z',
+                updated_at: '2024-01-01T00:00:00Z'
             },
-
         ];
 
         const expectedGroups: RankingGroup[] = [
@@ -80,7 +89,9 @@ describe('RankingGroup.buildGroups', () => {
                     user_id: 123,
                     article_id: 'article-1',
                     value: 8,
-                    description: 'Test ranking'
+                    description: 'Test ranking',
+                    created_at: '2024-01-01T00:00:00Z',
+                    updated_at: '2024-01-01T00:00:00Z'
                 })
                 .setRanking('ETHICS', {
                     id: '2',
@@ -89,7 +100,9 @@ describe('RankingGroup.buildGroups', () => {
                     user_id: 123,
                     article_id: 'article-1',
                     value: 7,
-                    description: 'Test ranking'
+                    description: 'Test ranking',
+                    created_at: '2024-01-01T00:00:00Z',
+                    updated_at: '2024-01-01T00:00:00Z'
                 })
             ,
             (new RankingGroup())
@@ -103,7 +116,9 @@ describe('RankingGroup.buildGroups', () => {
                     user_id: 123,
                     article_id: 'article-2',
                     value: 7,
-                    description: 'Test ranking'
+                    description: 'Test ranking',
+                    created_at: '2024-01-01T00:00:00Z',
+                    updated_at: '2024-01-01T00:00:00Z'
                 })
             ,
         ];

@@ -1,7 +1,7 @@
 export interface Author {
-  id: string
-  name: string
-  description: string
-  created_at?: Date
-  updated_at?: Date
+    id: string
+    name: string
+    description: string
+    created_at?: string
+    updated_at?: string
 }

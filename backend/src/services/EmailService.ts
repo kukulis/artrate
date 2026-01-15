@@ -103,7 +103,7 @@ export class EmailService implements EmailInterface {
      * Send password reset link to user
      */
     async sendPasswordResetEmail(email: string, token: string): Promise<void> {
-        const resetLink = `${this.siteUrl}/reset-password?token=${token}`;
+        const resetLink = `${this.siteUrl}/password-reset-confirm?token=${token}`;
 
         const text = `You requested a password reset.\n\nClick the link below to reset your password:\n\n${resetLink}\n\nThis link will expire in 1 hour.\n\nIf you did not request a password reset, please ignore this email.`;
 

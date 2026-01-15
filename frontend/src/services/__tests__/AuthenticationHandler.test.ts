@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import authHandler from '../AuthenticationHandler'
+import type { UserResponse, LoginResponse } from '../../types/api'
 
 describe('AuthenticationHandler', () => {
     beforeEach(() => {
@@ -36,7 +37,8 @@ describe('AuthenticationHandler', () => {
             // Setup: manually set tokens (simulating a logged-in state)
             authHandler.setAccessToken('test-access-token')
             authHandler.setRefreshToken('test-refresh-token')
-            authHandler.setUser({ id: 1, email: 'test@example.com' })
+            const testUser: UserResponse = { id: 1, email: 'test@example.com', name: 'Test', role: 'user' }
+            authHandler.setUser(testUser)
 
             expect(localStorage.getItem('accessToken')).toBeTruthy()
             expect(localStorage.getItem('refreshToken')).toBeTruthy()
@@ -97,7 +99,7 @@ describe('AuthenticationHandler', () => {
 
     describe('user management', () => {
         it('should store and retrieve user data', () => {
-            const testUser = {
+            const testUser: UserResponse = {
                 id: 1,
                 email: 'test@example.com',
                 name: 'Test User',
@@ -111,7 +113,7 @@ describe('AuthenticationHandler', () => {
         })
 
         it('should remove user when setting null', () => {
-            const testUser = { id: 1, email: 'test@example.com' }
+            const testUser: UserResponse = { id: 1, email: 'test@example.com', name: 'Test', role: 'user' }
             authHandler.setUser(testUser)
             expect(authHandler.getUser()).toEqual(testUser)
 
@@ -142,9 +144,8 @@ describe('AuthenticationHandler', () => {
                 'captcha-token'
             )
 
-            // Should return user data from API
-            expect(result).toHaveProperty('user')
-            expect(result.user).toHaveProperty('email')
+            // Should return message from API
+            expect(result).toHaveProperty('message')
         })
 
         it('should handle existing user error', async () => {
@@ -161,11 +162,12 @@ describe('AuthenticationHandler', () => {
 
     describe('postLoginActions', () => {
         it('should store tokens and user from login response', () => {
-            const loginData = {
+            const loginData: LoginResponse = {
                 user: {
                     id: 1,
                     email: 'test@example.com',
-                    name: 'Test User'
+                    name: 'Test User',
+                    role: 'user'
                 },
                 accessToken: 'access-token-123',
                 refreshToken: 'refresh-token-456'
@@ -180,8 +182,9 @@ describe('AuthenticationHandler', () => {
 
         it('should throw error if tokens are missing', () => {
             const invalidData = {
-                user: { id: 1, email: 'test@example.com' }
-                // Missing tokens
+                user: { id: 1, email: 'test@example.com', name: 'Test', role: 'user' as const },
+                accessToken: '',
+                refreshToken: ''
             }
 
             expect(() => authHandler.postLoginActions(invalidData)).toThrow(

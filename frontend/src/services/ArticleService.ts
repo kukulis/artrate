@@ -1,6 +1,9 @@
 import apiClient from './api'
-import type {Article} from '../types/article'
-import AuthenticationHandler from "./AuthenticationHandler.ts";
+import type {
+    ArticleResponse,
+    CreateArticleRequest,
+    UpdateArticleRequest
+} from '../types/api'
 
 /**
  * Service for Article-related API calls
@@ -9,24 +12,26 @@ class ArticleService {
     /**
      * Get all articles
      */
-    async getAll(): Promise<Article[]> {
-        const response = await apiClient.get<Article[]>('/articles')
+    async getAll(): Promise<ArticleResponse[]> {
+        const response = await apiClient.get<ArticleResponse[]>('/articles')
+
         return response.data
     }
 
     /**
      * Get a single article by ID
      */
-    async getById(id: string): Promise<Article> {
-        const response = await apiClient.get<Article>(`/articles/${id}`)
+    async getById(id: string): Promise<ArticleResponse> {
+        const response = await apiClient.get<ArticleResponse>(`/articles/${id}`)
+
         return response.data
     }
 
     /**
      * Create a new article
      */
-    async create(article: Omit<Article, 'id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<Article> {
-        const response = await apiClient.post<Article>('/articles', article)
+    async create(article: CreateArticleRequest): Promise<ArticleResponse> {
+        const response = await apiClient.post<ArticleResponse>('/articles', article)
 
         return response.data
     }
@@ -34,8 +39,8 @@ class ArticleService {
     /**
      * Update an existing article
      */
-    async update(id: string, article: Partial<Article>): Promise<Article> {
-        const response = await apiClient.patch<Article>(`/articles/${id}`, article)
+    async update(id: string, article: UpdateArticleRequest): Promise<ArticleResponse> {
+        const response = await apiClient.patch<ArticleResponse>(`/articles/${id}`, article)
 
         return response.data
     }

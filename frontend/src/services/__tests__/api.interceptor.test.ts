@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { server } from '../../test/mocks/server'
 import { http, HttpResponse } from 'msw'
 import ArticleService from '../ArticleService'
@@ -139,7 +139,7 @@ describe('API Token Refresh Interceptor', () => {
         it('should update user data after token refresh', async () => {
             authHandler.setAccessToken('expired-token')
             authHandler.setRefreshToken('mock-refresh-token')
-            authHandler.setUser({ id: 1, email: 'old@example.com' })
+            authHandler.setUser({ id: 1, email: 'old@example.com', name: 'Old User', role: 'user' })
 
             server.use(
                 http.get('/api/articles', ({ request }) => {
@@ -160,7 +160,7 @@ describe('API Token Refresh Interceptor', () => {
 
             // Verify user data was updated
             const user = authHandler.getUser()
-            expect(user.email).toBe('test@example.com')
+            expect(user?.email).toBe('test@example.com')
         })
     })
 

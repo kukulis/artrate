@@ -1,17 +1,18 @@
 import apiClient from './api'
-import type { User } from '../types/user'
+import type { UserResponse } from '../types/api'
 
 /**
  * Service for User-related API calls
  */
 class UsersService {
-  /**
-   * Get the current authenticated user
-   */
-  async getCurrentUser(): Promise<User> {
-    const response = await apiClient.get<User>('/current-user')
-    return response.data
-  }
+    /**
+     * Get the current authenticated user
+     */
+    async getCurrentUser(): Promise<UserResponse> {
+        const response = await apiClient.get<UserResponse>('/current-user')
+
+        return response.data
+    }
 }
 
 // Export a singleton instance
