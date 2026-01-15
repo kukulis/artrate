@@ -1,57 +1,105 @@
-version: '3.8'
-
 services:
-  mysql:
+  artcorrect_db:
     image: mysql:8.0
-    container_name: artcorrect-mysql-prod
-    restart: always
+    container_name: artcorrect_db
+    restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: root_password
       MYSQL_DATABASE: artcorrect_db
       MYSQL_USER: artcorrect
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_PASSWORD: artcorrect_password
+    ports:
+      - "33306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
-      - ./mysql/init:/docker-entrypoint-initdb.d
+      - artcorrect_db_data:/var/lib/mysql
+      - ./.docker/artcorrect_db/conf.d:/etc/mysql/conf.d
     networks:
       - artcorrect-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
+
+  artc_tst_db:
+    image: mysql:8.0
+    container_name: artc_tst_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: test_db
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test_password
+    ports:
+      - "33307:3306"
+    volumes:
+      - artc_tst_db_data:/var/lib/mysql
+      - ./.docker/artc_tst_db/conf.d:/etc/mysql/conf.d
+    networks:
+      - artcorrect-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: artcorrect-backend-prod
-    restart: always
+    container_name: artcorrect-backend
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       PORT: 3000
-      NODE_ENV: production
-      DB_HOST: mysql
+      NODE_ENV: development
+      DB_HOST: artcorrect_db
       DB_PORT: 3306
       DB_USER: artcorrect
-      DB_PASSWORD: ${MYSQL_PASSWORD}
+      DB_PASSWORD: artcorrect_password
       DB_NAME: artcorrect_db
+    volumes:
+      - ./backend:/app
+    #      - ./backend/src:/app/src
+    #      - ./backend/package.json:/app/package.json
+    #      - backend_node_modules:/app/node_modules
     depends_on:
-      mysql:
+      artcorrect_db:
         condition: service_healthy
     networks:
       - artcorrect-network
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: artcorrect-frontend-prod
-    restart: always
+  loki:
+    image: grafana/loki:latest
+    container_name: artcorrect-loki
+    restart: unless-stopped
     ports:
-      - "80:80"
+      - "3100:3100"
+    volumes:
+      - ./.docker/loki/loki-config.yaml:/etc/loki/local-config.yaml
+      - ./.docker/loki/loki:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - artcorrect-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: artcorrect-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./.docker/grafana/datasources:/etc/grafana/provisioning/datasources
     depends_on:
-      - backend
+      - loki
     networks:
       - artcorrect-network
 
@@ -60,4 +108,6 @@ networks:
     driver: bridge
 
 volumes:
-  mysql_data:
+  artcorrect_db_data:
+  artc_tst_db_data:
+  grafana_data:

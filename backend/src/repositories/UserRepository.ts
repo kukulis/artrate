@@ -10,6 +10,22 @@ export class UserRepository {
     }
 
     /**
+     * Find all users
+     */
+    async findAll(): Promise<User[]> {
+        const connection = await this.pool.getConnection();
+        try {
+            const [rows] = await connection.query<any[]>(
+                'SELECT * FROM users ORDER BY created_at DESC'
+            );
+
+            return rows as User[];
+        } finally {
+            connection.release();
+        }
+    }
+
+    /**
      * Find user by ID
      */
     async findById(id: number): Promise<User | null> {

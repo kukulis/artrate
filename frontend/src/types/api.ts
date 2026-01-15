@@ -193,13 +193,65 @@ export interface PasswordResetConfirmResponse {
 }
 
 // =============================================================================
+// Admin Types
+// =============================================================================
+
+/**
+ * Safe user response (without sensitive fields like password_hash)
+ */
+export interface SafeUserResponse {
+    id: number
+    email: string
+    name: string
+    is_active: boolean
+    role: 'user' | 'admin' | 'super_admin'
+    last_login_at: string | null
+    created_at: string
+    updated_at: string
+}
+
+export interface GetUsersResponse {
+    users: SafeUserResponse[]
+}
+
+export interface GetUserByIdResponse {
+    user: SafeUserResponse
+}
+
+export interface UserDisableResponse {
+    message: string
+    user: SafeUserResponse
+}
+
+export interface UserEnableResponse {
+    message: string
+    user: SafeUserResponse
+}
+
+export interface EvaluateRankingRequest {
+    articleId: string
+    helperType: string
+}
+
+export interface EvaluateRankingResponse {
+    articleId: string
+    helperType: string
+    status: 'pending' | 'completed' | 'failed'
+    message: string
+    article: {
+        id: string
+        title: string
+    }
+}
+
+// =============================================================================
 // Generic API Types
 // =============================================================================
 
 export interface ApiErrorResponse {
     error: string
     message?: string
-    details?: Record<string, string[]>
+    details?: Array<{ field: string; message: string }>
 }
 
 export interface ApiMessageResponse {

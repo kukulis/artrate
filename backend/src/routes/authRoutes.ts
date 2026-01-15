@@ -5,6 +5,7 @@ import { AdminController } from '../controllers/AdminController';
 import { AuthService } from '../services/AuthService';
 import { UserRepository } from '../repositories/UserRepository';
 import { RefreshTokenRepository } from '../repositories/RefreshTokenRepository';
+import { ArticleRepository } from '../repositories/ArticleRepository';
 import { PasswordHashService } from '../services/PasswordHashService';
 import { TokenService } from '../services/TokenService';
 import { CaptchaService } from '../services/CaptchaService';
@@ -34,12 +35,17 @@ export function createAuthRoutes(pool: Pool) {
         emailService
     );
 
+    const articleRepository = new ArticleRepository(pool);
+
     const authController = new AuthController(
         authService,
         tokenService,
         refreshTokenRepository
     );
-    const adminController = new AdminController(userRepository);
+    const adminController = new AdminController(
+        userRepository,
+        articleRepository
+    );
 
     // Create authentication middleware
     const authMiddleware = authenticateToken(userRepository, tokenService);
@@ -56,6 +62,18 @@ export function createAuthRoutes(pool: Pool) {
     router.post('/logout', authMiddleware, authController.logout);
 
     // Admin routes (protected)
+    router.get(
+        '/admin/users',
+        authMiddleware,
+        requireAdmin,
+        adminController.getUsers
+    );
+    router.get(
+        '/admin/users/:id',
+        authMiddleware,
+        requireAdmin,
+        adminController.getUserById
+    );
     router.patch(
         '/admin/users/:id/disable',
         authMiddleware,
@@ -67,6 +85,12 @@ export function createAuthRoutes(pool: Pool) {
         authMiddleware,
         requireAdmin,
         adminController.enableUser
+    );
+    router.post(
+        '/admin/rankings/evaluate',
+        authMiddleware,
+        requireAdmin,
+        adminController.evaluateRanking
     );
 
     return router;

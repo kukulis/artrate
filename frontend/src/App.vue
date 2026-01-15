@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
 import AuthenticationHandler from './services/AuthenticationHandler'
 import type { UserResponse } from './types/api'
 
 const route = useRoute()
 const currentUser = ref<UserResponse | null>(null)
+
+const isAdmin = computed(() => {
+    return currentUser.value?.role === 'admin' || currentUser.value?.role === 'super_admin'
+})
 
 const checkAuthState = () => {
     currentUser.value = AuthenticationHandler.getUser()
@@ -29,6 +33,7 @@ watch(() => route.path, () => {
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/articles">Articles</RouterLink>
         <RouterLink to="/authors">Authors</RouterLink>
+        <RouterLink v-if="isAdmin" to="/users">Users</RouterLink>
         <RouterLink v-if="currentUser" to="/logout">Logout ({{ currentUser.name }})</RouterLink>
         <RouterLink v-else to="/login">Login</RouterLink>
       </nav>
