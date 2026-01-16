@@ -60,7 +60,7 @@ const openEditForm = (article: Article) => {
   formAuthorId.value = article.author_id
   formContent.value = article.content
   formError.value = null
-  formUserId.value = article.user_id
+  formUserId.value = String(article.user_id)
   showForm.value = true
 }
 

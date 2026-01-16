@@ -143,7 +143,10 @@ export interface RegisterRequest {
 }
 
 export interface RegisterResponse {
-    message: string
+    message?: string
+    user?: {
+        email: string
+    }
 }
 
 export interface LogoutRequest {

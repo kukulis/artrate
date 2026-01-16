@@ -125,6 +125,10 @@ const saveRankingGroup = async () => {
         rankingTypes.value.map(rt => rt.code)
     )
 
+    if (!rankingGroup) {
+        throw new Error('Ranking group is null')
+    }
+
     extractFromValuesAndDescriptions(rankingGroup)
 
     // validate rankings?
