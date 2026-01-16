@@ -72,6 +72,21 @@ services:
     networks:
       - artcorrect-network
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: artcorrect-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - backend
+    networks:
+      - artcorrect-network
+
   loki:
     image: grafana/loki:latest
     container_name: artcorrect-loki
