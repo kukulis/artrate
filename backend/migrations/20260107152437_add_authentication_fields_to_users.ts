@@ -8,7 +8,7 @@ export async function up(knex: Knex): Promise<void> {
 
         // User status and role
         table.boolean('is_active').defaultTo(true).notNullable();
-        table.enum('role', ['user', 'admin']).defaultTo('user').notNullable();
+        table.enum('role', ['user', 'admin', 'super_admin']).defaultTo('user').notNullable();
 
         // Password reset flow
         table.string('confirm_token', 255).nullable();

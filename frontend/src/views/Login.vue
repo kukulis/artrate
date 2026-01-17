@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import AuthenticationHandler from '../services/AuthenticationHandler'
+
+const router = useRouter()
 
 const formEmail = ref('')
 const formPassword = ref('')
@@ -28,8 +30,7 @@ const userLogin = async () => {
 
     try {
         await AuthenticationHandler.login(formEmail.value, formPassword.value)
-        const user = AuthenticationHandler.getUser()
-        currentUser.value = user?.email ?? null
+        router.push('/')
     } catch (err: any) {
         formError.value = err.response?.data?.error || 'Failed to login'
     } finally {

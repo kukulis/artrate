@@ -2,14 +2,16 @@
 
 import AuthenticationHandler from "../services/AuthenticationHandler.ts";
 import {onMounted, ref} from "vue";
-import {RouterLink} from "vue-router";
+import {RouterLink, useRouter} from "vue-router";
+
+const router = useRouter()
 
 const currentUser = ref<string | null>(null)
 
 const userLogout = async () => {
-  await AuthenticationHandler.logout();
-
-  currentUser.value = null;
+    await AuthenticationHandler.logout()
+    currentUser.value = null
+    router.push('/')
 }
 
 
