@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY . .
 
-EXPOSE 5173
+# EXPOSE 5173
 
 ENTRYPOINT ["./entrypoint_prod.sh"]
