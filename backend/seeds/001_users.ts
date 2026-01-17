@@ -26,7 +26,7 @@ export async function seed(knex: Knex): Promise<void> {
             id: 1,
             email: 'admin@darbelis.eu',
             name: 'Admin User',
-            role: 'admin',
+            role: 'super_admin',
             is_active: true,
             password_hash: await passwordHashService.hash(defaultAdminPassword),
         },

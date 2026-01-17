@@ -20,21 +20,24 @@ class AuthenticationHandler {
     }
 
     async logout(): Promise<void> {
+        // Save refreshToken for the API call before clearing
+        const refreshToken = this.getRefreshToken()
+
+        // Clear ALL auth data FIRST (before any API calls)
+        // This prevents the interceptor from restoring the session on 401
         this.setAccessToken(null)
         this.setUser(null)
+        this.setRefreshToken(null)
 
         try {
-            const refreshToken = this.getRefreshToken()
             if (refreshToken) {
                 const request: LogoutRequest = { refreshToken }
                 await apiClient.post('/auth/logout', request)
             }
         } catch (error) {
-            // Ignore logout errors - we're clearing local state anyway
-            console.warn('Logout API call failed, clearing local storage anyway', error)
+            // Ignore logout errors - local state is already cleared
+            console.warn('Logout API call failed', error)
         }
-
-        this.setRefreshToken(null)
     }
 
     async register(email: string, name: string, password: string, captchaToken: string): Promise<RegisterResponse> {
