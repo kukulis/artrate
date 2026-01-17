@@ -78,7 +78,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.prod
     container_name: artcorrect-frontend
-    restart: unless-stopped
+    restart: "no"  # Build-only container, don't restart after completion
     ports:
       - "5173:5173"
     volumes:
