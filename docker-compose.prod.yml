@@ -9,7 +9,7 @@ services:
       MYSQL_USER: artcorrect
       MYSQL_PASSWORD: artcorrect_password
     ports:
-      - "33306:3306"
+      - "127.0.0.1:33306:3306"
     volumes:
       - artcorrect_db_data:/var/lib/mysql
       - ./.docker/artcorrect_db/conf.d:/etc/mysql/conf.d
@@ -32,7 +32,7 @@ services:
       MYSQL_USER: test
       MYSQL_PASSWORD: test_password
     ports:
-      - "33307:3306"
+      - "127.0.0.1:33307:3306"
     volumes:
       - artc_tst_db_data:/var/lib/mysql
       - ./.docker/artc_tst_db/conf.d:/etc/mysql/conf.d
@@ -51,6 +51,7 @@ services:
       dockerfile: Dockerfile
     container_name: artcorrect-backend
     restart: unless-stopped
+    # TODO stop port mapping later
     ports:
       - "3000:3000"
     environment:
@@ -91,8 +92,9 @@ services:
     image: grafana/loki:latest
     container_name: artcorrect-loki
     restart: unless-stopped
-    ports:
-      - "3100:3100"
+    # protect of being accessed from outside
+#    ports:
+#      - "3100:3100"
     volumes:
       - ./.docker/loki/loki-config.yaml:/etc/loki/local-config.yaml
       - ./.docker/loki/loki:/loki
