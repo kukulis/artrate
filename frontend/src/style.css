@@ -1,37 +1,383 @@
+/* =============================================================================
+   ArtCorrect - Newspaper Style Design System
+   ============================================================================= */
+
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+    /* Newspaper Color Palette - Sepia/Brownish tones */
+    --color-paper: #f5f0e6;
+    --color-paper-light: #faf8f3;
+    --color-paper-dark: #e8e0d0;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+    --color-ink: #2c2416;
+    --color-ink-light: #4a3f2f;
+    --color-ink-muted: #6b5d4d;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    --color-sepia: #8b7355;
+    --color-sepia-light: #a69076;
+    --color-sepia-dark: #5c4a3a;
+
+    --color-accent: #8b4513;
+    --color-accent-light: #a0522d;
+    --color-accent-dark: #6b3410;
+
+    --color-gold: #b8860b;
+    --color-gold-light: #d4a84b;
+
+    /* Status colors with sepia undertones */
+    --color-success: #4a6741;
+    --color-success-bg: #e8f0e5;
+    --color-error: #8b3a3a;
+    --color-error-bg: #f5e6e6;
+    --color-info: #4a5568;
+    --color-info-bg: #e8ecf0;
+
+    /* Typography */
+    --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    --font-body: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+    --font-reading: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+
+    /* Border radius */
+    --radius-sm: 2px;
+    --radius-md: 4px;
+    --radius-lg: 6px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(44, 36, 22, 0.1);
+    --shadow-md: 0 2px 8px rgba(44, 36, 22, 0.12);
+    --shadow-lg: 0 4px 16px rgba(44, 36, 22, 0.15);
+
+    /* Base settings */
+    font-family: var(--font-body);
+    line-height: 1.6;
+    font-weight: 400;
+    color: var(--color-ink);
+    background-color: var(--color-paper);
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    background-color: var(--color-paper);
 }
 
 #app {
-  min-height: 100vh;
+    min-height: 100vh;
+    background-color: var(--color-paper);
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
+/* =============================================================================
+   Typography
+   ============================================================================= */
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--color-ink);
+    line-height: 1.2;
+}
+
+h1 {
+    font-size: 2.5rem;
+    letter-spacing: -0.02em;
+}
+
+h2 {
+    font-size: 1.875rem;
+    letter-spacing: -0.01em;
+}
+
+h3 {
+    font-size: 1.5rem;
+}
+
+p {
+    font-family: var(--font-reading);
+    line-height: 1.7;
+    color: var(--color-ink-light);
+}
+
+a {
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--color-accent-dark);
+    text-decoration: underline;
+}
+
+/* =============================================================================
+   Form Elements - Newspaper Style
+   ============================================================================= */
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-sepia-light);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-paper-light);
+    color: var(--color-ink);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--color-sepia-light);
+    font-style: italic;
+}
+
+input:disabled,
+textarea:disabled,
+select:disabled {
+    background-color: var(--color-paper-dark);
+    color: var(--color-ink-muted);
+    cursor: not-allowed;
+}
+
+label {
+    font-family: var(--font-body);
+    font-weight: 700;
+    color: var(--color-ink);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* =============================================================================
+   Buttons - Newspaper Style
+   ============================================================================= */
+
+button,
+.btn {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border: 2px solid var(--color-ink);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+button:hover:not(:disabled),
+.btn:hover:not(:disabled) {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+}
+
+button:disabled,
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-paper);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--color-accent-dark);
+    border-color: var(--color-accent-dark);
+    color: var(--color-paper);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    border-color: var(--color-sepia);
+    color: var(--color-sepia-dark);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background-color: var(--color-sepia);
+    color: var(--color-paper);
+}
+
+/* =============================================================================
+   Cards & Containers
+   ============================================================================= */
+
+.card {
+    background-color: var(--color-paper-light);
+    border: 1px solid var(--color-paper-dark);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.card-elevated {
+    box-shadow: var(--shadow-md);
+}
+
+/* =============================================================================
+   Tables - Newspaper Style
+   ============================================================================= */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-body);
+    background-color: var(--color-paper-light);
+}
+
+th {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.8rem;
+    padding: var(--spacing-md);
+    text-align: left;
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+    border-bottom: 3px double var(--color-gold);
+}
+
+td {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--color-paper-dark);
+    color: var(--color-ink-light);
+}
+
+tr:hover {
+    background-color: var(--color-paper);
+}
+
+/* =============================================================================
+   Alerts & Messages
+   ============================================================================= */
+
+.alert {
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    border-left: 4px solid;
+    font-family: var(--font-body);
+}
+
+.alert-success {
+    background-color: var(--color-success-bg);
+    border-color: var(--color-success);
+    color: var(--color-success);
+}
+
+.alert-error {
+    background-color: var(--color-error-bg);
+    border-color: var(--color-error);
+    color: var(--color-error);
+}
+
+.alert-info {
+    background-color: var(--color-info-bg);
+    border-color: var(--color-info);
+    color: var(--color-info);
+}
+
+/* =============================================================================
+   Badges
+   ============================================================================= */
+
+.badge {
+    display: inline-block;
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-sepia);
+    color: var(--color-paper);
+}
+
+/* =============================================================================
+   Decorative Elements
+   ============================================================================= */
+
+.divider {
+    border: none;
+    border-top: 1px solid var(--color-paper-dark);
+    margin: var(--spacing-lg) 0;
+}
+
+.divider-ornate {
+    border: none;
+    border-top: 1px solid var(--color-sepia-light);
+    position: relative;
+    margin: var(--spacing-xl) 0;
+}
+
+.divider-ornate::after {
+    content: "§";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--color-paper);
+    padding: 0 var(--spacing-md);
+    color: var(--color-sepia);
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+}
+
+/* =============================================================================
+   Utility Classes
+   ============================================================================= */
+
+.text-center {
+    text-align: center;
+}
+
+.text-muted {
+    color: var(--color-ink-muted);
+}
+
+.font-display {
+    font-family: var(--font-display);
+}
+
+.font-reading {
+    font-family: var(--font-reading);
 }

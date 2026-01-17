@@ -49,39 +49,68 @@ onMounted(() => {
 
 <style scoped>
 .home {
-  max-width: 800px;
-  margin: 0 auto;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+h2 {
+    font-family: var(--font-display);
+    color: var(--color-ink);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 2px solid var(--color-sepia-light);
 }
 
 .status-card {
-  background: #f5f5f5;
-  padding: 2rem;
-  border-radius: 8px;
-  margin-top: 2rem;
+    background: var(--color-paper-light);
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-md);
+    margin-top: var(--spacing-xl);
+    border: 1px solid var(--color-paper-dark);
+    box-shadow: var(--shadow-sm);
+}
+
+.status-card h3 {
+    font-family: var(--font-display);
+    color: var(--color-ink);
+    margin-bottom: var(--spacing-md);
 }
 
 .response {
-  margin: 1rem 0;
-  padding: 1rem;
-  background: white;
-  border-radius: 4px;
+    margin: var(--spacing-md) 0;
+    padding: var(--spacing-md);
+    background: var(--color-paper);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-paper-dark);
+    font-family: var(--font-body);
+}
+
+.response p {
+    margin: var(--spacing-sm) 0;
+    color: var(--color-ink-light);
 }
 
 .error {
-  color: #c0392b;
+    color: var(--color-error);
 }
 
 .btn {
-  background-color: #3498db;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background-color: var(--color-accent);
+    color: var(--color-paper);
+    border: 2px solid var(--color-accent);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .btn:hover {
-  background-color: #2980b9;
+    background-color: var(--color-accent-dark);
+    border-color: var(--color-accent-dark);
 }
 </style>

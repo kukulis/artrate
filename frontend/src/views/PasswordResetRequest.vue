@@ -106,48 +106,56 @@ const handleSubmit = async () => {
 <style scoped>
 .password-reset-container {
     max-width: 400px;
-    margin: 2rem auto;
-    padding: 2rem;
+    margin: var(--spacing-xl) auto;
+    padding: var(--spacing-xl);
 }
 
 h1 {
-    color: #2c3e50;
-    margin-bottom: 1rem;
+    font-family: var(--font-display);
+    color: var(--color-ink);
+    margin-bottom: var(--spacing-md);
+    text-align: center;
 }
 
 .description {
-    color: #7f8c8d;
-    margin-bottom: 1.5rem;
+    font-family: var(--font-body);
+    color: var(--color-ink-muted);
+    margin-bottom: var(--spacing-lg);
     line-height: 1.5;
+    text-align: center;
 }
 
 .form-container {
-    background: white;
-    border-radius: 8px;
-    padding: 2rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: var(--color-paper-light);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--color-paper-dark);
 }
 
 .form-error {
-    background-color: #ffe6e6;
-    color: #c0392b;
-    padding: 0.75rem;
-    border-radius: 4px;
-    margin-bottom: 1rem;
+    background-color: var(--color-error-bg);
+    color: var(--color-error);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--color-error);
+    margin-bottom: var(--spacing-md);
     font-size: 0.9rem;
+    font-family: var(--font-body);
 }
 
 .success-message {
-    background-color: #d4edda;
-    color: #155724;
-    padding: 1.5rem;
-    border-radius: 8px;
-    border: 1px solid #c3e6cb;
+    background-color: var(--color-success-bg);
+    color: var(--color-success);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-success);
 }
 
 .success-message p {
-    margin: 0.5rem 0;
+    margin: var(--spacing-sm) 0;
     line-height: 1.6;
+    font-family: var(--font-body);
 }
 
 dl {
@@ -155,73 +163,90 @@ dl {
 }
 
 dt {
-    margin-top: 1rem;
-    font-weight: 500;
-    color: #2c3e50;
+    margin-top: var(--spacing-md);
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-ink);
 }
 
 dd {
-    margin: 0.5rem 0 1rem 0;
+    margin: var(--spacing-sm) 0 var(--spacing-md) 0;
 }
 
 input[type="email"] {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-sepia-light);
+    border-radius: var(--radius-sm);
     font-size: 1rem;
+    font-family: var(--font-body);
+    background-color: var(--color-paper);
+    color: var(--color-ink);
     box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 input[type="email"]:focus {
     outline: none;
-    border-color: #3498db;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
 }
 
 input[type="email"]:disabled {
-    background-color: #f5f5f5;
+    background-color: var(--color-paper-dark);
+    color: var(--color-ink-muted);
     cursor: not-allowed;
 }
 
 .submit-button {
     width: 100%;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background-color: var(--color-accent);
+    color: var(--color-paper);
+    border: 2px solid var(--color-accent);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    font-size: 1rem;
-    font-weight: 500;
+    transition: all 0.2s ease;
 }
 
 .submit-button:hover:not(:disabled) {
-    background-color: #2980b9;
+    background-color: var(--color-accent-dark);
+    border-color: var(--color-accent-dark);
 }
 
 .submit-button:disabled {
-    background-color: #95a5a6;
+    opacity: 0.5;
     cursor: not-allowed;
 }
 
 .links {
-    margin-top: 1.5rem;
+    margin-top: var(--spacing-lg);
     text-align: center;
 }
 
 .links a,
 .back-link {
-    color: #3498db;
+    font-family: var(--font-body);
+    color: var(--color-accent);
     text-decoration: none;
 }
 
 .links a:hover,
 .back-link:hover {
     text-decoration: underline;
+    color: var(--color-accent-dark);
 }
 
 .back-link {
     display: inline-block;
-    margin-top: 1rem;
+    margin-top: var(--spacing-md);
 }
 </style>

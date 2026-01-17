@@ -154,151 +154,177 @@ onMounted(() => {
 .users-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 1rem;
+    padding: var(--spacing-md);
 }
 
 h1 {
-    color: #2c3e50;
-    margin-bottom: 1.5rem;
+    font-family: var(--font-display);
+    color: var(--color-ink);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 2px solid var(--color-sepia-light);
 }
 
 .error-message {
-    background-color: #ffe6e6;
-    color: #c0392b;
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
+    background-color: var(--color-error-bg);
+    color: var(--color-error);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--color-error);
+    margin-bottom: var(--spacing-md);
     text-align: center;
+    font-family: var(--font-body);
 }
 
 .loading {
     text-align: center;
-    padding: 2rem;
-    color: #7f8c8d;
+    padding: var(--spacing-2xl);
+    color: var(--color-ink-muted);
+    font-family: var(--font-body);
+    font-style: italic;
 }
 
 .empty-state {
     text-align: center;
-    padding: 2rem;
-    color: #7f8c8d;
-    background-color: #f8f9fa;
-    border-radius: 8px;
+    padding: var(--spacing-2xl);
+    color: var(--color-ink-muted);
+    background-color: var(--color-paper-light);
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    border: 1px solid var(--color-paper-dark);
 }
 
 .users-table {
     width: 100%;
     border-collapse: collapse;
-    background: white;
-    border-radius: 8px;
+    background: var(--color-paper-light);
+    border-radius: var(--radius-md);
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
+    font-family: var(--font-body);
 }
 
 .users-table th,
 .users-table td {
-    padding: 0.75rem 1rem;
+    padding: var(--spacing-md);
     text-align: left;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid var(--color-paper-dark);
 }
 
 .users-table th {
-    background-color: #2c3e50;
-    color: white;
-    font-weight: 500;
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.8rem;
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+    border-bottom: 3px double var(--color-gold);
 }
 
 .users-table tbody tr:hover {
-    background-color: #f8f9fa;
+    background-color: var(--color-paper);
 }
 
 .inactive-row {
-    background-color: #fafafa;
-    color: #95a5a6;
+    background-color: var(--color-paper-dark);
+    color: var(--color-ink-muted);
 }
 
 .badge {
     display: inline-block;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 500;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .badge-super-admin {
-    background-color: #9b59b6;
-    color: white;
+    background-color: var(--color-accent);
+    color: var(--color-paper);
 }
 
 .badge-admin {
-    background-color: #3498db;
-    color: white;
+    background-color: var(--color-gold);
+    color: var(--color-paper);
 }
 
 .badge-user {
-    background-color: #95a5a6;
-    color: white;
+    background-color: var(--color-sepia);
+    color: var(--color-paper);
 }
 
 .status {
     display: inline-block;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
     font-size: 0.8rem;
-    font-weight: 500;
+    font-weight: 600;
+    font-family: var(--font-body);
 }
 
 .status-active {
-    background-color: #d4edda;
-    color: #155724;
+    background-color: var(--color-success-bg);
+    color: var(--color-success);
 }
 
 .status-inactive {
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: var(--color-error-bg);
+    color: var(--color-error);
 }
 
 button {
-    padding: 0.4rem 0.75rem;
-    border: none;
-    border-radius: 4px;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 2px solid;
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    font-size: 0.8rem;
-    font-weight: 500;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
 }
 
 button:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
 }
 
 .btn-disable {
-    background-color: #e74c3c;
-    color: white;
+    background-color: var(--color-error);
+    color: var(--color-paper);
+    border-color: var(--color-error);
 }
 
 .btn-disable:hover:not(:disabled) {
-    background-color: #c0392b;
+    background-color: transparent;
+    color: var(--color-error);
 }
 
 .btn-enable {
-    background-color: #27ae60;
-    color: white;
+    background-color: var(--color-success);
+    color: var(--color-paper);
+    border-color: var(--color-success);
 }
 
 .btn-enable:hover:not(:disabled) {
-    background-color: #219a52;
+    background-color: transparent;
+    color: var(--color-success);
 }
 
 .no-action {
-    color: #95a5a6;
+    color: var(--color-sepia-light);
 }
 
 .table-footer {
-    margin-top: 1rem;
+    margin-top: var(--spacing-md);
     text-align: right;
-    color: #7f8c8d;
+    color: var(--color-ink-muted);
     font-size: 0.9rem;
+    font-family: var(--font-body);
 }
 </style>
