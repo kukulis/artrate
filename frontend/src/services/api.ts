@@ -68,11 +68,10 @@ apiClient.interceptors.response.use(
             return Promise.reject(error)
         }
 
-        // Don't retry if this was the refresh endpoint itself (avoid infinite loop)
-        if (originalRequest?.url?.includes('/auth/refresh')) {
-            await authHandler.logout()
-            window.location.href = '/login'
-
+        // Don't intercept auth endpoints - let them handle their own errors
+        const authEndpoints = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout']
+        const isAuthEndpoint = authEndpoints.some(endpoint => originalRequest?.url?.includes(endpoint))
+        if (isAuthEndpoint) {
             return Promise.reject(error)
         }
 

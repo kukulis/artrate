@@ -30,8 +30,10 @@ const userLogin = async () => {
 
     try {
         await AuthenticationHandler.login(formEmail.value, formPassword.value)
+        console.log('Login.vue: after AuthenticationHandler.login')
         router.push('/')
     } catch (err: any) {
+        console.log('Login.vue: catch block after AuthenticationHandler.login')
         formError.value = err.response?.data?.error || 'Failed to login'
     } finally {
         loading.value = false
