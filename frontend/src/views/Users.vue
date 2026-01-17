@@ -4,12 +4,14 @@ import { useRouter } from 'vue-router'
 import AdminService from '../services/AdminService'
 import AuthenticationHandler from '../services/AuthenticationHandler'
 import type { SafeUserResponse } from '../types/api'
+import { formatDateTime } from '../utils/dateFormat'
 
 const router = useRouter()
 const users = ref<SafeUserResponse[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
 const actionLoading = ref<number | null>(null)
+const roleLoading = ref<number | null>(null)
 
 const isAdmin = computed(() => {
     const user = AuthenticationHandler.getUser()
@@ -50,10 +52,24 @@ const toggleUserStatus = async (user: SafeUserResponse) => {
     }
 }
 
-const formatDate = (dateString: string | null): string => {
-    if (!dateString) return 'Never'
+const updateUserRole = async (user: SafeUserResponse, newRole: 'user' | 'admin') => {
+    if (user.role === newRole) {
 
-    return new Date(dateString).toLocaleString()
+        return
+    }
+
+    roleLoading.value = user.id
+    error.value = null
+
+    try {
+        await AdminService.updateUserRole(user.id, newRole)
+        await loadUsers()
+    } catch (err: any) {
+        error.value = err.response?.data?.error || 'Failed to update user role'
+        console.error('Error updating user role:', err)
+    } finally {
+        roleLoading.value = null
+    }
 }
 
 const getRoleBadgeClass = (role: string): string => {
@@ -117,17 +133,28 @@ onMounted(() => {
                         <td>{{ user.name }}</td>
                         <td>{{ user.email }}</td>
                         <td>
-                            <span class="badge" :class="getRoleBadgeClass(user.role)">
+                            <span v-if="user.role === 'super_admin'" class="badge badge-super-admin">
                                 {{ user.role }}
                             </span>
+                            <select
+                                v-else
+                                class="role-select"
+                                :class="getRoleBadgeClass(user.role)"
+                                :value="user.role"
+                                :disabled="roleLoading === user.id"
+                                @change="updateUserRole(user, ($event.target as HTMLSelectElement).value as 'user' | 'admin')"
+                            >
+                                <option value="user">user</option>
+                                <option value="admin">admin</option>
+                            </select>
                         </td>
                         <td>
                             <span class="status" :class="user.is_active ? 'status-active' : 'status-inactive'">
                                 {{ user.is_active ? 'Active' : 'Inactive' }}
                             </span>
                         </td>
-                        <td>{{ formatDate(user.last_login_at) }}</td>
-                        <td>{{ formatDate(user.created_at) }}</td>
+                        <td>{{ formatDateTime(user.last_login_at) }}</td>
+                        <td>{{ formatDateTime(user.created_at) }}</td>
                         <td>
                             <button
                                 v-if="user.role !== 'super_admin'"
@@ -255,6 +282,34 @@ h1 {
 .badge-user {
     background-color: var(--color-sepia);
     color: var(--color-paper);
+}
+
+.role-select {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    border: none;
+    appearance: auto;
+}
+
+.role-select.badge-admin {
+    background-color: var(--color-gold);
+    color: var(--color-paper);
+}
+
+.role-select.badge-user {
+    background-color: var(--color-sepia);
+    color: var(--color-paper);
+}
+
+.role-select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .status {

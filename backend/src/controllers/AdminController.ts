@@ -14,6 +14,11 @@ const EvaluateRankingSchema = z.object({
     helperType: z.string().min(1, 'Helper type is required')
 });
 
+// Validation schema for role update request
+const UpdateRoleSchema = z.object({
+    role: z.enum(['user', 'admin'])
+});
+
 /**
  * Convert User to SafeUser (remove sensitive fields)
  */
@@ -231,6 +236,70 @@ export class AdminController {
             logger.error('Error enabling user', wrapError(error));
             res.status(500).json({
                 error: 'Failed to enable user',
+                message: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    };
+
+    /**
+     * PATCH /api/auth/admin/users/:id/role
+     * Update a user's role
+     */
+    updateUserRole = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const userId = parseInt(req.params.id);
+
+            if (isNaN(userId)) {
+                res.status(400).json({ error: 'Invalid user ID' });
+
+                return;
+            }
+
+
+            // Validate request body
+            const validationResult = UpdateRoleSchema.safeParse(req.body);
+
+            if (!validationResult.success) {
+                const errors = validationResult.error.issues.map((issue: z.ZodIssue) => ({
+                    field: issue.path.join('.'),
+                    message: issue.message
+                }));
+                res.status(400).json({ error: 'Validation failed', details: errors });
+
+                return;
+            }
+
+            const { role } = validationResult.data;
+
+            const user = await this.userRepository.findById(userId);
+
+            if (!user) {
+                res.status(404).json({ error: 'User not found' });
+
+                return;
+            }
+
+            // Cannot change super_admin role
+            if (user.role === 'super_admin') {
+                res.status(403).json({ error: 'Cannot change super_admin role' });
+
+                return;
+            }
+
+            // Update the role
+            user.role = role;
+            await this.userRepository.update(user);
+
+            logger.info('User role updated', {
+                userId: userId.toString(),
+                newRole: role,
+                adminId: (req as any).user?.userId
+            });
+            res.json({ message: 'User role updated successfully', user: toSafeUser(user) });
+        } catch (error) {
+            logger.error('Error updating user role', wrapError(error));
+            res.status(500).json({
+                error: 'Failed to update user role',
                 message: error instanceof Error ? error.message : 'Unknown error'
             });
         }

@@ -86,6 +86,12 @@ export function createAuthRoutes(pool: Pool) {
         requireAdmin,
         adminController.enableUser
     );
+    router.patch(
+        '/admin/users/:id/role',
+        authMiddleware,
+        requireAdmin,
+        adminController.updateUserRole
+    );
     router.post(
         '/admin/rankings/evaluate',
         authMiddleware,

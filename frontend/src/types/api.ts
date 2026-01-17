@@ -231,6 +231,15 @@ export interface UserEnableResponse {
     user: SafeUserResponse
 }
 
+export interface UpdateUserRoleRequest {
+    role: 'user' | 'admin'
+}
+
+export interface UpdateUserRoleResponse {
+    message: string
+    user: SafeUserResponse
+}
+
 export interface EvaluateRankingRequest {
     articleId: string
     helperType: string

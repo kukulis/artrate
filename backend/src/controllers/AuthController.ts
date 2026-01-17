@@ -225,7 +225,7 @@ export class AuthController {
 
             await this.authService.resetPassword(
                 validatedData.token,
-                validatedData.newPassword
+                validatedData.password
             );
 
             res.json({message: 'Password reset successful'});

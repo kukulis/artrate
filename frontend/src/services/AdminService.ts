@@ -5,6 +5,8 @@ import type {
     GetUserByIdResponse,
     UserDisableResponse,
     UserEnableResponse,
+    UpdateUserRoleRequest,
+    UpdateUserRoleResponse,
     EvaluateRankingRequest,
     EvaluateRankingResponse
 } from '../types/api'
@@ -46,6 +48,16 @@ class AdminService {
      */
     async enableUser(id: number): Promise<UserEnableResponse> {
         const response = await apiClient.patch<UserEnableResponse>(`/auth/admin/users/${id}/enable`)
+
+        return response.data
+    }
+
+    /**
+     * Update a user's role
+     */
+    async updateUserRole(id: number, role: 'user' | 'admin'): Promise<UpdateUserRoleResponse> {
+        const request: UpdateUserRoleRequest = { role }
+        const response = await apiClient.patch<UpdateUserRoleResponse>(`/auth/admin/users/${id}/role`, request)
 
         return response.data
     }
