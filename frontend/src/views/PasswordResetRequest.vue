@@ -2,11 +2,15 @@
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import apiClient from '../services/api'
+import { useRecaptcha } from '../composables/useRecaptcha'
 
 const formEmail = ref('')
 const formError = ref<string | null>(null)
 const loading = ref(false)
 const successMessage = ref<string | null>(null)
+
+const recaptchaContainer = ref<HTMLElement | null>(null)
+const { token, resetRecaptcha } = useRecaptcha(recaptchaContainer)
 
 const handleSubmit = async () => {
     // Clear previous messages
@@ -28,12 +32,19 @@ const handleSubmit = async () => {
         return
     }
 
+    // Validate captcha
+    if (!token.value) {
+        formError.value = 'Please complete the CAPTCHA'
+
+        return
+    }
+
     loading.value = true
 
     try {
         const response = await apiClient.post('/auth/password-reset/request', {
             email: formEmail.value.trim(),
-            captchaToken: 'TODO'  // CAPTCHA not enabled (RECAPTCHA_ENABLE=false)
+            captchaToken: token.value
         })
 
         successMessage.value = response.data.message
@@ -49,6 +60,7 @@ const handleSubmit = async () => {
         } else {
             formError.value = 'Failed to send password reset request. Please try again.'
         }
+        resetRecaptcha()
     } finally {
         loading.value = false
     }
@@ -86,6 +98,10 @@ const handleSubmit = async () => {
                             required
                             :disabled="loading"
                         />
+                    </dd>
+                    <dt></dt>
+                    <dd class="recaptcha-container">
+                        <div ref="recaptchaContainer"></div>
                     </dd>
                     <dt></dt>
                     <dd>
@@ -248,5 +264,11 @@ input[type="email"]:disabled {
 .back-link {
     display: inline-block;
     margin-top: var(--spacing-md);
+}
+
+.recaptcha-container {
+    display: flex;
+    justify-content: center;
+    margin: var(--spacing-md) 0;
 }
 </style>

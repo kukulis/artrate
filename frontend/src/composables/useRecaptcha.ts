@@ -54,7 +54,7 @@ export function useRecaptcha(container: Ref<HTMLElement | null>) {
         token.value = null
     }
 
-    const render = async () => {
+    const renderRecaptcha = async () => {
         await loadRecaptchaScript()
 
         if (container.value && widgetId.value === null) {
@@ -66,7 +66,7 @@ export function useRecaptcha(container: Ref<HTMLElement | null>) {
         }
     }
 
-    const reset = () => {
+    const resetRecaptcha = () => {
         token.value = null
         if (widgetId.value !== null && window.grecaptcha) {
             window.grecaptcha.reset(widgetId.value)
@@ -74,7 +74,7 @@ export function useRecaptcha(container: Ref<HTMLElement | null>) {
     }
 
     onMounted(() => {
-        render()
+        renderRecaptcha()
     })
 
     onUnmounted(() => {
@@ -84,7 +84,7 @@ export function useRecaptcha(container: Ref<HTMLElement | null>) {
 
     return {
         token,
-        reset,
-        render
+        resetRecaptcha: resetRecaptcha,
+        renderRecaptcha: renderRecaptcha
     }
 }

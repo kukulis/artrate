@@ -238,6 +238,24 @@ Vue.js 3 application using Composition API with TypeScript:
 - Axios handles HTTP requests to backend
 - Vite dev server proxies API requests to avoid CORS issues
 
+### Composables
+
+**Naming Convention:**
+- Export functions with descriptive names from composables (e.g., `resetRecaptcha` instead of `reset`)
+- Avoid relying on destructuring renaming at call sites (`{ reset: resetCaptcha }`) - it adds unnecessary code
+- Prefer direct usage: `const { resetRecaptcha } = useRecaptcha(...)` over `const { reset: resetCaptcha } = ...`
+
+**useRecaptcha Composable:**
+- Located at `frontend/src/composables/useRecaptcha.ts`
+- Returns `{ token, resetRecaptcha, renderRecaptcha }`
+- reCAPTCHA tokens are single-use - always call `resetRecaptcha()` after failed API submissions so users can retry
+- Usage:
+  ```typescript
+  const recaptchaContainer = ref<HTMLElement | null>(null)
+  const { token, resetRecaptcha } = useRecaptcha(recaptchaContainer)
+  ```
+- Template requires: `<div ref="recaptchaContainer"></div>`
+
 ### Docker Architecture
 
 **Development Setup** (`docker-compose.yml`):

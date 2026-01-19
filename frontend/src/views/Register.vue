@@ -23,7 +23,7 @@ const formEmailError = ref<string | null>(null)
 const formNameError = ref<string | null>(null)
 
 const recaptchaContainer = ref<HTMLDivElement | null>(null)
-const { token: captchaToken, reset: resetCaptcha } = useRecaptcha(recaptchaContainer)
+const { token: captchaToken, resetRecaptcha } = useRecaptcha(recaptchaContainer)
 
 const clearFieldErrors = () => {
     formNameError.value = null
@@ -108,7 +108,7 @@ const userRegister = async () => {
         }
 
         // Reset captcha after failed registration
-        resetCaptcha()
+        resetRecaptcha()
     } finally {
         loading.value = false
     }
