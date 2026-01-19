@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { getLogger, wrapError } from '../logging';
+import {Ranking} from "../entities";
 
 const logger = getLogger();
 
@@ -93,5 +94,10 @@ export class GeminiService {
             logger.error('Error calling Gemini chat API', wrapError(error));
             throw error;
         }
+    }
+
+    parseGeminiResponse(responseText: string ): Ranking[] {
+        console.log ( "TODO "+responseText)
+        return []
     }
 }
