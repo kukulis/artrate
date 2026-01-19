@@ -397,12 +397,13 @@ onMounted(() => {
           <div class="info-bar">
             <span><strong>Article:</strong> {{ articleTitle }}</span>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button @click="closeAiRankingModal" class="btn-cancel" :disabled="aiRankingLoading">Cancel</button>
-          <button @click="executeAiEvaluation" class="btn-primary" :disabled="aiRankingLoading || !selectedAiHelper">
-            {{ aiRankingLoading ? 'Executing...' : 'Execute AI Evaluation' }}
-          </button>
+
+          <div class="modal-footer">
+            <button @click="closeAiRankingModal" class="btn-cancel" :disabled="aiRankingLoading">Cancel</button>
+            <button @click="executeAiEvaluation" class="btn-primary" :disabled="aiRankingLoading || !selectedAiHelper">
+              {{ aiRankingLoading ? 'Executing...' : 'Execute AI Evaluation' }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
