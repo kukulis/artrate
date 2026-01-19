@@ -192,3 +192,7 @@ sasldblistusers2
 
     openssl rand -base64 64
 
+# captcha
+
+https://developers.google.com/recaptcha/docs/faq#id-like-to-run-automated-tests-with-recaptcha.-what-should-i-do
+

@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AuthenticationHandler from '../services/AuthenticationHandler'
+import { useRecaptcha } from '../composables/useRecaptcha'
 
 interface ValidationDetail {
     field: string
@@ -20,6 +21,9 @@ const loading = ref(false)
 const formPasswordError = ref<string | null>(null)
 const formEmailError = ref<string | null>(null)
 const formNameError = ref<string | null>(null)
+
+const recaptchaContainer = ref<HTMLDivElement | null>(null)
+const { token: captchaToken, reset: resetCaptcha } = useRecaptcha(recaptchaContainer)
 
 const clearFieldErrors = () => {
     formNameError.value = null
@@ -61,6 +65,12 @@ const userRegister = async () => {
         return
     }
 
+    if (!captchaToken.value) {
+        formError.value = 'Please complete the CAPTCHA'
+
+        return
+    }
+
     loading.value = true
 
     try {
@@ -68,7 +78,7 @@ const userRegister = async () => {
             formEmail.value.trim(),
             formName.value.trim(),
             formPassword1.value,
-            'TODO'
+            captchaToken.value
         )
 
         registeredUser.value = registerResult.user?.email ?? formEmail.value
@@ -96,6 +106,9 @@ const userRegister = async () => {
         if (nameMessages.length > 0) {
             formNameError.value = nameMessages.join(' ')
         }
+
+        // Reset captcha after failed registration
+        resetCaptcha()
     } finally {
         loading.value = false
     }
@@ -209,6 +222,11 @@ onMounted(() => {
                             required
                             :disabled="loading"
                         />
+                    </dd>
+
+                    <dt></dt>
+                    <dd class="recaptcha-container">
+                        <div ref="recaptchaContainer"></div>
                     </dd>
 
                     <dt></dt>
@@ -527,5 +545,11 @@ input[type="password"]:disabled {
     background-color: var(--color-sepia-light);
     color: var(--color-paper);
     text-decoration: none;
+}
+
+.recaptcha-container {
+    display: flex;
+    justify-content: center;
+    margin: var(--spacing-md) 0;
 }
 </style>

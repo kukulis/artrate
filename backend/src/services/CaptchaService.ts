@@ -8,6 +8,7 @@ export class CaptchaService {
     private readonly secretKey: string;
 
     constructor() {
+        // TODO pass appconfig to the constructor parameters
         const config = getConfig();
         this.secretKey = config.captcha.secretKey;
 
