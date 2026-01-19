@@ -191,5 +191,80 @@ describe('RankingRepository', () => {
             expect(r3!.value).toBe(7);
             expect(r3!.description).toBe('Bulk update 3');
         });
+
+        it('Should create separate records for USER and GEMINI rankings with same keys', async () => {
+            // Step 1: Upsert two USER rankings
+            const userRankings = [
+                Object.assign(new Ranking(), {
+                    id: 'user-rank-1',
+                    ranking_type: 'ACCURACY',
+                    helper_type: 'USER',
+                    user_id: 101,
+                    article_id: 'article-3',
+                    value: 7,
+                    description: 'User accuracy rating'
+                }),
+                Object.assign(new Ranking(), {
+                    id: 'user-rank-2',
+                    ranking_type: 'QUALITY',
+                    helper_type: 'USER',
+                    user_id: 101,
+                    article_id: 'article-3',
+                    value: 6,
+                    description: 'User quality rating'
+                })
+            ];
+
+            await repository.upsertRankings(userRankings);
+
+            // Step 2: Upsert GEMINI rankings with same (article_id, ranking_type, user_id) but different helper_type
+            const geminiRankings = [
+                Object.assign(new Ranking(), {
+                    id: 'gemini-rank-1',
+                    ranking_type: 'ACCURACY',
+                    helper_type: 'GEMINI',
+                    user_id: 101,
+                    article_id: 'article-3',
+                    value: 8,
+                    description: 'AI accuracy rating'
+                }),
+                Object.assign(new Ranking(), {
+                    id: 'gemini-rank-2',
+                    ranking_type: 'QUALITY',
+                    helper_type: 'GEMINI',
+                    user_id: 101,
+                    article_id: 'article-3',
+                    value: 9,
+                    description: 'AI quality rating'
+                })
+            ];
+
+            await repository.upsertRankings(geminiRankings);
+
+            // Step 3: Verify all 4 records exist separately
+            const userRank1 = await repository.findById('user-rank-1');
+            expect(userRank1).not.toBeNull();
+            expect(userRank1!.helper_type).toBe('USER');
+            expect(userRank1!.value).toBe(7);
+            expect(userRank1!.description).toBe('User accuracy rating');
+
+            const userRank2 = await repository.findById('user-rank-2');
+            expect(userRank2).not.toBeNull();
+            expect(userRank2!.helper_type).toBe('USER');
+            expect(userRank2!.value).toBe(6);
+            expect(userRank2!.description).toBe('User quality rating');
+
+            const geminiRank1 = await repository.findById('gemini-rank-1');
+            expect(geminiRank1).not.toBeNull();
+            expect(geminiRank1!.helper_type).toBe('GEMINI');
+            expect(geminiRank1!.value).toBe(8);
+            expect(geminiRank1!.description).toBe('AI accuracy rating');
+
+            const geminiRank2 = await repository.findById('gemini-rank-2');
+            expect(geminiRank2).not.toBeNull();
+            expect(geminiRank2!.helper_type).toBe('GEMINI');
+            expect(geminiRank2!.value).toBe(9);
+            expect(geminiRank2!.description).toBe('AI quality rating');
+        });
     });
 });
