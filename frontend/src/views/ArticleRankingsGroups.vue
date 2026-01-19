@@ -7,6 +7,7 @@ import type {RankingHelper, RankingType} from '../types/ranking'
 import type {User} from '../types/user'
 import {formatDate} from '../utils/dateFormat'
 import ArticleService from "../services/ArticleService.ts";
+import AdminService from '../services/AdminService'
 import {Article} from "../types/article.ts";
 import {RankingGroup} from "../types/ranking-group.ts";
 
@@ -22,6 +23,13 @@ const currentArticle = ref<Article | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
 const showForm = ref(false)
+
+// AI Ranking modal state
+const showAiRankingModal = ref(false)
+const selectedAiHelper = ref('')
+const aiRankingLoading = ref(false)
+const aiRankingError = ref<string | null>(null)
+const aiRankingSuccess = ref<string | null>(null)
 
 // Form fields
 const formUserId = ref<number>(0)
@@ -53,6 +61,14 @@ const formLoading = ref(false)
 
 const articleTitle = computed(() => {
   return 'Article [' + (currentArticle.value ? currentArticle.value.title : '-') + ']'
+})
+
+const aiHelpers = computed(() => {
+    return rankingHelpers.value.filter(helper => helper.code !== 'USER')
+})
+
+const isAdmin = computed(() => {
+    return currentUser.value?.role === 'admin' || currentUser.value?.role === 'super_admin'
 })
 
 const fetchRankingsGroups = async () => {
@@ -186,6 +202,46 @@ const goBackToArticles = () => {
   router.push('/articles')
 }
 
+const openAiRankingModal = () => {
+    selectedAiHelper.value = aiHelpers.value.length > 0 ? aiHelpers.value[0].code : ''
+    aiRankingError.value = null
+    aiRankingSuccess.value = null
+    showAiRankingModal.value = true
+}
+
+const closeAiRankingModal = () => {
+    showAiRankingModal.value = false
+    selectedAiHelper.value = ''
+    aiRankingError.value = null
+    aiRankingSuccess.value = null
+}
+
+const executeAiEvaluation = async () => {
+    if (!selectedAiHelper.value) {
+        aiRankingError.value = 'Please select an AI helper'
+
+        return
+    }
+
+    aiRankingLoading.value = true
+    aiRankingError.value = null
+    aiRankingSuccess.value = null
+
+    try {
+        await AdminService.evaluateRanking({
+            articleId: articleId.value,
+            helperType: selectedAiHelper.value
+        })
+        aiRankingSuccess.value = 'AI evaluation completed successfully'
+        await fetchRankingsGroups()
+        setTimeout(() => closeAiRankingModal(), 2000)
+    } catch (err: any) {
+        aiRankingError.value = err.response?.data?.error || 'Failed to execute AI evaluation'
+    } finally {
+        aiRankingLoading.value = false
+    }
+}
+
 onMounted(() => {
   fetchRankingsGroups()
   fetchMetadata()
@@ -202,6 +258,9 @@ onMounted(() => {
       <div class="header-actions">
         <button @click="openCreateForm" class="btn-primary">
           + New Ranking
+        </button>
+        <button v-if="isAdmin" @click="openAiRankingModal" class="btn-ai-ranking">
+          AI Ranking
         </button>
         <button @click="fetchRankingsGroups" class="btn-refresh" :disabled="loading">
           {{ loading ? 'Loading...' : 'Refresh' }}
@@ -312,6 +371,39 @@ onMounted(() => {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- AI Ranking Modal -->
+    <div v-if="showAiRankingModal" class="modal-overlay" @click.self="closeAiRankingModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>AI Ranking Evaluation</h3>
+          <button @click="closeAiRankingModal" class="btn-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div v-if="aiRankingError" class="form-error">{{ aiRankingError }}</div>
+          <div v-if="aiRankingSuccess" class="form-success">{{ aiRankingSuccess }}</div>
+
+          <div class="form-group">
+            <label for="ai-helper-select">Select AI Helper</label>
+            <select id="ai-helper-select" v-model="selectedAiHelper" :disabled="aiRankingLoading">
+              <option v-for="helper in aiHelpers" :key="helper.code" :value="helper.code">
+                {{ helper.description }}
+              </option>
+            </select>
+          </div>
+
+          <div class="info-bar">
+            <span><strong>Article:</strong> {{ articleTitle }}</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button @click="closeAiRankingModal" class="btn-cancel" :disabled="aiRankingLoading">Cancel</button>
+          <button @click="executeAiEvaluation" class="btn-primary" :disabled="aiRankingLoading || !selectedAiHelper">
+            {{ aiRankingLoading ? 'Executing...' : 'Execute AI Evaluation' }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -859,5 +951,36 @@ onMounted(() => {
     background-color: var(--color-paper-dark);
     color: var(--color-ink-muted);
     cursor: not-allowed;
+}
+
+.btn-ai-ranking {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background-color: var(--color-sepia);
+    color: var(--color-paper);
+    border: 2px solid var(--color-sepia);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-ai-ranking:hover:not(:disabled) {
+    background-color: var(--color-sepia-dark);
+    border-color: var(--color-sepia-dark);
+}
+
+.form-success {
+    background-color: var(--color-success-bg);
+    color: var(--color-success);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--color-success);
+    margin-bottom: var(--spacing-md);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
 }
 </style>
