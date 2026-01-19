@@ -112,14 +112,12 @@ Third paragraph.`;
             expect(instruction).toContain('explanation');
         });
 
-        it('should contain all RankingType keys', () => {
+        it('should use abstract label format', () => {
             const instruction = GeminiPromptBuilder.JSON_FORMAT_INSTRUCTION;
 
-            expect(instruction).toContain('ACCURACY');
-            expect(instruction).toContain('OBJECTIVITY');
-            expect(instruction).toContain('QUALITY');
-            expect(instruction).toContain('OFFENSIVE');
-            expect(instruction).toContain('LOGICAL');
+            expect(instruction).toContain('<LABEL>');
+            expect(instruction).toContain('label from each question');
+            expect(instruction).toContain('same language as the article');
         });
 
         it('should specify rank as a number', () => {
@@ -141,7 +139,7 @@ Third paragraph.`;
             const result = builder.buildPrompt(input);
 
             expect(result).toContain('JSON');
-            expect(result).toContain('ACCURACY');
+            expect(result).toContain('<LABEL>');
             expect(result).toContain('## Article');
             expect(result).toContain('1. Rate the quality?');
         });

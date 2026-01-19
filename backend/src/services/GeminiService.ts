@@ -96,8 +96,41 @@ export class GeminiService {
         }
     }
 
-    parseGeminiResponse(responseText: string ): Ranking[] {
-        console.log ( "TODO "+responseText)
-        return []
+    static parseGeminiResponse(responseText: string): Ranking[] {
+        const parsed = JSON.parse(responseText);
+
+        // Extract the actual response - could be in response.raw_text or response directly
+        let rankingData: Record<string, { rank: number; explanation: string }>;
+
+        if (parsed.response?.raw_text) {
+            // Response was wrapped due to markdown code fences - extract JSON
+            let jsonText = parsed.response.raw_text;
+
+            // Remove markdown code fences if present
+            const jsonMatch = jsonText.match(/```(?:json)?\s*([\s\S]*?)```/);
+            if (jsonMatch) {
+                jsonText = jsonMatch[1].trim();
+            }
+
+            rankingData = JSON.parse(jsonText);
+        } else if (parsed.response) {
+            rankingData = parsed.response;
+        } else {
+            rankingData = parsed;
+        }
+
+        // Convert to Ranking array
+        const rankings: Ranking[] = [];
+
+        for (const [key, value] of Object.entries(rankingData)) {
+            const ranking = new Ranking()
+                .setRankingType(key)
+                .setValue(value.rank)
+                .setDescription(value.explanation);
+
+            rankings.push(ranking);
+        }
+
+        return rankings;
     }
 }

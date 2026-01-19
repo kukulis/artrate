@@ -8,15 +8,16 @@ export interface PromptInput {
 
 export class GeminiPromptBuilder {
     static readonly JSON_FORMAT_INSTRUCTION = `
-Respond ONLY with valid JSON in the following format, no additional text:
+Respond ONLY with valid JSON in the following format, no additional text or markdown:
 {
-    "ACCURACY": { "rank": <number from 1 to 10>, "explanation": "<text>" },
-    "OBJECTIVITY": { "rank": <number from 1 to 10>, "explanation": "<text>" },
-    "QUALITY": { "rank": <number from 1 to 10>, "explanation": "<text>" },
-    "OFFENSIVE": { "rank": <number from 1 to 10>, "explanation": "<text>" },
-    "LOGICAL": { "rank": <number from 1 to 10>, "explanation": "<text>" }
+    "<LABEL>": { "rank": <number from 1 to 10>, "explanation": "<text>" },
+    ...
 }
-Provide an entry for each question using its label as the key.`.trim();
+Rules:
+- Use the label from each question (e.g., [ACCURACY], [OBJECTIVITY]) as the JSON key
+- Provide an entry for each question in the questions list
+- The "explanation" text MUST be written in the same language as the article
+- Do not wrap the response in markdown code blocks`.trim();
 
     static readonly QUESTIONS = `# Klausimų sąrašas
 

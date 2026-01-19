@@ -18,7 +18,8 @@
     "seed:make": "knex seed:make --knexfile knexfile.ts -x ts",
     "passwordhash": "ts-node src/scripts/password_hash.ts",
     "email:test": "ts-node src/scripts/email.ts",
-    "gemini:test": "ts-node src/scripts/test_gemini.ts"
+    "gemini:test": "ts-node src/scripts/test_gemini.ts",
+    "loki:test": "ts-node src/scripts/test_loki.ts"
   },
   "keywords": [],
   "author": "",
