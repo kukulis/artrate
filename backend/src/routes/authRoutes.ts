@@ -9,8 +9,10 @@ import { ArticleRepository } from '../repositories/ArticleRepository';
 import { PasswordHashService } from '../services/PasswordHashService';
 import { TokenService } from '../services/TokenService';
 import { CaptchaService } from '../services/CaptchaService';
+import { GeminiService } from '../services/GeminiService';
 import { EmailInterface, EmailService } from '../services/EmailService';
 import { authenticateToken, requireAdmin } from '../middleware/authMiddleware';
+import { getConfig } from '../config';
 
 /**
  * Create authentication routes
@@ -37,6 +39,12 @@ export function createAuthRoutes(pool: Pool) {
 
     const articleRepository = new ArticleRepository(pool);
 
+    const config = getConfig();
+    const geminiService = new GeminiService(
+        config.gemini.apiKey,
+        config.gemini.model
+    );
+
     const authController = new AuthController(
         authService,
         tokenService,
@@ -44,7 +52,8 @@ export function createAuthRoutes(pool: Pool) {
     );
     const adminController = new AdminController(
         userRepository,
-        articleRepository
+        articleRepository,
+        geminiService
     );
 
     // Create authentication middleware

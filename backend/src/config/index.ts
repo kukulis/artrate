@@ -54,6 +54,12 @@ export interface AppConfig {
     auth: {
         enabled: boolean;
     };
+
+    // Gemini AI configuration
+    gemini: {
+        apiKey: string;
+        model: string;
+    };
 }
 
 /**
@@ -118,6 +124,11 @@ export function loadConfig(): AppConfig {
 
         auth: {
             enabled: getOptional('AUTH_ENABLED', 'true') === 'true',
+        },
+
+        gemini: {
+            apiKey: getOptional('GEMINI_API_KEY', ''),
+            model: getOptional('GEMINI_MODEL', 'gemini-2.0-flash'),
         },
     };
 }

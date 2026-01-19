@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import { UserRepository } from '../repositories/UserRepository';
 import { ArticleRepository } from '../repositories/ArticleRepository';
+import { GeminiService } from '../services/GeminiService';
 import { getLogger, wrapError } from '../logging';
 import { SafeUser } from '../entities/User';
 import { RankingHelper } from '../types/RankingHelper';
@@ -31,7 +32,8 @@ function toSafeUser(user: any): SafeUser {
 export class AdminController {
     constructor(
         private userRepository: UserRepository,
-        private articleRepository?: ArticleRepository
+        private articleRepository: ArticleRepository,
+        private geminiService: GeminiService
     ) {}
 
     /**
@@ -115,13 +117,6 @@ export class AdminController {
                     error: 'Invalid helper type',
                     validTypes: validHelperTypes
                 });
-
-                return;
-            }
-
-            // Check if article exists
-            if (!this.articleRepository) {
-                res.status(500).json({ error: 'Article repository not configured' });
 
                 return;
             }

@@ -1,0 +1,15 @@
+Įvadas
+
+Internete skaitom įvairius straipsnius. Vieniems patinka vieni, o kitiems kiti straipsniai. Dažnai patikimą lemia tai ar straipsnyje išsakoma pasaulėžiūra atitinka skaitytojo pasaulėžiūrą. Žmonės užsidaro į nuomonių burbulus – pradeda skaityti tik tai kas jiems patinka, tai dar labiau įtvirtina juos toje pasaulėžiūroje, kurioje jie tuo metu yra. Visuomenė skaidosi ir radikalėja.
+Pasaulėžiūros burbulai
+
+Nesakau kad radikali pasaulėžiūra savaime yra blogis; kartais daug blogiau kai žmogus apskritai neturi savo nuomonės ir linksta “kur vėjas papūs”. Vis dėl to negalime pasaulio vertinti tik pagal patikimo ir nepatikimo perspektyvą; reikia mokėti priimti ir tai kas nepatinka, bet kas realiai yra ir ko greičiausiai nepavyks išvengti.
+
+Taip pat ir mokėjimas suprasi kito nuomonę yra svarbus dalykas; nes kartais žmonės susipyksta dėl smulkmenų, arba dažnai sutinka su tais pačiais dalykais, tik kitaip juos suformuluoja. Tačiau kai jau žmogus atsiranda nuomonės burbule, pasidaro ypač sunku su juo surasti bendrą kalbą. Jis yra valdomas emocijų, o ne loginių argumentų. Tokiais žmonėmis yra lengva manipuliuoti; dažnai valstybių slaptosios žvalgybos to ir siekia.
+
+Manau dalis straipsnių yra finansuojami įvairių interesų grupių ir yra būtent nutaikyti į manipuliavimą “burbuluose” esančiais žmonėmis.
+Straipsnių vertinimas
+
+Mano noras – identifikuoti tokius straipsnius; klausimas – kaip tą padaryti. Jeigu padarytume tiesiog paprastą balsavimą – koks straipsnis geras, o koks blogas, tuomet kas bus tie balsuojantieji? Jeigu jie – tie patys “burbuluose” esantys žmonės, nubalsuos už “gerus” straipsnius kaip tik už tuos kurie paremti labiausiai emocijomis, o ne loginiais argumentais, jeigu jie atitiks tų žmonių pasaulėžiūrą.
+
+Todėl yra užmanymas pasitelkti dirbtinį intelektą arba LLM ( large language model ). Aišku jie irgi gali būti tendencingi, todėl reiktų remtis kelių LLM vertinimais. Taip pat svarbu taip suformuluoti klausimus, kad LLM taip įvertintų tą straipsnį, kad iš padaryto vertinimo galėtume padaryti kažkokias apčiuopamas išvadas.

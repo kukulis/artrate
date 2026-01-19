@@ -69,6 +69,10 @@ describe('AuthService', () => {
             },
             auth: {
                 enabled: false
+            },
+            gemini: {
+                apiKey: '',
+                model: 'gemini-2.0-flash'
             }
         });
 
