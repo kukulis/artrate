@@ -60,6 +60,12 @@ export interface AppConfig {
         apiKey: string;
         model: string;
     };
+
+    // Paysera payment configuration
+    paysera: {
+        projectId: string;
+        signPassword: string;
+    };
 }
 
 /**
@@ -129,6 +135,11 @@ export function loadConfig(): AppConfig {
         gemini: {
             apiKey: getOptional('GEMINI_API_KEY', ''),
             model: getOptional('GEMINI_MODEL', 'gemini-2.0-flash'),
+        },
+
+        paysera: {
+            projectId: getOptional('PAYSERA_PROJECT_ID', ''),
+            signPassword: getOptional('PAYSERA_SIGN_PASSWORD', ''),
         },
     };
 }

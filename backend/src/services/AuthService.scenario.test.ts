@@ -68,6 +68,10 @@ describe('AuthService - User Registration Flow Scenario', () => {
             gemini: {
                 apiKey: '',
                 model: 'gemini-2.0-flash'
+            },
+            paysera: {
+                projectId: '',
+                signPassword: ''
             }
         });
 

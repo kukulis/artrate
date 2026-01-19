@@ -73,6 +73,10 @@ describe('AuthService', () => {
             gemini: {
                 apiKey: '',
                 model: 'gemini-2.0-flash'
+            },
+            paysera: {
+                projectId: '',
+                signPassword: ''
             }
         });
 

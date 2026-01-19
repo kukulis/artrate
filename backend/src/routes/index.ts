@@ -4,6 +4,7 @@ import {createAuthorRoutes} from './authorRoutes';
 import {createRankingRoutes, createRankingMetadataRoutes} from './rankingRoutes';
 import {createUserRoutes} from './userRoutes';
 import {createAuthRoutes} from './authRoutes';
+import {createDonationRoutes} from './donationRoutes';
 import {Pool} from "mysql2/promise";
 import {createTestRoutes} from "./testRoutes";
 
@@ -16,6 +17,7 @@ export function createRouter(pool: Pool): Router {
     router.use('/', createRankingMetadataRoutes(pool));
     router.use('/auth', createAuthRoutes(pool));
     router.use('/', createUserRoutes(pool));
+    router.use('/donations', createDonationRoutes(pool));
     router.use('/test', createTestRoutes())
 
     return router;

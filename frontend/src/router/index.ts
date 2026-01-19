@@ -11,6 +11,9 @@ import ConfirmLogin from "../views/ConfirmLogin.vue";
 import PasswordResetRequest from "../views/PasswordResetRequest.vue";
 import PasswordResetConfirm from "../views/PasswordResetConfirm.vue";
 import Users from "../views/Users.vue";
+import Donate from "../views/Donate.vue";
+import DonateSuccess from "../views/DonateSuccess.vue";
+import DonateCancel from "../views/DonateCancel.vue";
 import AuthenticationHandler from "../services/AuthenticationHandler";
 
 const router = createRouter({
@@ -76,6 +79,21 @@ const router = createRouter({
             name: 'users',
             component: Users,
             meta: { requiresAdmin: true }
+        },
+        {
+            path: '/donate',
+            name: 'donate',
+            component: Donate
+        },
+        {
+            path: '/donate/success',
+            name: 'donate_success',
+            component: DonateSuccess
+        },
+        {
+            path: '/donate/cancel',
+            name: 'donate_cancel',
+            component: DonateCancel
         }
     ]
 })
