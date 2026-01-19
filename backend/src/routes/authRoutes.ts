@@ -6,6 +6,7 @@ import { AuthService } from '../services/AuthService';
 import { UserRepository } from '../repositories/UserRepository';
 import { RefreshTokenRepository } from '../repositories/RefreshTokenRepository';
 import { ArticleRepository } from '../repositories/ArticleRepository';
+import { RankingRepository } from '../repositories/RankingRepository';
 import { PasswordHashService } from '../services/PasswordHashService';
 import { TokenService } from '../services/TokenService';
 import { CaptchaService } from '../services/CaptchaService';
@@ -38,6 +39,7 @@ export function createAuthRoutes(pool: Pool) {
     );
 
     const articleRepository = new ArticleRepository(pool);
+    const rankingRepository = new RankingRepository(pool);
 
     const config = getConfig();
     const geminiService = new GeminiService(
@@ -53,7 +55,8 @@ export function createAuthRoutes(pool: Pool) {
     const adminController = new AdminController(
         userRepository,
         articleRepository,
-        geminiService
+        geminiService,
+        rankingRepository
     );
 
     // Create authentication middleware

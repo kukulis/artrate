@@ -96,28 +96,22 @@ export class GeminiService {
         }
     }
 
-    static parseGeminiResponse(responseText: string): Ranking[] {
-        const parsed = JSON.parse(responseText);
-
-        // Extract the actual response - could be in response.raw_text or response directly
-        let rankingData: Record<string, { rank: number; explanation: string }>;
-
-        if (parsed.response?.raw_text) {
-            // Response was wrapped due to markdown code fences - extract JSON
-            let jsonText = parsed.response.raw_text;
-
-            // Remove markdown code fences if present
-            const jsonMatch = jsonText.match(/```(?:json)?\s*([\s\S]*?)```/);
-            if (jsonMatch) {
-                jsonText = jsonMatch[1].trim();
-            }
-
-            rankingData = JSON.parse(jsonText);
-        } else if (parsed.response) {
-            rankingData = parsed.response;
-        } else {
-            rankingData = parsed;
+    static removeMarkdownFences(text: string): string {
+        let cleaned = text.trim();
+        const match = cleaned.match(/^```(?:json)?\s*([\s\S]*?)```$/);
+        if (match) {
+            cleaned = match[1].trim();
         }
+
+        return cleaned;
+    }
+
+    static parseGeminiResponse(responseText: string): Ranking[] {
+        // Remove markdown code fences if present
+        const jsonText = GeminiService.removeMarkdownFences(responseText);
+
+        // Parse JSON - throws if invalid
+        const rankingData: Record<string, { rank: number; explanation: string }> = JSON.parse(jsonText);
 
         // Convert to Ranking array
         const rankings: Ranking[] = [];

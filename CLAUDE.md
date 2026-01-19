@@ -132,6 +132,30 @@ describe('UserService', () => {
 - Keep repositories focused on data access, not business rules
 - Example: Instead of `activateUserAfterEmailConfirmation()`, use generic `update()` method that can update any user fields
 
+## Communication Rules
+
+**Data Format Clarity:**
+- When asked to write data to a file or return data from a function, **write only what is explicitly requested**
+- Do NOT add wrapper objects, metadata (timestamps, model info, etc.), or "helpful" extra fields unless explicitly asked
+- If unsure about the expected format, ask for clarification before implementing
+- Example: "Write the API response to a file" means write the raw response, not `{ timestamp: ..., model: ..., response: ... }`
+
+**No Speculative Code:**
+- **NEVER write code to handle "future cases" or "edge cases" without concrete test data proving they exist**
+- If you anticipate a potential issue, first create a test case with example data that demonstrates the problem
+- Code paths without corresponding test cases are speculative and add unnecessary complexity
+- Example: Don't add markdown fence stripping logic "just in case" - first show test data that contains markdown fences
+
+**Clarify Ambiguous Requirements:**
+- When a request can be interpreted multiple ways, ask for clarification before implementing
+- Especially important for: data formats, file structures, API response shapes, and output destinations
+- A quick clarifying question saves time compared to implementing the wrong thing and refactoring later
+
+**Test-First for New Code Paths:**
+- Before adding code to handle a new scenario, create a test case that fails without the new code
+- This ensures every code path is justified by actual test data
+- If you can't provide example data for a scenario, don't write code to handle it
+
 ## Development Commands
 
 ### Running the Application

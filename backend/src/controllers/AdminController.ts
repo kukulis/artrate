@@ -1,8 +1,11 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
+import { randomBytes } from 'crypto';
 import { UserRepository } from '../repositories/UserRepository';
 import { ArticleRepository } from '../repositories/ArticleRepository';
+import { RankingRepository } from '../repositories/RankingRepository';
 import { GeminiService } from '../services/GeminiService';
+import { GeminiPromptBuilder } from '../services/GeminiPromptBuilder';
 import { getLogger, wrapError } from '../logging';
 import { SafeUser } from '../entities/User';
 import { RankingHelper } from '../types/RankingHelper';
@@ -33,7 +36,8 @@ export class AdminController {
     constructor(
         private userRepository: UserRepository,
         private articleRepository: ArticleRepository,
-        private geminiService: GeminiService
+        private geminiService: GeminiService,
+        private rankingRepository: RankingRepository
     ) {}
 
     /**
@@ -129,27 +133,62 @@ export class AdminController {
                 return;
             }
 
-            // TODO: Implement actual AI evaluation based on helperType
-            // For now, return a placeholder response indicating the evaluation was triggered
+            const userId = (req as any).user?.userId;
+
             logger.info('AI ranking evaluation requested', {
                 articleId,
                 helperType,
-                adminId: (req as any).user?.userId
+                adminId: userId
             });
 
-            // Placeholder for AI evaluation result
-            const evaluationResult = {
+            // Build prompt using GeminiPromptBuilder
+            const builder = new GeminiPromptBuilder();
+            const instructions = `${GeminiPromptBuilder.JSON_FORMAT_INSTRUCTION}
+
+${GeminiPromptBuilder.QUESTIONS}`;
+
+            const prompt = builder.buildPrompt({
+                article: {
+                    title: article.title,
+                    content: article.content
+                },
+                questions: [],
+                instructions: instructions
+            });
+
+            // Call Gemini API
+            const response = await this.geminiService.generateContent(prompt);
+
+            // Parse response into rankings
+            const rankings = GeminiService.parseGeminiResponse(response.text);
+
+            // Set missing fields on each ranking
+            for (const ranking of rankings) {
+                ranking.setId(randomBytes(16).toString('hex'));
+                ranking.setUserId(userId);
+                ranking.setHelperType(RankingHelper.GEMINI.code);
+                ranking.setArticleId(articleId);
+            }
+
+            // Upsert rankings to database
+            await this.rankingRepository.upsertRankings(rankings);
+
+            logger.info('AI ranking evaluation completed', {
                 articleId,
                 helperType,
-                status: 'pending',
-                message: `AI evaluation with ${helperType} has been triggered for article ${articleId}`,
-                article: {
-                    id: article.id,
-                    title: article.title
-                }
-            };
+                rankingsCount: String(rankings.length)
+            });
 
-            res.json(evaluationResult);
+            res.json({
+                articleId,
+                helperType,
+                status: 'completed',
+                rankings: rankings.map(r => ({
+                    type: r.ranking_type,
+                    value: r.value,
+                    description: r.description
+                }))
+            });
         } catch (error) {
             logger.error('Error executing AI ranking evaluation', wrapError(error));
             res.status(500).json({

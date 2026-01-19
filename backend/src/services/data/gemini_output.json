@@ -1,25 +1,24 @@
+```json
 {
-    "timestamp": "2026-01-19T14:50:05.681Z",
-    "model": "gemini-2.0-flash-001",
-    "finishReason": "STOP",
-    "usageMetadata": {
-        "promptTokenCount": 1865,
-        "candidatesTokenCount": 296,
-        "totalTokenCount": 2161,
-        "promptTokensDetails": [
-            {
-                "modality": "TEXT",
-                "tokenCount": 1865
-            }
-        ],
-        "candidatesTokensDetails": [
-            {
-                "modality": "TEXT",
-                "tokenCount": 296
-            }
-        ]
+    "ACCURACY": {
+        "rank": 6,
+        "explanation": "Straipsnyje pateikiami teiginiai apie nuomonių burbulus ir jų įtaką visuomenei. Nors tai yra plačiai paplitęs reiškinys, straipsnyje nėra jokių konkrečių duomenų ar nuorodų į šaltinius, patvirtinančius šiuos teiginius. Todėl faktų tikslumas vertinamas vidutiniškai."
     },
-    "response": {
-        "raw_text": "```json\n{\n    \"ACCURACY\": {\n        \"rank\": 7,\n        \"explanation\": \"The article presents opinions and observations about online echo chambers and media manipulation, rather than specific, verifiable facts. The accuracy pertains more to the plausibility of the claims, which is moderate.\"\n    },\n    \"OBJECTIVITY\": {\n        \"rank\": 6,\n        \"explanation\": \"The article expresses opinions and perspectives on societal issues and media influence. While it attempts to present a balanced view, the subjective nature of the observations leans towards moderate objectivity.\"\n    },\n    \"QUALITY\": {\n        \"rank\": 7,\n        \"explanation\": \"The article is well-structured and easy to follow, with clear paragraphing and a logical flow of ideas. The language is accessible, and the style is consistent.\"\n    },\n    \"OFFENSIVE\": {\n        \"rank\": 10,\n        \"explanation\": \"The article avoids any language or content that could be considered offensive or marginalizing. It maintains a respectful and neutral tone throughout.\"\n    },\n    \"LOGICAL\": {\n        \"rank\": 7,\n        \"explanation\": \"The article presents a logical argument about the formation of echo chambers, media manipulation, and the need for objective article evaluation. The reasoning is generally sound, although some claims could benefit from more specific evidence.\"\n    }\n}\n```"
+    "OBJECTIVITY": {
+        "rank": 5,
+        "explanation": "Straipsnis išreiškia autoriaus nuomonę apie nuomonių burbulus ir jų įtaką visuomenei bei straipsnių vertinimą. Nors autorius pripažįsta, kad radikali pasaulėžiūra nebūtinai yra blogis, didžioji dalis teksto yra pagrįsta autoriaus subjektyviais pastebėjimais ir nuomone. Pateikiamos įvairios nuomonės, tačiau straipsnis linkęs į autoriaus poziciją."
+    },
+    "QUALITY": {
+        "rank": 7,
+        "explanation": "Straipsnio struktūra yra gana aiški, tekste naudojamas suprantamas žodynas. Stilius yra neformaliai publicistinis. Tekstas skaitomas lengvai, tačiau galėtų būti labiau struktūruotas, naudojant poskyrius ir aiškiau išdėstant argumentus."
+    },
+    "OFFENSIVE": {
+        "rank": 10,
+        "explanation": "Straipsnyje nėra jokios informacijos, kuri būtų puolanti ar marginalizuojanti atskirus žmones ar grupes. Bendras teksto tonas yra neutralus ir pagarbus."
+    },
+    "LOGICAL": {
+        "rank": 6,
+        "explanation": "Straipsnyje pateikiami argumentai dėl nuomonių burbulų įtakos ir straipsnių vertinimo. Argumentai nėra labai išsamūs ir kai kurie teiginiai yra pagrįsti labiau prielaidomis nei loginiu samprotavimu. Vis dėlto, bendras analizės lygis yra pakankamas, nors ir nėra labai išsamus."
     }
 }
+```

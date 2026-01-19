@@ -10,29 +10,77 @@ describe('GeminiService', () => {
 
         const expectedRankings : Ranking[] = [
             (new Ranking())
-                .setRankingType( 'ACCURACY')
-                .setValue(7)
-                .setDescription("The article presents opinions and observations about online echo chambers and media manipulation, rather than specific, verifiable facts. The accuracy pertains more to the plausibility of the claims, which is moderate."),
-            (new Ranking())
-                .setRankingType( 'OBJECTIVITY')
+                .setRankingType('ACCURACY')
                 .setValue(6)
-                .setDescription("The article expresses opinions and perspectives on societal issues and media influence. While it attempts to present a balanced view, the subjective nature of the observations leans towards moderate objectivity."),
+                .setDescription("Straipsnyje pateikiami teiginiai apie nuomonių burbulus ir jų įtaką visuomenei. Nors tai yra plačiai paplitęs reiškinys, straipsnyje nėra jokių konkrečių duomenų ar nuorodų į šaltinius, patvirtinančius šiuos teiginius. Todėl faktų tikslumas vertinamas vidutiniškai."),
             (new Ranking())
-                .setRankingType( 'QUALITY')
+                .setRankingType('OBJECTIVITY')
+                .setValue(5)
+                .setDescription("Straipsnis išreiškia autoriaus nuomonę apie nuomonių burbulus ir jų įtaką visuomenei bei straipsnių vertinimą. Nors autorius pripažįsta, kad radikali pasaulėžiūra nebūtinai yra blogis, didžioji dalis teksto yra pagrįsta autoriaus subjektyviais pastebėjimais ir nuomone. Pateikiamos įvairios nuomonės, tačiau straipsnis linkęs į autoriaus poziciją."),
+            (new Ranking())
+                .setRankingType('QUALITY')
                 .setValue(7)
-                .setDescription("The article is well-structured and easy to follow, with clear paragraphing and a logical flow of ideas. The language is accessible, and the style is consistent."),
+                .setDescription("Straipsnio struktūra yra gana aiški, tekste naudojamas suprantamas žodynas. Stilius yra neformaliai publicistinis. Tekstas skaitomas lengvai, tačiau galėtų būti labiau struktūruotas, naudojant poskyrius ir aiškiau išdėstant argumentus."),
             (new Ranking())
-                .setRankingType( 'OFFENSIVE')
+                .setRankingType('OFFENSIVE')
                 .setValue(10)
-                .setDescription("The article avoids any language or content that could be considered offensive or marginalizing. It maintains a respectful and neutral tone throughout."),
+                .setDescription("Straipsnyje nėra jokios informacijos, kuri būtų puolanti ar marginalizuojanti atskirus žmones ar grupes. Bendras teksto tonas yra neutralus ir pagarbus."),
             (new Ranking())
-                .setRankingType( 'LOGICAL')
-                .setValue(7)
-                .setDescription("The article presents a logical argument about the formation of echo chambers, media manipulation, and the need for objective article evaluation. The reasoning is generally sound, although some claims could benefit from more specific evidence."),
+                .setRankingType('LOGICAL')
+                .setValue(6)
+                .setDescription("Straipsnyje pateikiami argumentai dėl nuomonių burbulų įtakos ir straipsnių vertinimo. Argumentai nėra labai išsamūs ir kai kurie teiginiai yra pagrįsti labiau prielaidomis nei loginiu samprotavimu. Vis dėlto, bendras analizės lygis yra pakankamas, nors ir nėra labai išsamus."),
         ];
 
         const rankings = GeminiService.parseGeminiResponse(jsonData.toString());
 
         expect(rankings).toStrictEqual(expectedRankings)
+    })
+
+    it('extract gemini response from raw markdown format', () => {
+        // This is the format returned directly from geminiService.generateContent().text
+        const rawMarkdownResponse = `\`\`\`json
+{
+    "ACCURACY": { "rank": 8, "explanation": "Facts are accurate." },
+    "OBJECTIVITY": { "rank": 7, "explanation": "Mostly objective." }
+}
+\`\`\``;
+
+        const expectedRankings: Ranking[] = [
+            (new Ranking())
+                .setRankingType('ACCURACY')
+                .setValue(8)
+                .setDescription("Facts are accurate."),
+            (new Ranking())
+                .setRankingType('OBJECTIVITY')
+                .setValue(7)
+                .setDescription("Mostly objective."),
+        ];
+
+        const rankings = GeminiService.parseGeminiResponse(rawMarkdownResponse);
+
+        expect(rankings).toStrictEqual(expectedRankings);
+    })
+
+    it('extract gemini response from plain JSON format', () => {
+        // When Gemini returns clean JSON without markdown fences
+        const plainJsonResponse = `{
+    "ACCURACY": { "rank": 9, "explanation": "Very accurate." },
+    "QUALITY": { "rank": 6, "explanation": "Decent quality." }
+}`;
+
+        const expectedRankings: Ranking[] = [
+            (new Ranking())
+                .setRankingType('ACCURACY')
+                .setValue(9)
+                .setDescription("Very accurate."),
+            (new Ranking())
+                .setRankingType('QUALITY')
+                .setValue(6)
+                .setDescription("Decent quality."),
+        ];
+
+        const rankings = GeminiService.parseGeminiResponse(plainJsonResponse);
+
+        expect(rankings).toStrictEqual(expectedRankings);
     })
 })

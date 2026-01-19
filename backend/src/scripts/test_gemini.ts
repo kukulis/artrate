@@ -59,35 +59,18 @@ ${GeminiPromptBuilder.QUESTIONS}`;
     try {
         const response = await geminiService.generateContent(prompt);
 
-        console.log('\n--- RESPONSE ---');
+        // Print metadata to console
+        console.log('\n--- RESPONSE METADATA ---');
         console.log(`Finish reason: ${response.finishReason}`);
         if (response.usageMetadata) {
             console.log(`Tokens - Prompt: ${response.usageMetadata.promptTokenCount}, Response: ${response.usageMetadata.candidatesTokenCount}, Total: ${response.usageMetadata.totalTokenCount}`);
         }
-        console.log('\nResponse text:');
+        console.log('\n--- RESPONSE TEXT ---');
         console.log(response.text);
 
-        // Parse and write output to JSON file
+        // Write only the response text to file
         const outputPath = path.join(__dirname, 'gemini_output.json');
-
-        let parsedResponse;
-        try {
-            // Try to parse the response as JSON
-            parsedResponse = JSON.parse(response.text);
-        } catch {
-            // If parsing fails, wrap the text in an object
-            parsedResponse = { raw_text: response.text };
-        }
-
-        const output = {
-            timestamp: new Date().toISOString(),
-            model: config.gemini.model,
-            finishReason: response.finishReason,
-            usageMetadata: response.usageMetadata,
-            response: parsedResponse
-        };
-
-        fs.writeFileSync(outputPath, JSON.stringify(output, null, 4), 'utf-8');
+        fs.writeFileSync(outputPath, response.text, 'utf-8');
         console.log(`\nOutput written to: ${outputPath}`);
 
     } catch (error) {
