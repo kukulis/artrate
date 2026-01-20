@@ -27,11 +27,11 @@ export function createRankingRoutes(dbPool: Pool) {
 
     /**
      *  @route   GET /api/rankings
-     *  @access  Protected (controlled by AUTH_ENABLED config)
+     *  @access  Public
      */
-    router.get('/failing', authMiddleware, rankingController.getRankings2);
-    router.get('/', authMiddleware, rankingController.getRankings);
-    router.get('/:id', authMiddleware, rankingController.getRanking);
+    router.get('/failing', rankingController.getRankings2);
+    router.get('/', rankingController.getRankings);
+    router.get('/:id', rankingController.getRanking);
     router.post('/', authMiddleware, rankingController.addRanking);
     router.put('/upsert', authMiddleware, rankingController.upsertRankings);
     router.patch('/:id', authMiddleware, rankingController.updateRanking);
@@ -44,28 +44,28 @@ export function createRankingRoutes(dbPool: Pool) {
  * Create routes for ranking metadata (types and helpers)
  * These are typically mounted at /api level, not under /api/rankings
  */
-export function createRankingMetadataRoutes(dbPool: Pool) {
+export function createRankingMetadataRoutes(_dbPool: Pool) {
     const router = Router();
     const metadataController = new RankingMetadataController();
 
     // Create authentication middleware
-    const userRepository = new UserRepository(dbPool);
-    const tokenService = new TokenService();
-    const authMiddleware = authenticateToken(userRepository, tokenService);
+    // const userRepository = new UserRepository(dbPool);
+    // const tokenService = new TokenService();
+    // const authMiddleware = authenticateToken(userRepository, tokenService);
 
     /**
      *  @route   GET /api/ranking-types
      *  @desc    Get all available ranking types
-     *  @access  Protected (controlled by AUTH_ENABLED config)
+     *  @access  Public
      */
-    router.get('/ranking-types', authMiddleware, metadataController.getRankingTypes);
+    router.get('/ranking-types', metadataController.getRankingTypes);
 
     /**
      *  @route   GET /api/ranking-helpers
      *  @desc    Get all available ranking helpers
-     *  @access  Protected (controlled by AUTH_ENABLED config)
+     *  @access  Public
      */
-    router.get('/ranking-helpers', authMiddleware, metadataController.getRankingHelpers);
+    router.get('/ranking-helpers', metadataController.getRankingHelpers);
 
     return router;
 }

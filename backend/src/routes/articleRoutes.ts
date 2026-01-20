@@ -30,23 +30,23 @@ export function createArticleRoutes(dbPool: Pool) {
     /**
      * @route   GET /api/articles
      * @desc    Get all articles
-     * @access  Protected (controlled by AUTH_ENABLED config)
+     * @access  Public
      */
-    router.get('/', authMiddleware, articleController.getAllArticles);
+    router.get('/', articleController.getAllArticles);
 
     /**
      * @route   GET /api/articles/author/:authorId
      * @desc    Get articles by author ID
-     * @access  Protected (controlled by AUTH_ENABLED config)
+     * @access  Public
      */
-    router.get('/author/:authorId', authMiddleware, articleController.getArticlesByAuthorId);
+    router.get('/author/:authorId', articleController.getArticlesByAuthorId);
 
     /**
      * @route   GET /api/articles/:id
      * @desc    Get article by ID
-     * @access  Protected (controlled by AUTH_ENABLED config)
+     * @access  Public
      */
-    router.get('/:id', authMiddleware, articleController.getArticleById);
+    router.get('/:id', articleController.getArticleById);
 
     /**
      * @route   POST /api/articles

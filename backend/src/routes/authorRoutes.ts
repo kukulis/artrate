@@ -25,16 +25,16 @@ export function createAuthorRoutes(dbPool: Pool) {
     /**
      * @route   GET /api/authors
      * @desc    Get all authors (supports ?search=name query parameter)
-     * @access  Protected (controlled by AUTH_ENABLED config)
+     * @access  Public
      */
-    router.get('/', authMiddleware, authorController.getAuthors);
+    router.get('/', authorController.getAuthors);
 
     /**
      * @route   GET /api/authors/:id
      * @desc    Get author by ID
-     * @access  Protected (controlled by AUTH_ENABLED config)
+     * @access  Public
      */
-    router.get('/:id', authMiddleware, authorController.getAuthorById);
+    router.get('/:id', authorController.getAuthorById);
 
     /**
      * @route   POST /api/authors
