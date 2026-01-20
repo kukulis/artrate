@@ -139,7 +139,25 @@ export class ArticleRepository {
         const connection = await this.pool.getConnection();
         try {
             const [rows] = await connection.query<any[]>('SELECT 1 FROM articles WHERE id = ? LIMIT 1', [id]);
+
             return rows.length > 0;
+        } finally {
+            connection.release();
+        }
+    }
+
+    /**
+     * Get count of articles created by a user after a given date
+     */
+    async getAmountFromDate(userId: number, fromDate: Date): Promise<number> {
+        const connection = await this.pool.getConnection();
+        try {
+            const [rows] = await connection.query<any[]>(
+                'SELECT COUNT(*) as count FROM articles WHERE user_id = ? AND created_at > ?',
+                [userId, fromDate]
+            );
+
+            return rows[0].count;
         } finally {
             connection.release();
         }

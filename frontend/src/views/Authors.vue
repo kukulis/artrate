@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import AuthorService from '../services/AuthorService'
+import AuthenticationHandler from '../services/AuthenticationHandler'
 import type { Author } from '../types/author'
 import { formatDate } from '../utils/dateFormat'
 
@@ -9,6 +10,10 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const showForm = ref(false)
 const editingAuthor = ref<Author | null>(null)
+
+const currentUser = computed(() => AuthenticationHandler.getUser())
+const isLoggedIn = computed(() => currentUser.value !== null)
+const isAdmin = computed(() => currentUser.value?.role === 'admin' || currentUser.value?.role === 'super_admin')
 
 // Form fields
 const formName = ref('')
@@ -116,7 +121,7 @@ onMounted(() => {
     <div class="header">
       <h2>Authors</h2>
       <div class="header-actions">
-        <button @click="openCreateForm" class="btn-primary">
+        <button v-if="isLoggedIn" @click="openCreateForm" class="btn-primary">
           + New Author
         </button>
         <button @click="fetchAuthors" class="btn-refresh" :disabled="loading">
@@ -139,7 +144,7 @@ onMounted(() => {
     <!-- Empty State -->
     <div v-else-if="authors.length === 0" class="empty">
       <p>No authors found</p>
-      <button @click="openCreateForm" class="btn-primary">Create First Author</button>
+      <button v-if="isLoggedIn" @click="openCreateForm" class="btn-primary">Create First Author</button>
     </div>
 
     <!-- Authors List -->
@@ -156,8 +161,8 @@ onMounted(() => {
           </div>
         </div>
         <div class="author-actions">
-          <button @click="openEditForm(author)" class="btn-edit">Edit</button>
-          <button @click="deleteAuthor(author)" class="btn-delete">Delete</button>
+          <button v-if="isAdmin" @click="openEditForm(author)" class="btn-edit">Edit</button>
+          <button v-if="isAdmin" @click="deleteAuthor(author)" class="btn-delete">Delete</button>
         </div>
       </div>
     </div>

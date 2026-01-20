@@ -3,8 +3,10 @@ import {computed, onMounted, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import RankingService from '../services/RankingService'
 import UsersService from '../services/UsersService'
+import AuthorService from '../services/AuthorService'
 import type {RankingHelper, RankingType} from '../types/ranking'
 import type {User} from '../types/user'
+import type {Author} from '../types/author'
 import {formatDate} from '../utils/dateFormat'
 import ArticleService from "../services/ArticleService.ts";
 import AdminService from '../services/AdminService'
@@ -18,11 +20,27 @@ const articleId = ref<string>(route.params.article_id as string)
 const rankingsGroups = ref<RankingGroup[]>([])
 const rankingTypes = ref<RankingType[]>([])
 const rankingHelpers = ref<RankingHelper[]>([])
+const authors = ref<Author[]>([])
 const currentUser = ref<User | null>(null)
 const currentArticle = ref<Article | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
 const showForm = ref(false)
+const articleContentCollapsed = ref(false)
+const expandedRankings = ref<Set<string>>(new Set())
+
+const toggleRankingDetails = (rankingGroup: RankingGroup) => {
+    const key = rankingGroup.buildGroupKey()
+    if (expandedRankings.value.has(key)) {
+        expandedRankings.value.delete(key)
+    } else {
+        expandedRankings.value.add(key)
+    }
+}
+
+const isRankingExpanded = (rankingGroup: RankingGroup): boolean => {
+    return expandedRankings.value.has(rankingGroup.buildGroupKey())
+}
 
 // AI Ranking modal state
 const showAiRankingModal = ref(false)
@@ -67,9 +85,18 @@ const aiHelpers = computed(() => {
     return rankingHelpers.value.filter(helper => helper.code !== 'USER')
 })
 
+const isLoggedIn = computed(() => currentUser.value !== null)
+
 const isAdmin = computed(() => {
     return currentUser.value?.role === 'admin' || currentUser.value?.role === 'super_admin'
 })
+
+const canEditRanking = (rankingGroup: RankingGroup): boolean => {
+    if (!currentUser.value) return false
+    if (isAdmin.value) return true
+
+    return rankingGroup.userId === currentUser.value.id
+}
 
 const fetchRankingsGroups = async () => {
   loading.value = true
@@ -86,19 +113,27 @@ const fetchRankingsGroups = async () => {
 
 const fetchMetadata = async () => {
   try {
-    const [types, helpers, user, article] = await Promise.all([
+    const [types, helpers, user, article, authorsList] = await Promise.all([
       RankingService.getRankingTypes(1),
       RankingService.getRankingHelpers(),
       UsersService.getCurrentUser(),
-      ArticleService.getById(articleId.value)
+      ArticleService.getById(articleId.value),
+      AuthorService.getAll()
     ])
     rankingTypes.value = types
     rankingHelpers.value = helpers
     currentUser.value = user
     currentArticle.value = article
+    authors.value = authorsList
   } catch (err) {
     console.error('Error fetching metadata:', err)
   }
+}
+
+const getAuthorName = (authorId: string): string => {
+  const author = authors.value.find(a => a.id === authorId)
+
+  return author ? author.name : `Unknown (${authorId})`
 }
 
 const openCreateForm = () => {
@@ -253,10 +288,10 @@ onMounted(() => {
     <div class="header">
       <div class="header-title">
         <button @click="goBackToArticles" class="btn-back">← Back to Articles</button>
-        <h2>Rankings Groups for {{ articleTitle }}</h2>
+        <h2>Rankings</h2>
       </div>
       <div class="header-actions">
-        <button @click="openCreateForm" class="btn-primary">
+        <button v-if="isLoggedIn" @click="openCreateForm" class="btn-primary">
           + New Ranking
         </button>
         <button v-if="isAdmin" @click="openAiRankingModal" class="btn-ai-ranking">
@@ -265,6 +300,27 @@ onMounted(() => {
         <button @click="fetchRankingsGroups" class="btn-refresh" :disabled="loading">
           {{ loading ? 'Loading...' : 'Refresh' }}
         </button>
+      </div>
+    </div>
+
+    <!-- Article Details -->
+    <div v-if="currentArticle" class="article-details">
+      <div class="article-header">
+        <h3 class="article-title">{{ currentArticle.title }}</h3>
+        <button @click="articleContentCollapsed = !articleContentCollapsed" class="btn-collapse">
+          {{ articleContentCollapsed ? 'Show' : 'Hide' }}
+        </button>
+      </div>
+      <p class="article-meta">
+        <span class="author-name">By: {{ getAuthorName(currentArticle.author_id) }}</span>
+        <span v-if="currentArticle.created_at" class="date">
+          {{ formatDate(currentArticle.created_at) }}
+        </span>
+      </p>
+      <div v-if="!articleContentCollapsed" class="article-content">{{ currentArticle.content }}</div>
+      <div class="article-footer">
+        <span class="article-user">User: {{ currentArticle.user_id }}</span>
+        <span class="article-id">ID: {{ currentArticle.id }}</span>
       </div>
     </div>
 
@@ -288,18 +344,34 @@ onMounted(() => {
     <div v-else class="rankings-list">
       <div v-for="rankingGroup in rankingsGroups" :key="rankingGroup.buildGroupKey()" class="ranking-card">
         <div class="ranking-content">
+          <div class="ranking-header-row">
             <span class="meta-item">
               <strong>Helper:</strong> {{ getHelperName(rankingGroup.helperType) }}
             </span>
-          <span class="meta-item">
+            <span class="meta-item">
               <strong>User ID:</strong> {{ rankingGroup.userId }}
             </span>
+            <button @click="toggleRankingDetails(rankingGroup)" class="btn-expand">
+              {{ isRankingExpanded(rankingGroup) ? 'Hide' : 'Details' }}
+            </button>
+          </div>
           <p class="ranking-description">{{ rankingGroup.buildValuesRepresentation() }}</p>
           <p class="ranking-meta">{{ formatDate( rankingGroup.getDate() ) }}</p>
+
+          <!-- Expanded Details -->
+          <div v-if="isRankingExpanded(rankingGroup)" class="ranking-details">
+            <div v-for="(ranking, rankingType) in rankingGroup.rankings" :key="rankingType" class="ranking-detail-item">
+              <div class="detail-header">
+                <span class="detail-type">{{ rankingType }}</span>
+                <span class="detail-value">{{ ranking.value }}</span>
+              </div>
+              <p class="detail-description">{{ ranking.description || 'No description' }}</p>
+            </div>
+          </div>
         </div>
         <div class="ranking-actions">
-          <button @click="openEditForm(rankingGroup)" class="btn-edit">Edit</button>
-          <button @click="deleteRankingGroup(rankingGroup)" class="btn-delete">Delete</button>
+          <button v-if="canEditRanking(rankingGroup)" @click="openEditForm(rankingGroup)" class="btn-edit">Edit</button>
+          <button v-if="canEditRanking(rankingGroup)" @click="deleteRankingGroup(rankingGroup)" class="btn-delete">Delete</button>
         </div>
       </div>
     </div>
@@ -595,6 +667,80 @@ onMounted(() => {
 .meta-item {
     display: flex;
     gap: var(--spacing-xs);
+}
+
+.ranking-header-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-sm);
+}
+
+.btn-expand {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background-color: transparent;
+    color: var(--color-sepia-dark);
+    border: 1px solid var(--color-sepia);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-expand:hover {
+    background-color: var(--color-sepia);
+    color: var(--color-paper);
+}
+
+.ranking-details {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md);
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-paper-dark);
+    border-radius: var(--radius-sm);
+}
+
+.ranking-detail-item {
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--color-paper-dark);
+}
+
+.ranking-detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xs);
+}
+
+.detail-type {
+    font-family: var(--font-body);
+    font-weight: 700;
+    color: var(--color-ink);
+    font-size: 0.9rem;
+}
+
+.detail-value {
+    font-family: var(--font-body);
+    font-weight: 700;
+    color: var(--color-accent);
+    font-size: 1rem;
+}
+
+.detail-description {
+    font-family: var(--font-reading);
+    font-size: 0.85rem;
+    color: var(--color-ink-light);
+    line-height: 1.5;
+    margin: 0;
+    white-space: pre-wrap;
 }
 
 .ranking-actions {
@@ -983,5 +1129,84 @@ onMounted(() => {
     margin-bottom: var(--spacing-md);
     font-family: var(--font-body);
     font-size: 0.9rem;
+}
+
+/* Article Details Section */
+.article-details {
+    background: var(--color-paper-light);
+    border: 1px solid var(--color-paper-dark);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.article-details .article-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.article-details .article-title {
+    margin: 0;
+    font-family: var(--font-display);
+    color: var(--color-ink);
+    font-size: 1.5rem;
+}
+
+.btn-collapse {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background-color: transparent;
+    color: var(--color-sepia-dark);
+    border: 1px solid var(--color-sepia);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-collapse:hover {
+    background-color: var(--color-sepia);
+    color: var(--color-paper);
+}
+
+.article-details .article-meta {
+    display: flex;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    font-size: 0.85rem;
+    color: var(--color-ink-muted);
+    font-family: var(--font-body);
+}
+
+.article-details .author-name {
+    font-weight: 700;
+    font-style: italic;
+}
+
+.article-details .date {
+    color: var(--color-sepia);
+}
+
+.article-details .article-content {
+    font-family: var(--font-reading);
+    color: var(--color-ink);
+    line-height: 1.8;
+    white-space: pre-wrap;
+    margin-bottom: var(--spacing-md);
+}
+
+.article-details .article-footer {
+    font-size: 0.75rem;
+    color: var(--color-ink-muted);
+    font-family: var(--font-body);
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--color-paper-dark);
+    display: flex;
+    gap: var(--spacing-md);
 }
 </style>

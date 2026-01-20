@@ -8,6 +8,9 @@ import {getLogger, wrapError} from "../logging";
 
 const logger = getLogger();
 
+const CONTENT_MAX_LENGTH_USER = 10000;
+const CONTENT_MAX_LENGTH_ADMIN = 20000;
+
 export class ArticleController {
     private articleService: ArticleService;
     private articleRepository: ArticleRepository;
@@ -96,6 +99,31 @@ export class ArticleController {
             // Validate and parse request body with Zod
             const validatedData = CreateArticleSchema.parse(req.body);
 
+            // Check content length based on user role
+            const isAdmin = currentUser.role === 'admin' || currentUser.role === 'super_admin';
+
+            // Rate limiting: check articles created in last 24 hours (skip for admins)
+            if (!isAdmin) {
+                const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+                const recentArticlesCount = await this.articleRepository.getAmountFromDate(currentUser.id, twentyFourHoursAgo);
+
+                if (recentArticlesCount >= 5) {
+                    res.status(429).json({error: 'Too many articles created. Maximum 5 articles per 24 hours.'});
+
+                    return;
+                }
+            }
+
+            const maxLength = isAdmin ? CONTENT_MAX_LENGTH_ADMIN : CONTENT_MAX_LENGTH_USER;
+
+            if (validatedData.content && validatedData.content.length > maxLength) {
+                res.status(400).json({
+                    error: `Article content exceeds maximum length of ${maxLength} characters`
+                });
+
+                return;
+            }
+
             // Add user_id from authenticated user
             const articleData = {
                 ...validatedData,
@@ -134,8 +162,40 @@ export class ArticleController {
         try {
             const {id} = req.params;
 
+            // Get current authenticated user
+            const currentUser = await this.authenticationHandler.getUser(req);
+
+            // Check if article exists
+            const existingArticle = await this.articleRepository.findById(id);
+            if (!existingArticle) {
+                res.status(404).json({error: `Article with id ${id} not found`});
+
+                return;
+            }
+
+            // Authorization: user must be admin/super_admin OR own the article
+            const isAdmin = currentUser.role === 'admin' || currentUser.role === 'super_admin';
+            const isOwner = existingArticle.user_id === currentUser.id;
+
+            if (!isAdmin && !isOwner) {
+                res.status(403).json({error: 'You do not have permission to update this article'});
+
+                return;
+            }
+
             // Validate and parse request body with Zod
             const validatedData = UpdateArticleSchema.parse(req.body);
+
+            // Check content length based on user role
+            const maxLength = isAdmin ? CONTENT_MAX_LENGTH_ADMIN : CONTENT_MAX_LENGTH_USER;
+
+            if (validatedData.content && validatedData.content.length > maxLength) {
+                res.status(400).json({
+                    error: `Article content exceeds maximum length of ${maxLength} characters`
+                });
+
+                return;
+            }
 
             const updated = await this.articleService.updateArticle({
                 ...validatedData,
@@ -178,9 +238,31 @@ export class ArticleController {
         try {
             const {id} = req.params;
 
+            // Get current authenticated user
+            const currentUser = await this.authenticationHandler.getUser(req);
+
+            // Check if article exists
+            const existingArticle = await this.articleRepository.findById(id);
+            if (!existingArticle) {
+                res.status(404).json({error: `Article with id ${id} not found`});
+
+                return;
+            }
+
+            // Authorization: user must be admin/super_admin OR own the article
+            const isAdmin = currentUser.role === 'admin' || currentUser.role === 'super_admin';
+            const isOwner = existingArticle.user_id === currentUser.id;
+
+            if (!isAdmin && !isOwner) {
+                res.status(403).json({error: 'You do not have permission to delete this article'});
+
+                return;
+            }
+
             const success = await this.articleRepository.delete(id);
             if (!success) {
                 res.status(404).send({error: 'failed to delete'})
+
                 return;
             }
 

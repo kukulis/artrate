@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import ArticleService from '../services/ArticleService'
 import AuthorService from '../services/AuthorService'
+import AuthenticationHandler from '../services/AuthenticationHandler'
 import type { Article } from '../types/article'
 import type { Author } from '../types/author'
 import { formatDate } from '../utils/dateFormat'
@@ -12,6 +13,17 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const showForm = ref(false)
 const editingArticle = ref<Article | null>(null)
+
+const currentUser = computed(() => AuthenticationHandler.getUser())
+const isLoggedIn = computed(() => currentUser.value !== null)
+const isAdmin = computed(() => currentUser.value?.role === 'admin' || currentUser.value?.role === 'super_admin')
+
+const canEditArticle = (article: Article): boolean => {
+    if (!currentUser.value) return false
+    if (isAdmin.value) return true
+
+    return article.user_id === currentUser.value.id
+}
 
 // Form fields
 const formTitle = ref('')
@@ -134,7 +146,14 @@ const deleteArticle = async (article: Article) => {
 
 const getAuthorName = (authorId: string): string => {
   const author = authors.value.find(a => a.id === authorId)
+
   return author ? author.name : `Unknown (${authorId})`
+}
+
+const truncateContent = (content: string, maxLength: number = 200): string => {
+  if (content.length <= maxLength) return content
+
+  return content.substring(0, maxLength).trim() + '...'
 }
 
 onMounted(() => {
@@ -148,7 +167,7 @@ onMounted(() => {
     <div class="header">
       <h2>Articles</h2>
       <div class="header-actions">
-        <button @click="openCreateForm" class="btn-primary">
+        <button v-if="isLoggedIn" @click="openCreateForm" class="btn-primary">
           + New Article
         </button>
         <button @click="fetchArticles" class="btn-refresh" :disabled="loading">
@@ -171,35 +190,29 @@ onMounted(() => {
     <!-- Empty State -->
     <div v-else-if="articles.length === 0" class="empty">
       <p>No articles found</p>
-      <button @click="openCreateForm" class="btn-primary">Create First Article</button>
+      <button v-if="isLoggedIn" @click="openCreateForm" class="btn-primary">Create First Article</button>
     </div>
 
     <!-- Articles List -->
     <div v-else class="articles-list">
       <div v-for="article in articles" :key="article.id" class="article-card">
         <div class="article-content">
-          <h3>{{ article.title }}</h3>
+          <h3><router-link :to="`/articles/${article.id}/rankings-groups`" class="article-title-link">{{ article.title }}</router-link></h3>
           <p class="article-meta">
             <span class="author-name">By: {{ getAuthorName(article.author_id) }}</span>
             <span v-if="article.created_at" class="date">
               {{ formatDate(article.created_at) }}
             </span>
           </p>
-          <p class="article-text">{{ article.content }}</p>
+          <p class="article-text">{{ truncateContent(article.content) }}</p>
           <div class="article-footer">
+            <span class="article-user">User: {{ article.user_id }}</span>
             <span class="article-id">ID: {{ article.id }}</span>
           </div>
         </div>
         <div class="article-actions">
-          <!-- TODO to admin only -->
-<!--          <router-link :to="`/articles/${article.id}/rankings`" class="btn-rankings">-->
-<!--            Rankings-->
-<!--          </router-link>-->
-          <router-link :to="`/articles/${article.id}/rankings-groups`" class="btn-rankings">
-            Rankings groups
-          </router-link>
-          <button @click="openEditForm(article)" class="btn-edit">Edit</button>
-          <button @click="deleteArticle(article)" class="btn-delete">Delete</button>
+          <button v-if="canEditArticle(article)" @click="openEditForm(article)" class="btn-edit">Edit</button>
+          <button v-if="canEditArticle(article)" @click="deleteArticle(article)" class="btn-delete">Delete</button>
         </div>
       </div>
     </div>
@@ -270,6 +283,7 @@ onMounted(() => {
         </form>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -452,6 +466,10 @@ onMounted(() => {
     border-top: 1px solid var(--color-paper-dark);
 }
 
+.article-user {
+    margin-right: var(--spacing-md);
+}
+
 .article-id {
     font-family: monospace;
     font-size: 0.7rem;
@@ -462,6 +480,17 @@ onMounted(() => {
     gap: var(--spacing-sm);
     flex-shrink: 0;
     margin-left: var(--spacing-md);
+}
+
+.article-title-link {
+    color: var(--color-ink);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.article-title-link:hover {
+    color: var(--color-accent);
+    text-decoration: underline;
 }
 
 .btn-rankings {

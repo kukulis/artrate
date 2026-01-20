@@ -9,9 +9,17 @@ class UsersService {
      * Get the current authenticated user
      */
     async getCurrentUser(): Promise<UserResponse> {
-        const response = await apiClient.get<UserResponse>('/current-user')
+        try {
+            const response = await apiClient.get<UserResponse>('/current-user')
 
-        return response.data
+            return response.data
+        } catch (error) {
+            if ( error instanceof Error &&  error.response.status == 401) {
+                return null;
+            }
+            console.error('error fetching current user', error)
+            throw error
+        }
     }
 }
 

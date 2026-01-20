@@ -2,6 +2,7 @@ import {Request, Response} from 'express';
 import {AuthorRepository} from '../repositories/AuthorRepository';
 import {AuthorFilter, AuthorFilterHelpers} from "../types/AuthorFilter";
 import {Author, AuthorHelper} from "../entities";
+import {AuthenticationHandler} from "./AuthenticationHandler";
 import {randomBytes} from "crypto";
 import {getLogger, wrapError} from "../logging";
 
@@ -9,9 +10,11 @@ const logger = getLogger();
 
 export class AuthorController {
     private authorRepository: AuthorRepository;
+    private authenticationHandler: AuthenticationHandler;
 
-    constructor(authorRepository: AuthorRepository) {
+    constructor(authorRepository: AuthorRepository, authenticationHandler: AuthenticationHandler) {
         this.authorRepository = authorRepository;
+        this.authenticationHandler = authenticationHandler;
     }
 
     /**
@@ -65,6 +68,22 @@ export class AuthorController {
      */
     createAuthor = async (req: Request, res: Response): Promise<void> => {
         try {
+            // Get current authenticated user
+            const currentUser = await this.authenticationHandler.getUser(req);
+            const isAdmin = currentUser.role === 'admin' || currentUser.role === 'super_admin';
+
+            // Rate limiting: check authors created in last 24 hours (skip for admins)
+            if (!isAdmin) {
+                const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+                const recentAuthorsCount = await this.authorRepository.getAmountFromDate(currentUser.id, twentyFourHoursAgo);
+
+                if (recentAuthorsCount >= 5) {
+                    res.status(429).json({error: 'Too many authors created. Maximum 5 authors per 24 hours.'});
+
+                    return;
+                }
+            }
+
             let author = req.body as Author;
 
             author = AuthorHelper.validateAndFix(author)
@@ -76,6 +95,7 @@ export class AuthorController {
 
             // we will move it to the different class if needed
             author.id = randomBytes(16).toString('hex');
+            author.user_id = currentUser.id;
 
             await this.authorRepository.create(author)
             const created =  await this.authorRepository.find(AuthorFilterHelpers.byId(author.id))
@@ -113,6 +133,17 @@ export class AuthorController {
     updateAuthor = async (req: Request, res: Response): Promise<void> => {
         try {
             const {id} = req.params;
+
+            // Get current authenticated user and check admin role
+            const currentUser = await this.authenticationHandler.getUser(req);
+            const isAdmin = currentUser.role === 'admin' || currentUser.role === 'super_admin';
+
+            if (!isAdmin) {
+                res.status(403).json({error: 'Only administrators can update authors'});
+
+                return;
+            }
+
             let data = req.body as Author
             data.id = id
 
@@ -180,6 +211,17 @@ export class AuthorController {
     deleteAuthor = async (req: Request, res: Response): Promise<void> => {
         try {
             const {id} = req.params;
+
+            // Get current authenticated user and check admin role
+            const currentUser = await this.authenticationHandler.getUser(req);
+            const isAdmin = currentUser.role === 'admin' || currentUser.role === 'super_admin';
+
+            if (!isAdmin) {
+                res.status(403).json({error: 'Only administrators can delete authors'});
+
+                return;
+            }
+
             const deleted = await this.authorRepository.delete(id);
             if (deleted) {
                 res.status(204).send();

@@ -59,8 +59,8 @@ export class AuthorRepository {
     const connection = await this.pool.getConnection();
     try {
       await connection.query(
-        'INSERT INTO authors (id, name, description) VALUES (?, ?, ?)',
-        [data.id, data.name, data.description]
+        'INSERT INTO authors (id, name, description, user_id) VALUES (?, ?, ?, ?)',
+        [data.id, data.name, data.description, data.user_id ?? null]
       );
     } finally {
       connection.release();
@@ -109,22 +109,27 @@ export class AuthorRepository {
     const connection = await this.pool.getConnection();
     try {
       const [result] = await connection.query<any>('DELETE FROM authors WHERE id = ?', [id]);
+
       return result.affectedRows > 0;
     } finally {
       connection.release();
     }
   }
 
-  // /**
-  //  * Check if author exists
-  //  */
-  // async exists(id: string): Promise<boolean> {
-  //   const connection = await this.pool.getConnection();
-  //   try {
-  //     const [rows] = await connection.query<any[]>('SELECT 1 FROM authors WHERE id = ? LIMIT 1', [id]);
-  //     return rows.length > 0;
-  //   } finally {
-  //     connection.release();
-  //   }
-  // }
+  /**
+   * Get count of authors created by a user after a given date
+   */
+  async getAmountFromDate(userId: number, fromDate: Date): Promise<number> {
+    const connection = await this.pool.getConnection();
+    try {
+      const [rows] = await connection.query<any[]>(
+        'SELECT COUNT(*) as count FROM authors WHERE user_id = ? AND created_at > ?',
+        [userId, fromDate]
+      );
+
+      return rows[0].count;
+    } finally {
+      connection.release();
+    }
+  }
 }

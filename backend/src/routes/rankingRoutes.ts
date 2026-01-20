@@ -5,6 +5,7 @@ import {RankingRepository} from "../repositories/RankingRepository";
 import {UserRepository} from "../repositories/UserRepository";
 import {TokenService} from "../services/TokenService";
 import {authenticateToken} from "../middleware/authMiddleware";
+import {AuthenticationHandler} from "../controllers/AuthenticationHandler";
 import { Pool } from 'mysql2/promise';
 import {RandomIdGenerator} from "../services/RandomIdGenerator";
 import {RankingValidator} from "../services/RankingValidator";
@@ -16,13 +17,14 @@ import {RankingValidator} from "../services/RankingValidator";
 export function createRankingRoutes(dbPool: Pool) {
     const router = Router();
     const rankingRepository = new RankingRepository(dbPool)
-    const idGenerator = new RandomIdGenerator()
-    const rankingValidator = new RankingValidator(rankingRepository)
-    const rankingController = new RankingController(rankingRepository, idGenerator, rankingValidator)
-
-    // Create authentication middleware
     const userRepository = new UserRepository(dbPool);
     const tokenService = new TokenService();
+    const idGenerator = new RandomIdGenerator()
+    const rankingValidator = new RankingValidator(rankingRepository)
+    const authenticationHandler = new AuthenticationHandler(userRepository, tokenService)
+    const rankingController = new RankingController(rankingRepository, idGenerator, rankingValidator, authenticationHandler)
+
+    // Create authentication middleware
     const authMiddleware = authenticateToken(userRepository, tokenService);
 
     /**

@@ -4,6 +4,7 @@ import { AuthorController } from '../controllers/AuthorController';
 import { UserRepository } from '../repositories/UserRepository';
 import { TokenService } from '../services/TokenService';
 import { authenticateToken } from '../middleware/authMiddleware';
+import { AuthenticationHandler } from '../controllers/AuthenticationHandler';
 import { Pool } from 'mysql2/promise';
 
 /**
@@ -15,11 +16,12 @@ export function createAuthorRoutes(dbPool: Pool) {
 
     // Dependency injection: wire dependencies together
     const authorRepository = new AuthorRepository(dbPool);
-    const authorController = new AuthorController(authorRepository);
-
-    // Create authentication middleware
     const userRepository = new UserRepository(dbPool);
     const tokenService = new TokenService();
+    const authenticationHandler = new AuthenticationHandler(userRepository, tokenService);
+    const authorController = new AuthorController(authorRepository, authenticationHandler);
+
+    // Create authentication middleware
     const authMiddleware = authenticateToken(userRepository, tokenService);
 
     /**

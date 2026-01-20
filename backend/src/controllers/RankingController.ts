@@ -5,6 +5,7 @@ import {RankingSchemaForInsert} from "../entities";
 import {ControllerHelper} from "./ControllerHelper";
 import {IdGenerator} from "../services/IdGenerator";
 import {RankingValidator} from "../services/RankingValidator";
+import {AuthenticationHandler} from "./AuthenticationHandler";
 import {z} from "zod";
 import {getLogger, wrapError} from "../logging";
 
@@ -14,6 +15,7 @@ export class RankingController {
     public constructor(private rankingRepository: RankingRepository,
                        private idGenerator: IdGenerator,
                        private rankingValidator: RankingValidator,
+                       private authenticationHandler: AuthenticationHandler,
     ) {
     }
 
@@ -112,10 +114,24 @@ export class RankingController {
         try {
             const {id} = req.params;
 
+            // Get current authenticated user
+            const currentUser = await this.authenticationHandler.getUser(req);
+
             // Check if ranking exists
             const existingRanking = await this.rankingRepository.findById(id);
             if (!existingRanking) {
                 res.status(404).json({error: 'Ranking not found'});
+
+                return;
+            }
+
+            // Authorization: user must be admin/super_admin OR own the ranking
+            const isAdmin = currentUser.role === 'admin' || currentUser.role === 'super_admin';
+            const isOwner = existingRanking.user_id === currentUser.id;
+
+            if (!isAdmin && !isOwner) {
+                res.status(403).json({error: 'You do not have permission to update this ranking'});
+
                 return;
             }
 
@@ -152,10 +168,24 @@ export class RankingController {
         try {
             const {id} = req.params;
 
+            // Get current authenticated user
+            const currentUser = await this.authenticationHandler.getUser(req);
+
             // Check if ranking exists first
             const existingRanking = await this.rankingRepository.findById(id);
             if (!existingRanking) {
                 res.status(404).json({error: 'Ranking not found'});
+
+                return;
+            }
+
+            // Authorization: user must be admin/super_admin OR own the ranking
+            const isAdmin = currentUser.role === 'admin' || currentUser.role === 'super_admin';
+            const isOwner = existingRanking.user_id === currentUser.id;
+
+            if (!isAdmin && !isOwner) {
+                res.status(403).json({error: 'You do not have permission to delete this ranking'});
+
                 return;
             }
 
@@ -179,9 +209,23 @@ export class RankingController {
 
     upsertRankings = async (req: Request, res: Response): Promise<void> => {
         try {
+            // Get current authenticated user
+            const currentUser = await this.authenticationHandler.getUser(req);
+            const isAdmin = currentUser.role === 'admin' || currentUser.role === 'super_admin';
+
             // Validate array of rankings
             const RankingsArraySchema = z.array(RankingSchemaForInsert);
             const rankings = RankingsArraySchema.parse(req.body);
+
+            // Authorization: user can only upsert rankings they own (unless admin)
+            if (!isAdmin) {
+                const unauthorizedRanking = rankings.find(r => r.user_id !== currentUser.id);
+                if (unauthorizedRanking) {
+                    res.status(403).json({error: 'You do not have permission to upsert rankings for other users'});
+
+                    return;
+                }
+            }
 
             // Generate IDs for each ranking
             rankings.forEach(ranking => {

@@ -69,7 +69,7 @@ apiClient.interceptors.response.use(
         }
 
         // Don't intercept auth endpoints - let them handle their own errors
-        const authEndpoints = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout']
+        const authEndpoints = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout', '/current-user']
         const isAuthEndpoint = authEndpoints.some(endpoint => originalRequest?.url?.includes(endpoint))
         if (isAuthEndpoint) {
             return Promise.reject(error)
