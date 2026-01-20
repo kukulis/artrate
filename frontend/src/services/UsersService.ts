@@ -1,4 +1,5 @@
 import apiClient from './api'
+import { AxiosError } from 'axios'
 import type { UserResponse } from '../types/api'
 
 /**
@@ -14,7 +15,7 @@ class UsersService {
 
             return response.data
         } catch (error) {
-            if ( error instanceof Error &&  error?.response?.status == 401) {
+            if (error instanceof AxiosError && error.response?.status === 401) {
                 return null;
             }
             console.error('error fetching current user', error)
