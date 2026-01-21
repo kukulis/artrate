@@ -32,7 +32,7 @@ import {RouterLink} from "vue-router";
   <hr/>
 
   <h3>
-    <RouterLink to="/donate" class="link">Parama per paysera sistemą</RouterLink>
+    <RouterLink to="/donate" class="link">Parama per paysera sistemą</RouterLink> (testuojama)
   </h3>
 </template>
 
