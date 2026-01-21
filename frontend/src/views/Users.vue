@@ -19,6 +19,12 @@ const isAdmin = computed(() => {
     return user?.role === 'admin' || user?.role === 'super_admin'
 })
 
+const isSuperAdmin = computed(() => {
+    const user = AuthenticationHandler.getUser()
+
+    return user?.role === 'super_admin'
+})
+
 const loadUsers = async () => {
     loading.value = true
     error.value = null
@@ -133,11 +139,8 @@ onMounted(() => {
                         <td>{{ user.name }}</td>
                         <td>{{ user.email }}</td>
                         <td>
-                            <span v-if="user.role === 'super_admin'" class="badge badge-super-admin">
-                                {{ user.role }}
-                            </span>
                             <select
-                                v-else
+                                v-if="isSuperAdmin && user.role !== 'super_admin'"
                                 class="role-select"
                                 :class="getRoleBadgeClass(user.role)"
                                 :value="user.role"
@@ -147,6 +150,9 @@ onMounted(() => {
                                 <option value="user">user</option>
                                 <option value="admin">admin</option>
                             </select>
+                            <span v-else class="badge" :class="getRoleBadgeClass(user.role)">
+                                {{ user.role }}
+                            </span>
                         </td>
                         <td>
                             <span class="status" :class="user.is_active ? 'status-active' : 'status-inactive'">
@@ -157,7 +163,7 @@ onMounted(() => {
                         <td>{{ formatDateTime(user.created_at) }}</td>
                         <td>
                             <button
-                                v-if="user.role !== 'super_admin'"
+                                v-if="user.role !== 'super_admin' && (isSuperAdmin || user.role === 'user')"
                                 @click="toggleUserStatus(user)"
                                 :disabled="actionLoading === user.id"
                                 :class="user.is_active ? 'btn-disable' : 'btn-enable'"

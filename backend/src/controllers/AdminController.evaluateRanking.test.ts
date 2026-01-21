@@ -136,7 +136,7 @@ describe('AdminController.evaluateRanking', () => {
             mockGeminiService.generateContent.mockRejectedValue(axiosError);
 
             // Act
-            await controller.evaluateRanking(
+            await controller.evaluateAIRanking(
                 mockRequest as Request,
                 mockResponse as Response
             );

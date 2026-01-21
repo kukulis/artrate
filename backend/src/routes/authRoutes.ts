@@ -108,7 +108,7 @@ export function createAuthRoutes(pool: Pool) {
         '/admin/rankings/evaluate',
         authMiddleware,
         requireAdmin,
-        adminController.evaluateRanking
+        adminController.evaluateAIRanking
     );
 
     return router;

@@ -98,7 +98,7 @@ export class AdminController {
      * POST /api/auth/admin/rankings/evaluate
      * Execute ranking evaluation with AI
      */
-    evaluateRanking = async (req: Request, res: Response): Promise<void> => {
+    evaluateAIRanking = async (req: Request, res: Response): Promise<void> => {
         try {
             // Validate request body
             const validationResult = EvaluateRankingSchema.safeParse(req.body);
@@ -241,10 +241,18 @@ ${GeminiPromptBuilder.QUESTIONS}`;
             }
 
 
-            if ( user?.role === 'super_admin') {
+            if (user?.role === 'super_admin') {
                 res.status(403).json({ error: 'Not allowed to disable this user' });
 
-                return
+                return;
+            }
+
+            // Admin cannot disable other admins
+            const currentUserRole = (req as any).user?.role;
+            if (currentUserRole === 'admin' && user?.role === 'admin') {
+                res.status(403).json({ error: 'Admin cannot disable other admins' });
+
+                return;
             }
 
             user.is_active = false;
@@ -276,13 +284,24 @@ ${GeminiPromptBuilder.QUESTIONS}`;
                 return;
             }
 
-            const user = await this.userRepository.updateActiveStatus(userId, true);
+            const user = await this.userRepository.findById(userId);
 
             if (!user) {
                 res.status(404).json({ error: 'User not found' });
 
                 return;
             }
+
+            // Admin cannot enable other admins
+            const currentUserRole = (req as any).user?.role;
+            if (currentUserRole === 'admin' && user.role === 'admin') {
+                res.status(403).json({ error: 'Admin cannot enable other admins' });
+
+                return;
+            }
+
+            await this.userRepository.updateActiveStatus(userId, true);
+            user.is_active = true;
 
             logger.info('User enabled', { userId: userId.toString(), adminId: (req as any).user?.userId });
             res.json({ message: 'User enabled successfully', user: toSafeUser(user) });
@@ -301,6 +320,14 @@ ${GeminiPromptBuilder.QUESTIONS}`;
      */
     updateUserRole = async (req: Request, res: Response): Promise<void> => {
         try {
+            // Only super_admin can update user roles
+            const currentUserRole = (req as any).user?.role;
+            if (currentUserRole !== 'super_admin') {
+                res.status(403).json({ error: 'Only super_admin can update user roles' });
+
+                return;
+            }
+
             const userId = parseInt(req.params.id);
 
             if (isNaN(userId)) {
@@ -308,7 +335,6 @@ ${GeminiPromptBuilder.QUESTIONS}`;
 
                 return;
             }
-
 
             // Validate request body
             const validationResult = UpdateRoleSchema.safeParse(req.body);
