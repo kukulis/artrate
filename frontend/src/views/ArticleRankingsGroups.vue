@@ -409,25 +409,29 @@ onMounted(() => {
             </button>
           </div>
           <p class="ranking-description">
-            <template v-for="(ranking, rankingType, index) in rankingGroup.rankings" :key="rankingType">
-              <span class="value-item">
-                <span class="value-type">{{ rankingType }}:</span>
-                <span class="value-number" :style="{ color: getValueColor(ranking.value) }">{{ ranking.value }}</span>
-              </span>
-              <span v-if="index < Object.keys(rankingGroup.rankings).length - 1" class="value-separator">; </span>
+            <template v-for="(rankingType, index) in rankingTypes" :key="rankingType.code">
+              <template v-if="rankingGroup.rankings[rankingType.code]">
+                <span class="value-item">
+                  <span class="value-type">{{ rankingType.code }}:</span>
+                  <span class="value-number" :style="{ color: getValueColor(rankingGroup.rankings[rankingType.code].value) }">{{ rankingGroup.rankings[rankingType.code].value }}</span>
+                </span>
+                <span v-if="index < rankingTypes.length - 1" class="value-separator">; </span>
+              </template>
             </template>
           </p>
           <p class="ranking-meta">{{ formatDate( rankingGroup.getDate() ) }}</p>
 
           <!-- Expanded Details -->
           <div v-if="isRankingExpanded(rankingGroup)" class="ranking-details">
-            <div v-for="(ranking, rankingType) in rankingGroup.rankings" :key="rankingType" class="ranking-detail-item">
-              <div class="detail-header">
-                <span class="detail-type">{{ rankingType }}</span>
-                <span class="detail-value" :style="{ color: getValueColor(ranking.value) }">{{ ranking.value }}</span>
+            <template v-for="rankingType in rankingTypes" :key="rankingType.code">
+              <div v-if="rankingGroup.rankings[rankingType.code]" class="ranking-detail-item">
+                <div class="detail-header">
+                  <span class="detail-type">{{ rankingType.code }}</span>
+                  <span class="detail-value" :style="{ color: getValueColor(rankingGroup.rankings[rankingType.code].value) }">{{ rankingGroup.rankings[rankingType.code].value }}</span>
+                </div>
+                <p class="detail-description">{{ rankingGroup.rankings[rankingType.code].description || 'No description' }}</p>
               </div>
-              <p class="detail-description">{{ ranking.description || 'No description' }}</p>
-            </div>
+            </template>
           </div>
         </div>
         <div class="ranking-actions">
