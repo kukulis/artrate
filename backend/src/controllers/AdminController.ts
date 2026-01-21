@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { randomBytes } from 'crypto';
+import axios from 'axios';
 import { UserRepository } from '../repositories/UserRepository';
 import { ArticleRepository } from '../repositories/ArticleRepository';
 import { RankingRepository } from '../repositories/RankingRepository';
@@ -191,6 +192,24 @@ ${GeminiPromptBuilder.QUESTIONS}`;
                 }))
             });
         } catch (error) {
+            // Handle rate limit (429) errors from Gemini API
+            if (axios.isAxiosError(error) && error.response?.status === 429) {
+                logger.warn('Gemini API rate limit exceeded', {
+                    status: String(error.response.status),
+                    statusText: error.response.statusText,
+                    message: error.message,
+                    data: JSON.stringify(error.response.data),
+                    headers: JSON.stringify(error.response.headers),
+                });
+
+                res.status(429).json({
+                    error: 'Rate limit exceeded',
+                    message: error.response.data?.error?.message || 'Too many requests to AI service',
+                });
+
+                return;
+            }
+
             logger.error('Error executing AI ranking evaluation', wrapError(error));
             res.status(500).json({
                 error: 'Failed to execute AI ranking evaluation',
