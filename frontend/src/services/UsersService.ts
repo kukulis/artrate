@@ -22,6 +22,23 @@ class UsersService {
             throw error
         }
     }
+
+    /**
+     * Get user name by ID (public endpoint)
+     */
+    async getUserNameById(id: number): Promise<{ id: number; name: string } | null> {
+        try {
+            const response = await apiClient.get<{ id: number; name: string }>(`/users/${id}/name`)
+
+            return response.data
+        } catch (error) {
+            if (error instanceof AxiosError && error.response?.status === 404) {
+                return null
+            }
+            console.error('error fetching user name', error)
+            throw error
+        }
+    }
 }
 
 // Export a singleton instance

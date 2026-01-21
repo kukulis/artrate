@@ -1,11 +1,15 @@
 import { Request, Response } from 'express';
 import { AuthenticationHandler } from './AuthenticationHandler';
+import { UserRepository } from '../repositories/UserRepository';
 import {getLogger, wrapError} from '../logging';
 
 const logger = getLogger()
 
 export class UsersController {
-    constructor(private authenticationHandler: AuthenticationHandler) {}
+    constructor(
+        private authenticationHandler: AuthenticationHandler,
+        private userRepository: UserRepository
+    ) {}
 
     /**
      * Get current authenticated user
@@ -29,6 +33,37 @@ export class UsersController {
             logger.error('Error getting current user', wrapError(error));
             res.status(500).json({
                 error: 'Failed to get current user',
+                message: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    }
+
+    /**
+     * Get user name by ID (public endpoint)
+     */
+    getUserNameById = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const userId = parseInt(req.params.id, 10);
+
+            if (isNaN(userId)) {
+                res.status(400).json({ error: 'Invalid user ID' });
+
+                return;
+            }
+
+            const user = await this.userRepository.findById(userId);
+
+            if (!user) {
+                res.status(404).json({ error: 'User not found' });
+
+                return;
+            }
+
+            res.json({ id: user.id, name: user.name });
+        } catch (error) {
+            logger.error('Error getting user name', wrapError(error));
+            res.status(500).json({
+                error: 'Failed to get user name',
                 message: error instanceof Error ? error.message : 'Unknown error'
             });
         }

@@ -21,6 +21,7 @@ const rankingsGroups = ref<RankingGroup[]>([])
 const rankingTypes = ref<RankingType[]>([])
 const rankingHelpers = ref<RankingHelper[]>([])
 const authors = ref<Author[]>([])
+const userNames = ref<Record<number, string>>({})
 const currentUser = ref<User | null>(null)
 const currentArticle = ref<Article | null>(null)
 const loading = ref(false)
@@ -119,11 +120,35 @@ const canEditRanking = (rankingGroup: RankingGroup): boolean => {
     return rankingGroup.userId === currentUser.value.id
 }
 
+const fetchUserNames = async (userIds: number[]) => {
+    const uniqueIds = [...new Set(userIds)].filter(id => !(id in userNames.value))
+    await Promise.all(
+        uniqueIds.map(async (id) => {
+            try {
+                const result = await UsersService.getUserNameById(id)
+                if (result) {
+                    userNames.value[id] = result.name
+                }
+            } catch (err) {
+                console.error(`Error fetching user name for ID ${id}:`, err)
+            }
+        })
+    )
+}
+
+const getUserDisplay = (userId: number): string => {
+    const name = userNames.value[userId]
+
+    return name ? `${name} (${userId})` : `User ${userId}`
+}
+
 const fetchRankingsGroups = async () => {
   loading.value = true
   error.value = null
   try {
     rankingsGroups.value = await RankingService.getRankingGroups(articleId.value)
+    const userIds = rankingsGroups.value.map(rg => rg.userId)
+    await fetchUserNames(userIds)
   } catch (err) {
     error.value = 'Failed to load rankings groups'
     console.error('Error fetching rankings groups:', err)
@@ -370,7 +395,7 @@ onMounted(() => {
               <strong>Helper:</strong> {{ getHelperName(rankingGroup.helperType) }}
             </span>
             <span class="meta-item">
-              <strong>User ID:</strong> {{ rankingGroup.userId }}
+              <strong>User:</strong> {{ getUserDisplay(rankingGroup.userId) }}
             </span>
             <button @click="toggleRankingDetails(rankingGroup)" class="btn-expand">
               {{ isRankingExpanded(rankingGroup) ? 'Hide' : 'Details' }}

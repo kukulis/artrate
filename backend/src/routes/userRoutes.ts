@@ -15,10 +15,17 @@ export function createUserRoutes(pool: Pool) {
     const userRepository = new UserRepository(pool);
     const tokenService = new TokenService();
     const authenticationHandler = new AuthenticationHandler(userRepository, tokenService);
-    const usersController = new UsersController(authenticationHandler);
+    const usersController = new UsersController(authenticationHandler, userRepository);
 
     // Create authentication middleware (checks AUTH_ENABLED internally)
     const authMiddleware = authenticateToken(userRepository, tokenService);
+
+    /**
+     * @route   GET /api/users/:id/name
+     * @desc    Get user name by ID
+     * @access  Public
+     */
+    router.get('/users/:id/name', usersController.getUserNameById);
 
     /**
      * @route   GET /api/current-user
