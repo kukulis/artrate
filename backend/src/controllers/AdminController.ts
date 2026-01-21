@@ -168,7 +168,7 @@ ${GeminiPromptBuilder.QUESTIONS}`;
                 ranking.setUserId(userId);
                 ranking.setHelperType(RankingHelper.GEMINI.code);
                 ranking.setArticleId(articleId);
-                ranking.setDescription(ranking.description.substring(0, 255))
+                ranking.setDescription(ranking.description.substring(0, 1024))
             }
 
             // Upsert rankings to database
