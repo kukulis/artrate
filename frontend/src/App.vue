@@ -6,6 +6,7 @@ import type { UserResponse } from './types/api'
 
 const route = useRoute()
 const currentUser = ref<UserResponse | null>(null)
+const mobileMenuOpen = ref(false)
 
 const isAdmin = computed(() => {
     return currentUser.value?.role === 'admin' || currentUser.value?.role === 'super_admin'
@@ -15,6 +16,14 @@ const checkAuthState = () => {
     currentUser.value = AuthenticationHandler.getUser()
 }
 
+const toggleMobileMenu = () => {
+    mobileMenuOpen.value = !mobileMenuOpen.value
+}
+
+const closeMobileMenu = () => {
+    mobileMenuOpen.value = false
+}
+
 onMounted(() => {
     checkAuthState()
 })
@@ -22,6 +31,7 @@ onMounted(() => {
 // Re-check auth state on route changes (e.g., after login/logout)
 watch(() => route.path, () => {
     checkAuthState()
+    closeMobileMenu()
 })
 
 const currentDate = new Date().toLocaleDateString('en-US', {
@@ -49,24 +59,27 @@ const currentDate = new Date().toLocaleDateString('en-US', {
                 <div class="decorative-line"></div>
             </div>
 
-            <nav>
-                <RouterLink to="/">Home</RouterLink>
+            <button class="mobile-menu-btn" @click="toggleMobileMenu" aria-label="Toggle menu">
+                <span class="hamburger" :class="{ open: mobileMenuOpen }"></span>
+            </button>
+
+            <nav :class="{ 'nav-open': mobileMenuOpen }">
+                <RouterLink to="/" @click="closeMobileMenu">Home</RouterLink>
                 <span class="nav-divider">|</span>
-                <RouterLink to="/articles">Articles</RouterLink>
+                <RouterLink to="/articles" @click="closeMobileMenu">Articles</RouterLink>
                 <span class="nav-divider">|</span>
-                <RouterLink to="/authors">Authors</RouterLink>
+                <RouterLink to="/authors" @click="closeMobileMenu">Authors</RouterLink>
                 <template v-if="isAdmin">
                     <span class="nav-divider">|</span>
-                    <RouterLink to="/users">Users</RouterLink>
+                    <RouterLink to="/users" @click="closeMobileMenu">Users</RouterLink>
                 </template>
-              <span class="nav-divider">|</span>
-              <RouterLink to="/sponsorship">Sponsorship</RouterLink>
-              <span class="nav-divider">|</span>
-              <RouterLink to="/about">About</RouterLink>
-              <span class="nav-divider">|</span>
-                <RouterLink v-if="currentUser" to="/logout">Logout</RouterLink>
-                <RouterLink v-else to="/login">Login</RouterLink>
-
+                <span class="nav-divider">|</span>
+                <RouterLink to="/sponsorship" @click="closeMobileMenu">Sponsorship</RouterLink>
+                <span class="nav-divider">|</span>
+                <RouterLink to="/about" @click="closeMobileMenu">About</RouterLink>
+                <span class="nav-divider">|</span>
+                <RouterLink v-if="currentUser" to="/logout" @click="closeMobileMenu">Logout</RouterLink>
+                <RouterLink v-else to="/login" @click="closeMobileMenu">Login</RouterLink>
             </nav>
         </header>
 
@@ -219,5 +232,146 @@ footer {
     color: var(--color-ink-muted);
     font-style: italic;
     margin-top: var(--spacing-md);
+}
+
+/* Mobile Menu Button */
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    padding: var(--spacing-sm);
+    cursor: pointer;
+    position: absolute;
+    right: var(--spacing-md);
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.hamburger {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background-color: var(--color-ink);
+    position: relative;
+    transition: background-color 0.2s;
+}
+
+.hamburger::before,
+.hamburger::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 2px;
+    background-color: var(--color-ink);
+    transition: transform 0.2s;
+}
+
+.hamburger::before {
+    top: -7px;
+}
+
+.hamburger::after {
+    top: 7px;
+}
+
+.hamburger.open {
+    background-color: transparent;
+}
+
+.hamburger.open::before {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger.open::after {
+    transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    header {
+        padding: var(--spacing-sm) var(--spacing-md);
+        position: relative;
+    }
+
+    .header-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+    }
+
+    .masthead {
+        padding: var(--spacing-sm) 0;
+    }
+
+    .masthead h1 {
+        font-size: 2rem;
+        letter-spacing: 0.05em;
+    }
+
+    .tagline {
+        font-size: 0.7rem;
+        letter-spacing: 0.1em;
+    }
+
+    .decorative-line {
+        max-width: 200px;
+    }
+
+    .mobile-menu-btn {
+        display: block;
+    }
+
+    nav {
+        display: none;
+        flex-direction: column;
+        gap: 0;
+        padding: 0;
+        margin-top: var(--spacing-sm);
+        border-top: 1px solid var(--color-paper-dark);
+    }
+
+    nav.nav-open {
+        display: flex;
+    }
+
+    nav a {
+        padding: var(--spacing-md);
+        border-bottom: 1px solid var(--color-paper-dark);
+        text-align: center;
+    }
+
+    nav a:last-child {
+        border-bottom: none;
+    }
+
+    .nav-divider {
+        display: none;
+    }
+
+    main {
+        padding: var(--spacing-md);
+    }
+
+    footer {
+        padding: var(--spacing-lg) var(--spacing-md);
+    }
+}
+
+@media (max-width: 480px) {
+    .masthead h1 {
+        font-size: 1.5rem;
+    }
+
+    .tagline {
+        font-size: 0.6rem;
+    }
+
+    .header-top .date {
+        font-size: 0.7rem;
+    }
+
+    .welcome {
+        font-size: 0.7rem;
+    }
 }
 </style>

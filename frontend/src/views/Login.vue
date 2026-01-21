@@ -321,4 +321,20 @@ input[type="password"]:disabled {
     color: var(--color-paper);
     text-decoration: none;
 }
+
+/* Mobile Responsive Styles */
+@media (max-width: 480px) {
+    .login-container {
+        margin: var(--spacing-md) auto;
+        padding: var(--spacing-md);
+    }
+
+    .form-container {
+        padding: var(--spacing-md);
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+}
 </style>

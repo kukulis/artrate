@@ -552,4 +552,25 @@ input[type="password"]:disabled {
     justify-content: center;
     margin: var(--spacing-md) 0;
 }
+
+/* Mobile Responsive Styles */
+@media (max-width: 480px) {
+    .register-container {
+        margin: var(--spacing-md) auto;
+        padding: var(--spacing-md);
+    }
+
+    .form-container {
+        padding: var(--spacing-md);
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .recaptcha-container {
+        transform: scale(0.9);
+        transform-origin: center;
+    }
+}
 </style>

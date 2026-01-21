@@ -707,4 +707,98 @@ onMounted(() => {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+    }
+
+    .header h2 {
+        font-size: 1.5rem;
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .btn-primary,
+    .btn-refresh {
+        font-size: 0.75rem;
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+
+    .article-card {
+        flex-direction: column;
+        padding: var(--spacing-md);
+    }
+
+    .article-content h3 {
+        font-size: 1.2rem;
+    }
+
+    .article-meta {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+
+    .article-text {
+        font-size: 0.9rem;
+    }
+
+    .article-actions {
+        margin-left: 0;
+        margin-top: var(--spacing-md);
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .modal {
+        width: 95%;
+        max-height: 95vh;
+        margin: var(--spacing-sm);
+    }
+
+    .modal-header {
+        padding: var(--spacing-md);
+    }
+
+    .modal-header h3 {
+        font-size: 1.2rem;
+    }
+
+    .modal-body {
+        padding: var(--spacing-md);
+    }
+
+    .modal-footer {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .modal-footer button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .article-footer {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+
+    .article-user {
+        margin-right: 0;
+    }
+
+    .btn-edit,
+    .btn-delete {
+        font-size: 0.65rem;
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+}
 </style>

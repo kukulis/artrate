@@ -388,4 +388,58 @@ button:disabled {
     font-size: 0.9rem;
     font-family: var(--font-body);
 }
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    .users-container {
+        padding: var(--spacing-sm);
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .users-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .users-table th,
+    .users-table td {
+        padding: var(--spacing-sm);
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+
+    .badge,
+    .role-select {
+        font-size: 0.6rem;
+        padding: 2px 4px;
+    }
+
+    .status {
+        font-size: 0.65rem;
+        padding: 2px 4px;
+    }
+
+    button {
+        font-size: 0.65rem;
+        padding: 4px 8px;
+    }
+
+    .table-footer {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .users-table th:nth-child(6),
+    .users-table td:nth-child(6),
+    .users-table th:nth-child(7),
+    .users-table td:nth-child(7) {
+        display: none;
+    }
+}
 </style>

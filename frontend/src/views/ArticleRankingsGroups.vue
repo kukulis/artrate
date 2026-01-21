@@ -1320,4 +1320,180 @@ onMounted(() => {
     display: flex;
     gap: var(--spacing-md);
 }
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    .rankings {
+        padding: var(--spacing-sm);
+    }
+
+    .header {
+        margin-bottom: var(--spacing-md);
+    }
+
+    .header-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+
+    .header-title h2 {
+        font-size: 1.3rem;
+    }
+
+    .btn-back {
+        font-size: 0.7rem;
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    .header-actions {
+        flex-wrap: wrap;
+        gap: var(--spacing-sm);
+    }
+
+    .header-actions button {
+        font-size: 0.7rem;
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    .article-details {
+        padding: var(--spacing-md);
+    }
+
+    .article-details .article-title {
+        font-size: 1.2rem;
+    }
+
+    .article-details .article-meta {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+
+    .article-details .article-footer {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+
+    .ranking-card {
+        flex-direction: column;
+        padding: var(--spacing-md);
+    }
+
+    .ranking-header-row {
+        flex-wrap: wrap;
+        gap: var(--spacing-sm);
+    }
+
+    .ranking-actions {
+        width: 100%;
+        justify-content: flex-end;
+        margin-top: var(--spacing-md);
+    }
+
+    .ranking-details {
+        padding: var(--spacing-sm);
+    }
+
+    .detail-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+    }
+
+    /* Modal responsive */
+    .modal-wide {
+        max-width: 100%;
+        width: 95%;
+        margin: var(--spacing-sm);
+    }
+
+    .modal-header {
+        padding: var(--spacing-md);
+    }
+
+    .modal-body {
+        padding: var(--spacing-sm);
+    }
+
+    .info-bar {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-sm);
+    }
+
+    /* Rankings table responsive */
+    .rankings-table {
+        overflow-x: auto;
+    }
+
+    .rankings-header {
+        display: none;
+    }
+
+    .ranking-row {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-md);
+        border-bottom: 2px solid var(--color-paper-dark);
+    }
+
+    .col-type {
+        border-bottom: 1px solid var(--color-paper-dark);
+        padding-bottom: var(--spacing-sm);
+    }
+
+    .col-value {
+        flex-direction: row;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+
+    .quick-select-links {
+        flex-wrap: wrap;
+    }
+
+    .compact-input {
+        width: 60px;
+    }
+
+    .col-description {
+        width: 100%;
+    }
+
+    .compact-textarea {
+        min-height: 60px;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+        padding-top: var(--spacing-md);
+    }
+
+    .modal-footer button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .meta-item {
+        font-size: 0.75rem;
+    }
+
+    .btn-expand {
+        font-size: 0.6rem;
+    }
+
+    .btn-edit,
+    .btn-delete {
+        font-size: 0.65rem;
+        padding: 4px 8px;
+    }
+
+    .value-type,
+    .value-number {
+        font-size: 0.8rem;
+    }
+}
 </style>
