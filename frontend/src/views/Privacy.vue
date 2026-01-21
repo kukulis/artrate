@@ -33,6 +33,7 @@ const changeLanguage = (lang: string) => {
       If you do not want to enter your name, you can use a nickname of your choice. Please do not use profanity; such
       accounts will be deactivated.
       The email address will not be displayed anywhere later, only the user number or their entered name or nickname.
+      Your password is stored in a hashed form in our database.
       <h2>How We Use Your Information</h2>
       We use the information we collect in various ways, including to: • Provide,
       operate, and maintain our website; • Improve, personalize, and expand our website; • Understand and analyze how
@@ -134,6 +135,7 @@ const changeLanguage = (lang: string) => {
       Jeigu nenorite vesti savo vardo, tai galite naudoti savo pasirinktą slapyvardį. Prašome nenaudoti keiksmažodžių;
       tokios paskirtys bus deaktyvuojamos.
       El. pašto adresas vėliau nebus niekur rodomas, o tik vartotojo numeris arba jo įvestas vardas arba slapyvardis.
+      Slaptažodis saugomas hešuotoj formoj mūsų duomenų bazėje ir techniškai negali būti panaudotas niekam kitam tik prisijungimui prie mūsų sistemos.
 
 
       <h2>Kaip naudojame jūsų informaciją</h2>

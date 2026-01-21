@@ -17,6 +17,7 @@ import DonateCancel from "../views/DonateCancel.vue";
 import AuthenticationHandler from "../services/AuthenticationHandler";
 import Privacy from "../views/Privacy.vue";
 import About from "../views/About.vue";
+import Sponsorship from "../views/Sponsorship.vue";
 
 const router = createRouter({
     history: createWebHistory(),
@@ -106,6 +107,11 @@ const router = createRouter({
             path: '/privacy',
             name: 'privacy',
             component: Privacy
+        },
+        {
+            path: '/sponsorship',
+            name: 'sponsorship',
+            component: Sponsorship
         },
     ]
 })

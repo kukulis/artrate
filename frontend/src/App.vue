@@ -60,6 +60,8 @@ const currentDate = new Date().toLocaleDateString('en-US', {
                     <RouterLink to="/users">Users</RouterLink>
                 </template>
               <span class="nav-divider">|</span>
+              <RouterLink to="/sponsorship">Sponsorship</RouterLink>
+              <span class="nav-divider">|</span>
               <RouterLink to="/about">About</RouterLink>
               <span class="nav-divider">|</span>
                 <RouterLink v-if="currentUser" to="/logout">Logout</RouterLink>
