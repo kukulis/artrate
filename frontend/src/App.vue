@@ -59,9 +59,12 @@ const currentDate = new Date().toLocaleDateString('en-US', {
                     <span class="nav-divider">|</span>
                     <RouterLink to="/users">Users</RouterLink>
                 </template>
-                <span class="nav-divider">|</span>
+              <span class="nav-divider">|</span>
+              <RouterLink to="/about">About</RouterLink>
+              <span class="nav-divider">|</span>
                 <RouterLink v-if="currentUser" to="/logout">Logout</RouterLink>
                 <RouterLink v-else to="/login">Login</RouterLink>
+
             </nav>
         </header>
 

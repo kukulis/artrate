@@ -15,6 +15,8 @@ import Donate from "../views/Donate.vue";
 import DonateSuccess from "../views/DonateSuccess.vue";
 import DonateCancel from "../views/DonateCancel.vue";
 import AuthenticationHandler from "../services/AuthenticationHandler";
+import Privacy from "../views/Privacy.vue";
+import About from "../views/About.vue";
 
 const router = createRouter({
     history: createWebHistory(),
@@ -94,7 +96,17 @@ const router = createRouter({
             path: '/donate/cancel',
             name: 'donate_cancel',
             component: DonateCancel
-        }
+        },
+        {
+            path: '/about',
+            name: 'about',
+            component: About
+        },
+        {
+            path: '/privacy',
+            name: 'privacy',
+            component: Privacy
+        },
     ]
 })
 
