@@ -4,9 +4,12 @@ import {RouterLink} from "vue-router";
 </script>
 
 <template>
-  <h1>About ArtCorrect</h1>
-  <h3> <RouterLink to="/privacy" class="link">Privacy politics</RouterLink></h3>
-
+  <div class="about">
+    <h1>About ArtCorrect</h1>
+    <h3>
+      <RouterLink to="/privacy" class="link">Privacy policy</RouterLink>
+    </h3>
+  </div>
 
 </template>
 
@@ -23,5 +26,13 @@ import {RouterLink} from "vue-router";
 .link:hover {
   background-color: var(--color-paper-dark);
   text-decoration: underline;
+}
+
+.about {
+  font-family: var(--font-body);
+  color: var(--color-ink-muted);
+  margin-bottom: var(--spacing-lg);
+  line-height: 1.5;
+  text-align: left;
 }
 </style>
