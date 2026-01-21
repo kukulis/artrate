@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker compose -f docker-compose.prod.yml run --rm frontend npm run build
+docker compose -f docker-compose.prod.yml run --rm --remove-orphans frontend npm run build
