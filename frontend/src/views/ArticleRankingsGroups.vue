@@ -279,6 +279,13 @@ const getHelperName = (code: string): string => {
   return helper ? helper.description : code
 }
 
+const getValueColor = (value: number): string => {
+    const clampedValue = Math.max(1, Math.min(10, value))
+    const hue = ((clampedValue - 1) / 9) * 120
+
+    return `hsl(${hue}, 70%, 40%)`
+}
+
 const goBackToArticles = () => {
   router.push('/articles')
 }
@@ -401,7 +408,15 @@ onMounted(() => {
               {{ isRankingExpanded(rankingGroup) ? 'Hide' : 'Details' }}
             </button>
           </div>
-          <p class="ranking-description">{{ rankingGroup.buildValuesRepresentation() }}</p>
+          <p class="ranking-description">
+            <template v-for="(ranking, rankingType, index) in rankingGroup.rankings" :key="rankingType">
+              <span class="value-item">
+                <span class="value-type">{{ rankingType }}:</span>
+                <span class="value-number" :style="{ color: getValueColor(ranking.value) }">{{ ranking.value }}</span>
+              </span>
+              <span v-if="index < Object.keys(rankingGroup.rankings).length - 1" class="value-separator">; </span>
+            </template>
+          </p>
           <p class="ranking-meta">{{ formatDate( rankingGroup.getDate() ) }}</p>
 
           <!-- Expanded Details -->
@@ -409,7 +424,7 @@ onMounted(() => {
             <div v-for="(ranking, rankingType) in rankingGroup.rankings" :key="rankingType" class="ranking-detail-item">
               <div class="detail-header">
                 <span class="detail-type">{{ rankingType }}</span>
-                <span class="detail-value">{{ ranking.value }}</span>
+                <span class="detail-value" :style="{ color: getValueColor(ranking.value) }">{{ ranking.value }}</span>
               </div>
               <p class="detail-description">{{ ranking.description || 'No description' }}</p>
             </div>
@@ -709,6 +724,22 @@ onMounted(() => {
     margin-bottom: var(--spacing-md);
 }
 
+.value-item {
+    display: inline;
+}
+
+.value-type {
+    color: var(--color-ink-light);
+}
+
+.value-number {
+    font-weight: 700;
+}
+
+.value-separator {
+    color: var(--color-ink-muted);
+}
+
 .ranking-meta {
     display: flex;
     flex-wrap: wrap;
@@ -785,7 +816,6 @@ onMounted(() => {
 .detail-value {
     font-family: var(--font-body);
     font-weight: 700;
-    color: var(--color-accent);
     font-size: 1rem;
 }
 
