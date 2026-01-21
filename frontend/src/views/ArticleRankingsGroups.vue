@@ -73,6 +73,27 @@ function extractFromValuesAndDescriptions(rankingGroup: RankingGroup) {
   }
 }
 
+const valueLabels: Record<number, string> = {
+    1: 'very bad',
+    2: 'bad',
+    3: 'very poor',
+    4: 'poor',
+    5: 'weak',
+    6: 'satisfying',
+    7: 'average',
+    8: 'good',
+    9: 'very good',
+    10: 'excellent'
+}
+
+const setQuickValue = (rankingTypeCode: string, value: number) => {
+    formValues.value[rankingTypeCode] = value
+    const currentDescription = formDescriptions.value[rankingTypeCode] || ''
+    if (currentDescription.length < 15) {
+        formDescriptions.value[rankingTypeCode] = valueLabels[value] || ''
+    }
+}
+
 
 const formError = ref<string | null>(null)
 const formLoading = ref(false)
@@ -410,6 +431,15 @@ onMounted(() => {
                 <small class="type-desc">{{ rankingType.description }}</small>
               </div>
               <div class="col-value">
+                <div class="quick-select-links">
+                  <a
+                      v-for="n in 10"
+                      :key="n"
+                      href="#"
+                      class="quick-select-link"
+                      @click.prevent="setQuickValue(rankingType.code, n)"
+                  >{{ n }}</a>
+                </div>
                 <input
                     v-model.number="formValues[rankingType.code]"
                     type="number"
@@ -1048,7 +1078,29 @@ onMounted(() => {
 
 .col-value {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+}
+
+.quick-select-links {
+    display: flex;
+    gap: 0;
+    white-space: nowrap;
+}
+
+.quick-select-link {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--color-sepia-dark);
+    text-decoration: none;
+    padding: 1px 2px;
+    transition: color 0.15s ease;
+}
+
+.quick-select-link:hover {
+    color: var(--color-accent);
 }
 
 .col-description {
